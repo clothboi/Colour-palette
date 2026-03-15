@@ -106,8 +106,8 @@ if (!ctx || !swatchLayer || !paletteList || !emptyState || !canvasStage || !canv
   return;
 }
 
-const PALETTE_MIN = 4;
-const PALETTE_MAX = 8;
+const PALETTE_MIN = 2;
+const PALETTE_MAX = 30;
 const SAMPLE_GRID = 72;
 
 function clamp(value, min, max) {
