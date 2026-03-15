@@ -63,6 +63,47 @@ function getPaletteMarkup() {
       <div data-role="recipe-content"></div>
     </div>
     <button class="recipe-export" type="button" data-action="recipe-export">Save recipe</button>
+  </div>
+
+  <div data-role="save-modal" class="save-modal hidden" aria-hidden="true">
+    <div class="save-modal-panel" role="dialog" aria-modal="true" aria-label="Save image options">
+      <div class="save-modal-head">
+        <div>
+          <p class="save-modal-kicker">Export study</p>
+          <h2>Save image</h2>
+        </div>
+        <button class="save-close" type="button" data-action="save-close" aria-label="Close save options">x</button>
+      </div>
+      <div data-role="save-content" class="save-modal-content">
+        <div class="save-controls">
+          <section class="save-control-group">
+            <span class="save-control-label">Style</span>
+            <div class="save-option-row">
+              <button class="save-option-button" type="button" data-save-style="current">Current</button>
+              <button class="save-option-button" type="button" data-save-style="strip">Strip</button>
+            </div>
+          </section>
+          <section class="save-control-group">
+            <span class="save-control-label">Size</span>
+            <div class="save-option-row save-option-row-sizes">
+              <button class="save-option-button" type="button" data-save-size="1000">1k</button>
+              <button class="save-option-button" type="button" data-save-size="2000">2k</button>
+              <button class="save-option-button" type="button" data-save-size="3000">3k</button>
+              <button class="save-option-button" type="button" data-save-size="4000">4k</button>
+            </div>
+          </section>
+          <label data-role="save-nodes-row" class="save-toggle">
+            <input data-role="save-strip-nodes" type="checkbox">
+            <span>Show nodes</span>
+          </label>
+        </div>
+        <div class="save-preview-shell">
+          <canvas data-role="save-preview-canvas" aria-label="Save preview"></canvas>
+          <p data-role="save-preview-empty" class="save-preview-empty" hidden></p>
+        </div>
+      </div>
+    </div>
+    <button class="save-export" type="button" data-action="save-export-image">Save image</button>
   </div>`;
 }
 
@@ -102,7 +143,17 @@ const recipeModal = root.querySelector('[data-role="recipe-modal"]');
 const recipeContent = root.querySelector('[data-role="recipe-content"]');
 const recipeClose = root.querySelector('[data-action="recipe-close"]');
 const recipeExport = root.querySelector('[data-action="recipe-export"]');
-if (!ctx || !swatchLayer || !paletteList || !emptyState || !canvasStage || !canvasWrap || !paletteMinus || !palettePlus || !paletteSizeLabel || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport) {
+const saveModal = root.querySelector('[data-role="save-modal"]');
+const saveContent = root.querySelector('[data-role="save-content"]');
+const savePreviewCanvas = root.querySelector('[data-role="save-preview-canvas"]');
+const savePreviewEmpty = root.querySelector('[data-role="save-preview-empty"]');
+const saveNodesRow = root.querySelector('[data-role="save-nodes-row"]');
+const saveStripNodes = root.querySelector('[data-role="save-strip-nodes"]');
+const saveClose = root.querySelector('[data-action="save-close"]');
+const saveExport = root.querySelector('[data-action="save-export-image"]');
+const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
+const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
+if (!ctx || !swatchLayer || !paletteList || !emptyState || !canvasStage || !canvasWrap || !paletteMinus || !palettePlus || !paletteSizeLabel || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
   return;
 }
 
@@ -116,6 +167,11 @@ const PALETTE_TWO_COLUMN_TARGET_MIN_HEIGHT = 34;
 const PALETTE_TWO_COLUMN_FLOOR_HEIGHT = 18;
 const SAMPLE_GRID = 72;
 const PERCENTAGE_SAMPLE_LONG_EDGE = 96;
+const EXPORT_LAYOUT_CURRENT = "current";
+const EXPORT_LAYOUT_STRIP = "strip";
+const EXPORT_DEFAULT_LONGEST_EDGE = 2000;
+const EXPORT_PREVIEW_LONGEST_EDGE = 1200;
+const EXPORT_SIZE_PRESETS = [1000, 2000, 3000, 4000];
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -207,6 +263,11 @@ const state = {
   sourceHeight: canvas.height,
   processedReferenceCanvas: null,
   paletteSize: DEFAULT_PALETTE_SIZE,
+  saveExport: {
+    layout: EXPORT_LAYOUT_CURRENT,
+    longestEdge: EXPORT_DEFAULT_LONGEST_EDGE,
+    stripNodes: false,
+  },
   dpr: window.devicePixelRatio || 1,
   scrollLockY: 0,
   hoveredColorId: null,
@@ -931,74 +992,242 @@ function updatePaletteLayoutMode() {
   paletteList.classList.toggle("single-column", layout === "single");
 }
 
+function drawExportSwatchNodes(context, imageX, imageY, imageWidth, imageHeight) {
+  state.colors.forEach((color) => {
+    const x = imageX + (color.x * imageWidth);
+    const y = imageY + (color.y * imageHeight);
+    context.beginPath();
+    context.arc(x, y, 18, 0, Math.PI * 2);
+    context.fillStyle = color.hex;
+    context.fill();
+    context.lineWidth = 2;
+    context.strokeStyle = "rgba(10, 10, 10, 0.9)";
+    context.stroke();
+    context.beginPath();
+    context.arc(x, y, 20, 0, Math.PI * 2);
+    context.lineWidth = 2;
+    context.strokeStyle = "rgba(255,255,255,0.26)";
+    context.stroke();
+  });
+}
 
-function exportStudyImage() {
-  if (!state.image || !state.colors.length) return;
+function drawExportPaletteLabel(context, options) {
+  const {
+    x,
+    y,
+    hex,
+    percent,
+    textColor = "#f2efe8",
+    labelFill = "rgba(42, 44, 48, 0.64)",
+  } = options;
+  context.font = '700 18px "Space Grotesk", sans-serif';
+  const hexWidth = context.measureText(hex).width;
+  context.font = '300 17px "Space Grotesk", sans-serif';
+  const percentLabel = formatPercent(percent);
+  const percentWidth = context.measureText(percentLabel).width;
+  const labelWidth = Math.max(132, Math.ceil(hexWidth + percentWidth + 28));
+  drawRoundedRect(context, x, y, labelWidth, 34, 10, labelFill);
+  context.fillStyle = textColor;
+  context.font = '700 18px "Space Grotesk", sans-serif';
+  context.fillText(hex, x + 12, y + 22);
+  context.font = '300 17px "Space Grotesk", sans-serif';
+  context.fillText(percentLabel, x + 12 + hexWidth + 10, y + 22);
+}
 
+function scaleCanvasToLongestEdge(sourceCanvas, longestEdge) {
+  const safeLongestEdge = Math.max(1, longestEdge || EXPORT_DEFAULT_LONGEST_EDGE);
+  const sourceLongestEdge = Math.max(sourceCanvas.width, sourceCanvas.height, 1);
+  if (sourceLongestEdge === safeLongestEdge) {
+    return sourceCanvas;
+  }
+  const scale = safeLongestEdge / sourceLongestEdge;
+  const scaledCanvas = document.createElement("canvas");
+  scaledCanvas.width = Math.max(1, Math.round(sourceCanvas.width * scale));
+  scaledCanvas.height = Math.max(1, Math.round(sourceCanvas.height * scale));
+  const scaledCtx = scaledCanvas.getContext("2d");
+  scaledCtx.imageSmoothingEnabled = true;
+  scaledCtx.imageSmoothingQuality = "high";
+  scaledCtx.drawImage(sourceCanvas, 0, 0, scaledCanvas.width, scaledCanvas.height);
+  return scaledCanvas;
+}
+
+function buildCurrentExportBaseCanvas() {
   const imageWidth = 1100;
   const imageHeight = Math.max(700, Math.round(imageWidth * (state.sourceHeight / Math.max(1, state.sourceWidth))));
   const paletteWidth = 320;
   const gap = 3;
+  const minCardHeight = 54;
+  const minPaletteHeight = (state.colors.length * minCardHeight) + (Math.max(0, state.colors.length - 1) * gap);
+  const paletteAreaHeight = Math.max(imageHeight, minPaletteHeight);
+  const paletteHeights = getScaledPaletteHeights(state.colors, paletteAreaHeight, gap, minCardHeight);
+  const exportHeight = Math.max(
+    imageHeight,
+    Math.round(paletteHeights.reduce((sum, value) => sum + value, 0) + (Math.max(0, paletteHeights.length - 1) * gap)),
+  );
   const exportCanvas = document.createElement("canvas");
   exportCanvas.width = imageWidth + paletteWidth;
-  exportCanvas.height = imageHeight;
+  exportCanvas.height = exportHeight;
   const exportCtx = exportCanvas.getContext("2d");
 
   exportCtx.fillStyle = "#111417";
   exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
   exportCtx.drawImage(canvas, 0, 0, imageWidth, imageHeight);
 
-  const paletteHeights = getScaledPaletteHeights(state.colors, imageHeight, gap, 54);
   let cardY = 0;
   state.colors.forEach((color, index) => {
-    const cardHeight = paletteHeights[index] || 54;
+    const cardHeight = paletteHeights[index] || minCardHeight;
     const cardX = imageWidth;
     exportCtx.fillStyle = color.hex;
     exportCtx.fillRect(cardX, cardY, paletteWidth, cardHeight);
-
     exportCtx.fillStyle = "rgba(255,255,255,0.08)";
     exportCtx.fillRect(cardX, cardY, paletteWidth, 1);
-
-    const textColor = "#f2efe8";
-    exportCtx.font = '700 18px "Space Grotesk", sans-serif';
-    const hexWidth = exportCtx.measureText(color.hex).width;
-    exportCtx.font = '300 17px "Space Grotesk", sans-serif';
-    const percentLabel = `${Math.round(color.percent)}%`;
-    const percentWidth = exportCtx.measureText(percentLabel).width;
-    const labelWidth = Math.max(132, Math.ceil(hexWidth + percentWidth + 28));
-    drawRoundedRect(exportCtx, cardX + 14, cardY + 12, labelWidth, 34, 10, "rgba(42, 44, 48, 0.64)");
-    exportCtx.fillStyle = textColor;
-    exportCtx.font = '700 18px "Space Grotesk", sans-serif';
-    exportCtx.fillText(color.hex, cardX + 26, cardY + 34);
-    exportCtx.font = '300 17px "Space Grotesk", sans-serif';
-    exportCtx.fillText(percentLabel, cardX + 26 + hexWidth + 10, cardY + 34);
-
+    drawExportPaletteLabel(exportCtx, {
+      x: cardX + 14,
+      y: cardY + 12,
+      hex: color.hex,
+      percent: color.percent,
+    });
     cardY += cardHeight + gap;
   });
 
-  const scaleX = imageWidth / Math.max(1, state.sourceWidth);
-  const scaleY = imageHeight / Math.max(1, state.sourceHeight);
-  state.swatches.forEach((swatch) => {
-    const x = swatch.targetX * scaleX;
-    const y = swatch.targetY * scaleY;
-    exportCtx.beginPath();
-    exportCtx.arc(x, y, 18, 0, Math.PI * 2);
-    exportCtx.fillStyle = swatch.color.hex;
-    exportCtx.fill();
-    exportCtx.lineWidth = 2;
-    exportCtx.strokeStyle = "rgba(10, 10, 10, 0.9)";
-    exportCtx.stroke();
-    exportCtx.beginPath();
-    exportCtx.arc(x, y, 20, 0, Math.PI * 2);
-    exportCtx.lineWidth = 2;
-    exportCtx.strokeStyle = "rgba(255,255,255,0.26)";
-    exportCtx.stroke();
+  drawExportSwatchNodes(exportCtx, 0, 0, imageWidth, imageHeight);
+  return exportCanvas;
+}
+
+function buildStripExportBaseCanvas(options) {
+  const showNodes = Boolean(options?.stripNodes);
+  const exportWidth = 1100;
+  const padding = 24;
+  const sectionGap = 14;
+  const cardGap = 10;
+  const cardHeight = 92;
+  const imageWidth = exportWidth - (padding * 2);
+  const imageHeight = Math.max(660, Math.round(imageWidth * (state.sourceHeight / Math.max(1, state.sourceWidth))));
+  const twoColumn = isTwoColumnPalette(state.colors.length);
+  const columnGap = 12;
+  const columnWidth = twoColumn ? Math.floor((imageWidth - columnGap) / 2) : imageWidth;
+  const columns = getPaletteColumns(state.colors, state.colors.length);
+  const tallestColumnCount = Math.max(...columns.map((column) => column.length), 0);
+  const paletteHeight = tallestColumnCount ? (tallestColumnCount * cardHeight) + ((tallestColumnCount - 1) * cardGap) : 0;
+  const exportHeight = padding + imageHeight + sectionGap + paletteHeight + padding;
+  const exportCanvas = document.createElement("canvas");
+  exportCanvas.width = exportWidth;
+  exportCanvas.height = exportHeight;
+  const exportCtx = exportCanvas.getContext("2d");
+
+  exportCtx.fillStyle = "#111417";
+  exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+  exportCtx.drawImage(canvas, padding, padding, imageWidth, imageHeight);
+
+  if (showNodes) {
+    drawExportSwatchNodes(exportCtx, padding, padding, imageWidth, imageHeight);
+  }
+
+  columns.forEach((columnColors, columnIndex) => {
+    const cardX = padding + (columnIndex * (columnWidth + columnGap));
+    columnColors.forEach((color, rowIndex) => {
+      const cardY = padding + imageHeight + sectionGap + (rowIndex * (cardHeight + cardGap));
+      const textColor = luminance(color.r, color.g, color.b) > 0.62 ? "#15171a" : "#f2efe8";
+      const pillFill = luminance(color.r, color.g, color.b) > 0.62 ? "rgba(17, 20, 23, 0.14)" : "rgba(17, 20, 23, 0.28)";
+      drawRoundedRect(exportCtx, cardX, cardY, columnWidth, cardHeight, 14, color.hex);
+      exportCtx.fillStyle = "rgba(255,255,255,0.08)";
+      exportCtx.fillRect(cardX, cardY, columnWidth, 1);
+      drawExportPaletteLabel(exportCtx, {
+        x: cardX + 12,
+        y: cardY + 12,
+        hex: color.hex,
+        percent: color.percent,
+        textColor,
+        labelFill: pillFill,
+      });
+    });
   });
 
+  return exportCanvas;
+}
+
+function buildExportCanvas(options = state.saveExport) {
+  const exportOptions = {
+    layout: options?.layout || EXPORT_LAYOUT_CURRENT,
+    longestEdge: options?.longestEdge || EXPORT_DEFAULT_LONGEST_EDGE,
+    stripNodes: Boolean(options?.stripNodes),
+  };
+  const baseCanvas = exportOptions.layout === EXPORT_LAYOUT_STRIP
+    ? buildStripExportBaseCanvas(exportOptions)
+    : buildCurrentExportBaseCanvas();
+  return scaleCanvasToLongestEdge(baseCanvas, exportOptions.longestEdge);
+}
+
+function downloadCanvas(canvasToDownload, filename) {
   const link = document.createElement("a");
-  link.href = exportCanvas.toDataURL("image/png");
-  link.download = `color-study-${Date.now()}.png`;
+  link.href = canvasToDownload.toDataURL("image/png");
+  link.download = `${filename}-${Date.now()}.png`;
   link.click();
+}
+
+function syncSaveModalControls() {
+  saveStyleButtons.forEach((button) => {
+    const active = button.dataset.saveStyle === state.saveExport.layout;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+  saveSizeButtons.forEach((button) => {
+    const active = Number(button.dataset.saveSize) === state.saveExport.longestEdge;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+  saveStripNodes.checked = state.saveExport.stripNodes;
+  saveNodesRow.hidden = state.saveExport.layout !== EXPORT_LAYOUT_STRIP;
+}
+
+function resetSaveExportState() {
+  state.saveExport.layout = EXPORT_LAYOUT_CURRENT;
+  state.saveExport.longestEdge = EXPORT_DEFAULT_LONGEST_EDGE;
+  state.saveExport.stripNodes = false;
+  syncSaveModalControls();
+}
+
+function renderSavePreview() {
+  if (!state.image || !state.colors.length) {
+    savePreviewCanvas.hidden = true;
+    savePreviewEmpty.hidden = false;
+    savePreviewEmpty.textContent = "Upload an image first to preview save options.";
+    return;
+  }
+
+  const exportCanvas = buildExportCanvas(state.saveExport);
+  const previewCanvas = scaleCanvasToLongestEdge(exportCanvas, EXPORT_PREVIEW_LONGEST_EDGE);
+  savePreviewCanvas.width = previewCanvas.width;
+  savePreviewCanvas.height = previewCanvas.height;
+  const previewCtx = savePreviewCanvas.getContext("2d");
+  previewCtx.clearRect(0, 0, savePreviewCanvas.width, savePreviewCanvas.height);
+  previewCtx.drawImage(previewCanvas, 0, 0, savePreviewCanvas.width, savePreviewCanvas.height);
+  savePreviewCanvas.hidden = false;
+  savePreviewEmpty.hidden = true;
+}
+
+function closeSaveModal() {
+  if (!saveModal) return;
+  saveModal.classList.add("hidden");
+  saveModal.setAttribute("aria-hidden", "true");
+}
+
+function openSaveModal() {
+  if (!state.image || !state.colors.length) {
+    showImportWarning("Save options", "Upload an image first to preview and save export layouts.");
+    return;
+  }
+  closeRecipeModal();
+  resetSaveExportState();
+  renderSavePreview();
+  saveModal.classList.remove("hidden");
+  saveModal.setAttribute("aria-hidden", "false");
+}
+
+function exportConfiguredImage() {
+  if (!state.image || !state.colors.length) return;
+  const exportCanvas = buildExportCanvas(state.saveExport);
+  downloadCanvas(exportCanvas, "color-study");
 }
 
 function startPaletteDrag(event, id) {
@@ -1374,6 +1603,7 @@ function endDrag() {
 }
 
 function initializePalette() {
+  closeSaveModal();
   state.colors = extractPalette(state.image, state.paletteSize);
   state.recipe = [];
   updatePaletteLayoutMode();
@@ -1479,7 +1709,7 @@ if (recipeExport) {
   recipeExport.addEventListener("click", exportRecipeImage);
 }
 if (imageExportButton) {
-  imageExportButton.addEventListener("click", exportStudyImage);
+  imageExportButton.addEventListener("click", openSaveModal);
 }
 if (recipeClose) {
   recipeClose.addEventListener("click", closeRecipeModal);
@@ -1489,6 +1719,39 @@ if (recipeModal) {
     if (event.target === recipeModal) closeRecipeModal();
   });
 }
+if (saveClose) {
+  saveClose.addEventListener("click", closeSaveModal);
+}
+if (saveModal) {
+  saveModal.addEventListener("click", (event) => {
+    if (event.target === saveModal) closeSaveModal();
+  });
+}
+saveStyleButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    state.saveExport.layout = button.dataset.saveStyle === EXPORT_LAYOUT_STRIP ? EXPORT_LAYOUT_STRIP : EXPORT_LAYOUT_CURRENT;
+    if (state.saveExport.layout !== EXPORT_LAYOUT_STRIP) {
+      state.saveExport.stripNodes = false;
+    }
+    syncSaveModalControls();
+    renderSavePreview();
+  });
+});
+saveSizeButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const requestedSize = Number(button.dataset.saveSize);
+    if (!EXPORT_SIZE_PRESETS.includes(requestedSize)) return;
+    state.saveExport.longestEdge = requestedSize;
+    syncSaveModalControls();
+    renderSavePreview();
+  });
+});
+saveStripNodes.addEventListener("change", () => {
+  state.saveExport.stripNodes = Boolean(saveStripNodes.checked);
+  syncSaveModalControls();
+  renderSavePreview();
+});
+saveExport.addEventListener("click", exportConfiguredImage);
 window.addEventListener("resize", () => {
   if (!state.image) return;
   refreshStageSize();
@@ -1498,9 +1761,13 @@ window.addEventListener("resize", () => {
     recalculatePercentages();
     renderPalette();
     syncSwatchTargetsFromColors();
+    if (!saveModal.classList.contains("hidden")) {
+      renderSavePreview();
+    }
   });
 });
 updatePaletteLabel();
+syncSaveModalControls();
 }
 
 function boot() {

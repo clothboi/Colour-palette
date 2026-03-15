@@ -81,6 +81,8 @@
 .webflow-palette-embed .palette-panel,
 .webflow-palette-embed .recipe-modal-panel,
 .webflow-palette-embed .recipe-export,
+.webflow-palette-embed .save-modal-panel,
+.webflow-palette-embed .save-export,
 .webflow-palette-embed .import-warning,
 .webflow-palette-embed .empty-state-card {
   border: 1px solid var(--border);
@@ -195,7 +197,10 @@
 .webflow-palette-embed .recipe-button,
 .webflow-palette-embed .palette-button,
 .webflow-palette-embed .recipe-close,
-.webflow-palette-embed .recipe-export {
+.webflow-palette-embed .recipe-export,
+.webflow-palette-embed .save-close,
+.webflow-palette-embed .save-export,
+.webflow-palette-embed .save-option-button {
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.04);
   color: var(--text);
@@ -203,7 +208,8 @@
 }
 
 .webflow-palette-embed .recipe-button,
-.webflow-palette-embed .recipe-export {
+.webflow-palette-embed .recipe-export,
+.webflow-palette-embed .save-export {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -220,10 +226,16 @@
 .webflow-palette-embed .palette-button:hover,
 .webflow-palette-embed .recipe-close:hover,
 .webflow-palette-embed .recipe-export:hover,
+.webflow-palette-embed .save-close:hover,
+.webflow-palette-embed .save-export:hover,
+.webflow-palette-embed .save-option-button:hover,
 .webflow-palette-embed .recipe-button:focus-visible,
 .webflow-palette-embed .palette-button:focus-visible,
 .webflow-palette-embed .recipe-close:focus-visible,
-.webflow-palette-embed .recipe-export:focus-visible {
+.webflow-palette-embed .recipe-export:focus-visible,
+.webflow-palette-embed .save-close:focus-visible,
+.webflow-palette-embed .save-export:focus-visible,
+.webflow-palette-embed .save-option-button:focus-visible {
   transform: translateY(-1px);
   border-color: rgba(255, 255, 255, 0.22);
   background: rgba(255, 255, 255, 0.08);
@@ -249,7 +261,8 @@
 
 .webflow-palette-embed .import-warning.hidden,
 .webflow-palette-embed .empty-state.hidden,
-.webflow-palette-embed .recipe-modal.hidden {
+.webflow-palette-embed .recipe-modal.hidden,
+.webflow-palette-embed .save-modal.hidden {
   display: none;
 }
 
@@ -706,7 +719,8 @@
   line-height: 1.05;
 }
 
-.webflow-palette-embed .recipe-modal {
+.webflow-palette-embed .recipe-modal,
+.webflow-palette-embed .save-modal {
   position: fixed;
   inset: 0;
   z-index: 50;
@@ -716,23 +730,39 @@
   justify-content: center;
   gap: 12px;
   padding: 16px;
-  --recipe-modal-width: min(720px, calc(100% - 32px));
   background: rgba(8, 10, 12, 0.72);
   backdrop-filter: blur(16px);
 }
 
+.webflow-palette-embed .recipe-modal {
+  --recipe-modal-width: min(720px, calc(100% - 32px));
+}
+
+.webflow-palette-embed .save-modal {
+  --save-modal-width: min(860px, calc(100% - 32px));
+}
+
 .webflow-palette-embed .recipe-modal-panel {
+  width: var(--recipe-modal-width);
+}
+
+.webflow-palette-embed .recipe-modal-panel,
+.webflow-palette-embed .save-modal-panel {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: var(--recipe-modal-width);
-  max-height: min(82vh, 900px);
+  max-height: min(82vh, 960px);
   overflow: visible;
   padding: 16px;
   border-radius: 18px;
 }
 
-.webflow-palette-embed .recipe-modal-head {
+.webflow-palette-embed .save-modal-panel {
+  width: var(--save-modal-width);
+}
+
+.webflow-palette-embed .recipe-modal-head,
+.webflow-palette-embed .save-modal-head {
   display: flex;
   justify-content: space-between;
   align-items: start;
@@ -740,12 +770,19 @@
   margin-bottom: 12px;
 }
 
-.webflow-palette-embed .recipe-modal-head h2 {
+.webflow-palette-embed .recipe-modal-head h2,
+.webflow-palette-embed .save-modal-head h2 {
   margin: 4px 0 0;
   font-size: 1.08rem;
 }
 
-.webflow-palette-embed .recipe-close {
+.webflow-palette-embed .save-modal-kicker {
+  margin: 0;
+  color: var(--muted);
+}
+
+.webflow-palette-embed .recipe-close,
+.webflow-palette-embed .save-close {
   position: absolute;
   top: -46px;
   right: 0;
@@ -760,10 +797,119 @@
   width: var(--recipe-modal-width);
 }
 
+.webflow-palette-embed .save-export {
+  width: var(--save-modal-width);
+}
+
 .webflow-palette-embed [data-role="recipe-content"] {
   min-height: 0;
   overflow: auto;
   padding-right: 6px;
+}
+
+.webflow-palette-embed .save-modal-content {
+  display: grid;
+  gap: 16px;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+.webflow-palette-embed .save-controls {
+  display: grid;
+  gap: 12px;
+}
+
+.webflow-palette-embed .save-control-group,
+.webflow-palette-embed .save-toggle,
+.webflow-palette-embed .save-preview-shell {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+}
+
+.webflow-palette-embed .save-control-group {
+  display: grid;
+  gap: 9px;
+  padding: 12px;
+}
+
+.webflow-palette-embed .save-control-label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.webflow-palette-embed .save-option-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.webflow-palette-embed .save-option-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.webflow-palette-embed .save-option-row-sizes .save-option-button {
+  flex: 1 1 calc(25% - 6px);
+}
+
+.webflow-palette-embed .save-option-button.active,
+.webflow-palette-embed .save-option-button[aria-pressed="true"] {
+  border-color: rgba(158, 188, 223, 0.3);
+  background: rgba(158, 188, 223, 0.14);
+}
+
+.webflow-palette-embed .save-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
+.webflow-palette-embed .save-toggle span {
+  color: var(--muted-strong);
+  font-size: 0.88rem;
+}
+
+.webflow-palette-embed .save-toggle input {
+  margin: 0;
+  accent-color: #9ebcdf;
+}
+
+.webflow-palette-embed .save-preview-shell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 260px;
+  padding: 12px;
+  overflow: auto;
+}
+
+.webflow-palette-embed .save-preview-shell canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  background: #111417;
+}
+
+.webflow-palette-embed .save-preview-empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  text-align: center;
+  max-width: 28ch;
 }
 
 .webflow-palette-embed .recipe-stack {
@@ -871,9 +1017,14 @@
   }
 
   .webflow-palette-embed .recipe-button,
-  .webflow-palette-embed .recipe-export {
+  .webflow-palette-embed .recipe-export,
+  .webflow-palette-embed .save-export {
     width: 100%;
     min-height: 44px;
+  }
+
+  .webflow-palette-embed .save-option-row-sizes .save-option-button {
+    flex: 1 1 calc(50% - 4px);
   }
 
   .webflow-palette-embed .canvas-wrap {
