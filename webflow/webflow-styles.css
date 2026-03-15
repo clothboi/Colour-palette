@@ -723,9 +723,11 @@
 
 .webflow-palette-embed .recipe-modal-panel {
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: var(--recipe-modal-width);
   max-height: min(82vh, 900px);
-  overflow: auto;
+  overflow: visible;
   padding: 16px;
   border-radius: 18px;
 }
@@ -756,6 +758,12 @@
 
 .webflow-palette-embed .recipe-export {
   width: var(--recipe-modal-width);
+}
+
+.webflow-palette-embed [data-role="recipe-content"] {
+  min-height: 0;
+  overflow: auto;
+  padding-right: 6px;
 }
 
 .webflow-palette-embed .recipe-stack {
