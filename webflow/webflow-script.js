@@ -890,7 +890,7 @@ function createPaletteCard(color, height) {
   card.className = 'palette-card';
   if (state.hoveredColorId === color.id) card.classList.add('hovered');
   card.style.setProperty('--card-color', color.hex);
-  card.style.background = `linear-gradient(135deg, ${color.hex}, color-mix(in srgb, ${color.hex} 44%, #17191c))`;
+  card.style.background = `linear-gradient(135deg, ${color.hex}, color-mix(in srgb, ${color.hex} 58%, #17191c))`;
   card.style.height = `${height || 52}px`;
   const textColor = luminance(color.r, color.g, color.b) > 0.62 ? '#15171a' : '#f2efe8';
   card.style.color = textColor;
