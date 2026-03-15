@@ -91,6 +91,7 @@ const ctx = canvas.getContext("2d", { willReadFrequently: true });
 const swatchLayer = root.querySelector('[data-role="swatch-layer"]');
 const paletteList = root.querySelector('[data-role="palette-list"]');
 const emptyState = root.querySelector('[data-role="empty-state"]');
+const canvasStage = root.querySelector('.canvas-stage');
 const canvasWrap = root.querySelector('[data-role="canvas-wrap"]');
 const paletteMinus = root.querySelector('[data-action="palette-minus"]');
 const palettePlus = root.querySelector('[data-action="palette-plus"]');
@@ -101,7 +102,7 @@ const recipeModal = root.querySelector('[data-role="recipe-modal"]');
 const recipeContent = root.querySelector('[data-role="recipe-content"]');
 const recipeClose = root.querySelector('[data-action="recipe-close"]');
 const recipeExport = root.querySelector('[data-action="recipe-export"]');
-if (!ctx || !swatchLayer || !paletteList || !emptyState || !canvasWrap || !paletteMinus || !palettePlus || !paletteSizeLabel || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport) {
+if (!ctx || !swatchLayer || !paletteList || !emptyState || !canvasStage || !canvasWrap || !paletteMinus || !palettePlus || !paletteSizeLabel || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport) {
   return;
 }
 
@@ -964,13 +965,17 @@ function initializePalette() {
   state.colors = extractPalette(state.image, state.paletteSize);
   state.recipe = [];
   root.dataset.paletteHasImage = "true";
-  canvasWrap.style.setProperty("--image-ratio", `${state.image.width} / ${state.image.height}`);
-  drawProcessedImage();
-  recalculatePercentages();
-  renderRecipe();
-  renderPalette();
-  rebuildSwatches();
-  updatePaletteLabel();
+  const imageRatio = `${state.image.width} / ${state.image.height}`;
+  canvasStage.style.setProperty("--image-ratio", imageRatio);
+  canvasWrap.style.setProperty("--image-ratio", imageRatio);
+  requestAnimationFrame(() => {
+    drawProcessedImage();
+    recalculatePercentages();
+    renderRecipe();
+    renderPalette();
+    rebuildSwatches();
+    updatePaletteLabel();
+  });
 }
 
 function addPaletteColor() {
