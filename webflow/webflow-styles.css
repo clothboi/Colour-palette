@@ -36,26 +36,28 @@
 
 .webflow-palette-embed .app-shell {
   width: min(1440px, calc(100% - 12px));
-  height: calc(100vh - 12px);
-  height: calc(100dvh - 12px);
+  min-height: calc(100vh - 12px);
+  min-height: calc(100dvh - 12px);
   margin: 6px auto;
   padding: 6px;
 }
 
 .webflow-palette-embed .workspace {
   position: relative;
-  height: 100%;
+  min-height: calc(100vh - 24px);
+  min-height: calc(100dvh - 24px);
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(248px, 292px);
   gap: 8px;
+  align-items: stretch;
 }
 
 .webflow-palette-embed .canvas-stage {
   position: relative;
   min-width: 0;
-  min-height: 0;
-  height: 100%;
+  min-height: calc(100vh - 24px);
+  min-height: calc(100dvh - 24px);
 }
 
 .webflow-palette-embed .control-hud,
@@ -264,8 +266,8 @@
 .webflow-palette-embed .canvas-wrap {
   position: relative;
   overflow: hidden;
-  min-height: 0;
-  height: 100%;
+  min-height: calc(100vh - 24px);
+  min-height: calc(100dvh - 24px);
   border: 1px solid var(--border);
   border-radius: 24px;
   background:
@@ -369,7 +371,8 @@
 }
 
 .webflow-palette-embed .palette-panel {
-  height: 100%;
+  min-height: calc(100vh - 24px);
+  min-height: calc(100dvh - 24px);
   min-height: 0;
   display: grid;
   grid-template-rows: auto 1fr;
@@ -666,10 +669,12 @@
   .webflow-palette-embed .workspace {
     grid-template-columns: 1fr;
     gap: 8px;
+    min-height: auto;
   }
 
   .webflow-palette-embed .canvas-stage {
     min-height: 58dvh;
+    min-height: 58svh;
   }
 
   .webflow-palette-embed .control-hud,
@@ -718,11 +723,13 @@
 
   .webflow-palette-embed .canvas-wrap {
     min-height: 58dvh;
+    min-height: 58svh;
     border-radius: 20px;
   }
 
   .webflow-palette-embed .palette-panel {
     min-height: 44dvh;
+    min-height: 44svh;
     border-radius: 18px;
   }
 }
