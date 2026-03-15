@@ -115,6 +115,7 @@ const PALETTE_SINGLE_MIN_HEIGHT = 52;
 const PALETTE_TWO_COLUMN_TARGET_MIN_HEIGHT = 34;
 const PALETTE_TWO_COLUMN_FLOOR_HEIGHT = 18;
 const SAMPLE_GRID = 72;
+const PERCENTAGE_SAMPLE_LONG_EDGE = 96;
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -147,6 +148,10 @@ function luminance(r, g, b) {
 
 function colorDistance(a, b) {
   return Math.abs(a.r - b.r) + Math.abs(a.g - b.g) + Math.abs(a.b - b.b);
+}
+
+function labDistanceSquared(labA, labB) {
+  return ((labA.l - labB.l) ** 2) + ((labA.a - labB.a) ** 2) + ((labA.b - labB.b) ** 2);
 }
 
 function srgbToLinear(channel) {
@@ -200,6 +205,7 @@ const state = {
   animationFrame: null,
   sourceWidth: canvas.width,
   sourceHeight: canvas.height,
+  processedReferenceCanvas: null,
   paletteSize: DEFAULT_PALETTE_SIZE,
   dpr: window.devicePixelRatio || 1,
   scrollLockY: 0,
@@ -456,6 +462,7 @@ function renderDragLens(swatch) {
 function refreshStageSize() {
   if (!state.image) {
     root.dataset.paletteHasImage = "false";
+    state.processedReferenceCanvas = null;
     canvasStage.style.removeProperty("--image-ratio");
     canvasStage.style.removeProperty("--frame-width");
     canvasWrap.style.removeProperty("--image-ratio");
@@ -707,21 +714,29 @@ function extractPalette(image, paletteSize) {
 }
 function recalculatePercentages() {
   if (!state.colors.length) return;
+  const sourceCanvas = state.processedReferenceCanvas || canvas;
+  const longestEdge = Math.max(sourceCanvas.width || 0, sourceCanvas.height || 0, 1);
+  const sampleScale = Math.min(1, PERCENTAGE_SAMPLE_LONG_EDGE / longestEdge);
+  const sampleWidth = Math.max(1, Math.round((sourceCanvas.width || SAMPLE_GRID) * sampleScale));
+  const sampleHeight = Math.max(1, Math.round((sourceCanvas.height || SAMPLE_GRID) * sampleScale));
   const sampleCanvas = document.createElement("canvas");
+  sampleCanvas.width = sampleWidth;
+  sampleCanvas.height = sampleHeight;
   const sampleCtx = sampleCanvas.getContext("2d", { willReadFrequently: true });
-  sampleCanvas.width = SAMPLE_GRID;
-  sampleCanvas.height = SAMPLE_GRID;
-  sampleCtx.drawImage(canvas, 0, 0, SAMPLE_GRID, SAMPLE_GRID);
-  const { data } = sampleCtx.getImageData(0, 0, SAMPLE_GRID, SAMPLE_GRID);
+  sampleCtx.imageSmoothingEnabled = true;
+  sampleCtx.imageSmoothingQuality = "high";
+  sampleCtx.drawImage(sourceCanvas, 0, 0, sampleWidth, sampleHeight);
+  const { data } = sampleCtx.getImageData(0, 0, sampleWidth, sampleHeight);
+  const paletteLabs = state.colors.map((color) => rgbToLab(color));
   const counts = new Array(state.colors.length).fill(0);
   let total = 0;
   for (let i = 0; i < data.length; i += 4) {
     if (data[i + 3] < 180) continue;
-    const sample = { r: data[i], g: data[i + 1], b: data[i + 2] };
+    const sampleLab = rgbToLab({ r: data[i], g: data[i + 1], b: data[i + 2] });
     let bestIndex = 0;
     let bestDistance = Number.POSITIVE_INFINITY;
-    state.colors.forEach((color, index) => {
-      const distance = colorDistance(sample, color);
+    paletteLabs.forEach((paletteLab, index) => {
+      const distance = labDistanceSquared(sampleLab, paletteLab);
       if (distance < bestDistance) {
         bestDistance = distance;
         bestIndex = index;
@@ -775,12 +790,20 @@ function drawProcessedImage() {
     offsetX = (reducedWidth - drawWidth) / 2;
   }
   downscaleCtx.drawImage(state.image, offsetX, offsetY, drawWidth, drawHeight);
+  const processedCanvas = document.createElement("canvas");
+  processedCanvas.width = displayWidth;
+  processedCanvas.height = displayHeight;
+  const processedCtx = processedCanvas.getContext("2d", { willReadFrequently: true });
+  processedCtx.imageSmoothingEnabled = true;
+  processedCtx.imageSmoothingQuality = "high";
+  processedCtx.filter = `blur(${effectiveBlurValue}px) saturate(118%) contrast(104%)`;
+  processedCtx.drawImage(downscaleCanvas, 0, 0, displayWidth, displayHeight);
+  state.processedReferenceCanvas = processedCanvas;
   ctx.clearRect(0, 0, displayWidth, displayHeight);
   ctx.save();
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
-  ctx.filter = `blur(${effectiveBlurValue}px) saturate(118%) contrast(104%)`;
-  ctx.drawImage(downscaleCanvas, 0, 0, displayWidth, displayHeight);
+  ctx.drawImage(processedCanvas, 0, 0, displayWidth, displayHeight);
   ctx.restore();
   const imageData = ctx.getImageData(0, 0, displayWidth, displayHeight);
   for (let i = 0; i < imageData.data.length; i += 4) {
