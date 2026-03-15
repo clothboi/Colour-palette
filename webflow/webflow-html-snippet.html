@@ -1,0 +1,59 @@
+<div class="webflow-palette-embed" data-webflow-palette>
+  <main class="app-shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Color Study Tool</p>
+        <h1>Blur an image into a soft palette map.</h1>
+        <p class="lede">
+          Upload an image to reduce it into a dreamy field of color, then inspect the dominant tones with draggable swatch points and a live distribution panel.
+        </p>
+      </div>
+      <div class="hero-actions">
+        <button class="recipe-button" type="button" data-action="recipe">Paint Recipe</button>
+        <button class="recipe-button" type="button" data-action="export-image">Save Image</button>
+        <label class="upload-pill">
+          <span>Choose image</span>
+          <input data-role="image-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,image/heic,image/heif">
+        </label>
+      </div>
+    </section>
+
+    <section data-role="import-warning" class="import-warning hidden" aria-live="polite"></section>
+
+    <section class="controls">
+      <label>
+        <span>Blur intensity</span>
+        <input data-role="blur-range" type="range" min="0" max="40" value="40">
+      </label>
+    </section>
+
+    <section class="workspace">
+      <div class="canvas-wrap" data-role="canvas-wrap">
+        <canvas data-role="display-canvas" width="900" height="1350"></canvas>
+        <div data-role="swatch-layer" class="swatch-layer" aria-label="Color swatches"></div>
+        <div data-role="empty-state" class="empty-state">
+          <p>Drop in an image to generate a blurred color map.</p>
+        </div>
+      </div>
+      <div class="palette-panel">
+        <div class="palette-toolbar">
+          <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
+          <span data-role="palette-size-label" class="palette-size-label">Palette size 4</span>
+          <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
+        </div>
+        <div data-role="palette-list" class="palette-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <div data-role="recipe-modal" class="recipe-modal hidden" aria-hidden="true">
+    <div class="recipe-modal-panel" role="dialog" aria-modal="true" aria-label="Paint recipes">
+      <div class="recipe-modal-head">
+        <h2>Paint recipes</h2>
+        <button class="recipe-close" type="button" data-action="recipe-close" aria-label="Close paint recipes">x</button>
+      </div>
+      <div data-role="recipe-content"></div>
+    </div>
+    <button class="recipe-export" type="button" data-action="recipe-export">Save recipe</button>
+  </div>
+</div>

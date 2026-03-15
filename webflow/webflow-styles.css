@@ -1,0 +1,837 @@
+﻿.webflow-palette-embed {
+  --bg: #17191c;
+  --panel: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.14);
+  --text: #f6f2ea;
+  --muted: rgba(246, 242, 234, 0.7);
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  --accent: rgba(158, 188, 223, 0.9);
+}
+
+.webflow-palette-embed, .webflow-palette-embed * {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.webflow-palette-embed {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.webflow-palette-embed {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(122, 160, 208, 0.25), transparent 26%),
+    radial-gradient(circle at 80% 20%, rgba(145, 110, 157, 0.18), transparent 22%),
+    linear-gradient(160deg, #111315 0%, #1d1f22 55%, #141618 100%);
+}
+
+.webflow-palette-embed .app-shell {
+  width: min(1280px, calc(100% - 20px));
+  height: calc(100vh - 20px);
+  height: calc(100dvh - 20px);
+  margin: 10px auto;
+  padding: 16px;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: rgba(13, 15, 17, 0.82);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(24px);
+}
+
+.webflow-palette-embed .hero {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 12px;
+}
+
+.webflow-palette-embed .hero > div:first-child {
+  max-width: 68%;
+}
+
+.webflow-palette-embed .hero-actions {
+  display: flex;
+  gap: 8px;
+  align-self: end;
+  justify-self: end;
+  margin-bottom: 12px;
+}
+
+.webflow-palette-embed .eyebrow {
+  margin: 0 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.webflow-palette-embed h1 {
+  margin: 0;
+  max-width: 13ch;
+  font-size: clamp(1.6rem, 3vw, 3rem);
+  line-height: 0.95;
+}
+
+.webflow-palette-embed .lede {
+  margin: 8px 0 0;
+  max-width: 52ch;
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.webflow-palette-embed [data-role="image-input"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.webflow-palette-embed .upload-pill,
+.webflow-palette-embed .recipe-button,
+.webflow-palette-embed .palette-button {
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+  color: var(--text);
+}
+
+.webflow-palette-embed .upload-pill,
+.webflow-palette-embed .recipe-button {
+  flex-shrink: 0;
+  min-height: 48px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease;
+  font: inherit;
+}
+
+.webflow-palette-embed .upload-pill:hover,
+.webflow-palette-embed .recipe-button:hover,
+.webflow-palette-embed .palette-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.webflow-palette-embed .controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.webflow-palette-embed .controls label,
+.webflow-palette-embed .palette-panel,
+.webflow-palette-embed .canvas-wrap {
+  border: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.webflow-palette-embed .controls label {
+  display: grid;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 16px;
+}
+
+.webflow-palette-embed .controls span {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.webflow-palette-embed input[type="range"] {
+  width: 100%;
+  accent-color: #9ebcdf;
+}
+
+.webflow-palette-embed .workspace {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.85fr) minmax(290px, 0.82fr);
+  gap: 12px;
+}
+
+.webflow-palette-embed .canvas-wrap {
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+  height: 100%;
+  border-radius: 22px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.webflow-palette-embed canvas {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.webflow-palette-embed .canvas-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background-image:
+    radial-gradient(circle at 20% 18%, rgba(255,255,255,0.08), transparent 12%),
+    radial-gradient(circle at 76% 30%, rgba(255,255,255,0.05), transparent 16%);
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.webflow-palette-embed .empty-state {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  text-align: center;
+  color: rgba(246, 242, 234, 0.7);
+  background:
+    linear-gradient(160deg, rgba(255,255,255,0.04), transparent),
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.03) 0 2px, transparent 2px 10px);
+}
+
+.webflow-palette-embed .empty-state.hidden {
+  display: none;
+}
+
+.webflow-palette-embed .import-warning {
+  margin: 0 0 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(236, 193, 121, 0.28);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(236, 193, 121, 0.16), rgba(236, 193, 121, 0.06));
+  color: #efe4ce;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.webflow-palette-embed .import-warning.hidden {
+  display: none;
+}
+
+.webflow-palette-embed .import-warning strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.84rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.webflow-palette-embed .import-warning p {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: rgba(239, 228, 206, 0.9);
+}
+
+.webflow-palette-embed .swatch-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  touch-action: none;
+}
+
+.webflow-palette-embed .swatch {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  margin-left: -14px;
+  margin-top: -14px;
+  border-radius: 50%;
+  border: 1px solid rgba(10, 10, 10, 0.9);
+  background: var(--swatch-color);
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.26),
+    0 8px 22px rgba(0, 0, 0, 0.28);
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.webflow-palette-embed .swatch::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--swatch-color);
+}
+
+.webflow-palette-embed .swatch.active {
+  transform: scale(1.08);
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.38),
+    0 14px 28px rgba(0, 0, 0, 0.4);
+}
+
+.webflow-palette-embed .swatch.active {
+  cursor: grabbing;
+}
+
+.webflow-palette-embed .palette-panel {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 22px;
+}
+
+.webflow-palette-embed .palette-toolbar {
+  display: grid;
+  grid-template-columns: 42px 1fr 42px;
+  align-items: center;
+  gap: 8px;
+}
+.webflow-palette-embed .palette-button {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 1.35rem;
+  cursor: grab;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.webflow-palette-embed .palette-card.dragging {
+  cursor: grabbing;
+  z-index: 3;
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,0.42),
+    0 10px 24px rgba(0,0,0,0.22);
+}
+
+.webflow-palette-embed .palette-button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.webflow-palette-embed .palette-size-label {
+  display: grid;
+  place-items: center;
+  min-height: 42px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.webflow-palette-embed .recipe-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 18px;
+  background: rgba(8, 10, 12, 0.68);
+  backdrop-filter: blur(16px);
+}
+
+.webflow-palette-embed .recipe-modal.hidden {
+  display: none;
+}
+
+.webflow-palette-embed .recipe-modal-panel {
+  width: min(760px, 100%);
+  max-height: min(82vh, 900px);
+  overflow: auto;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(20, 23, 27, 0.96);
+  box-shadow: var(--shadow);
+}
+
+.webflow-palette-embed .recipe-modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.webflow-palette-embed .recipe-modal-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.webflow-palette-embed .recipe-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+  color: var(--text);
+  font: inherit;
+  font-size: 1.2rem;
+  cursor: grab;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.webflow-palette-embed .palette-card.dragging {
+  cursor: grabbing;
+  z-index: 3;
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,0.42),
+    0 10px 24px rgba(0,0,0,0.22);
+}
+
+.webflow-palette-embed .recipe-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.webflow-palette-embed .recipe-card {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+}
+
+.webflow-palette-embed .recipe-card-head {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+
+.webflow-palette-embed .recipe-card-head strong {
+  font-size: 0.98rem;
+}
+
+.webflow-palette-embed .recipe-meta {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.webflow-palette-embed .recipe-meta span,
+.webflow-palette-embed .recipe-note,
+.webflow-palette-embed .recipe-empty,
+.webflow-palette-embed .recipe-confidence {
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.webflow-palette-embed .recipe-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.webflow-palette-embed .recipe-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 9px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+}
+
+.webflow-palette-embed .recipe-export {
+  min-height: 46px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+
+.webflow-palette-embed .palette-list {
+  min-height: 0;
+  display: grid;
+  gap: 3px;
+  align-content: stretch;
+  overflow: hidden;
+  position: relative;
+  touch-action: none;
+}
+
+.webflow-palette-embed .palette-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-content: start;
+  justify-items: start;
+  padding: 12px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+  cursor: grab;
+  touch-action: none;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
+.webflow-palette-embed .palette-card.dragging {
+  position: absolute;
+  left: 0;
+  right: 0;
+  cursor: grabbing;
+  z-index: 4;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,0.42),
+    0 10px 24px rgba(0,0,0,0.22);
+}
+
+.palette-placeholder {
+  border-radius: 8px;
+  border: 1px dashed rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.04);
+}
+
+.webflow-palette-embed .palette-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent 45%);
+  pointer-events: none;
+}
+
+.webflow-palette-embed .palette-card.hovered {
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,0.42),
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    0 0 0 1px rgba(255,255,255,0.16);
+}
+
+.webflow-palette-embed .palette-meta,
+.webflow-palette-embed .percent-badge {
+  position: relative;
+  z-index: 1;
+}
+
+.webflow-palette-embed .palette-meta {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+  align-content: start;
+}
+
+.webflow-palette-embed .palette-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  background: rgba(42, 44, 48, 0.64);
+  color: #f2efe8;
+}
+
+.palette-code {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  color: #f2efe8;
+}
+
+.webflow-palette-embed .palette-copy {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  min-width: 4.8ch;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  cursor: copy;
+}
+
+.webflow-palette-embed .palette-copy strong,
+.webflow-palette-embed .palette-copy::after {
+  grid-area: 1 / 1;
+  transition: opacity 140ms ease;
+}
+
+.webflow-palette-embed .palette-copy::after {
+  content: "Copy";
+  opacity: 0;
+}
+
+.webflow-palette-embed .palette-copy:hover strong,
+.webflow-palette-embed .palette-copy:focus-visible strong {
+  opacity: 0;
+}
+
+.webflow-palette-embed .palette-copy:hover::after,
+.webflow-palette-embed .palette-copy:focus-visible::after {
+  opacity: 1;
+}
+
+.webflow-palette-embed .palette-copy:focus-visible {
+  outline: 2px solid rgba(255,255,255,0.7);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+.webflow-palette-embed .percent-badge {
+  display: inline-flex;
+  width: fit-content;
+  color: #ece7de;
+  font-size: 0.88rem;
+}
+
+@media (max-width: 900px) {
+  .webflow-palette-embed {
+    overflow: auto;
+    overflow-x: hidden;
+  }
+
+  .webflow-palette-embed .app-shell {
+    width: calc(100% - 8px);
+    max-width: calc(100% - 8px);
+    height: auto;
+    min-height: calc(100vh - 8px);
+    min-height: calc(100dvh - 8px);
+    margin: 4px auto;
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .webflow-palette-embed .hero,
+  .webflow-palette-embed .workspace {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .webflow-palette-embed .hero {
+    gap: 10px;
+  }
+
+  .webflow-palette-embed .hero > div:first-child {
+    max-width: 100%;
+  }
+
+  .webflow-palette-embed .hero-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-self: stretch;
+    align-self: stretch;
+    margin-bottom: 0;
+  }
+
+  .webflow-palette-embed .upload-pill,
+  .webflow-palette-embed .recipe-button {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    min-height: 52px;
+  }
+
+  .webflow-palette-embed .controls label {
+    padding: 12px 14px;
+  }
+
+  .webflow-palette-embed .workspace {
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .webflow-palette-embed .canvas-wrap {
+    min-height: 52dvh;
+    border-radius: 18px;
+  }
+
+  .webflow-palette-embed .palette-panel {
+    min-height: 75dvh;
+    border-radius: 18px;
+    min-width: 0;
+  }
+
+  .webflow-palette-embed .palette-toolbar {
+    grid-template-columns: 54px 1fr 54px;
+    gap: 10px;
+  }
+
+  .webflow-palette-embed .palette-button,
+  .webflow-palette-embed .palette-size-label {
+    min-height: 52px;
+  }
+
+  .webflow-palette-embed .palette-button {
+    width: 54px;
+    height: 52px;
+    font-size: 1.45rem;
+  }
+
+  .webflow-palette-embed .palette-size-label {
+    font-size: 0.98rem;
+  }
+
+  .webflow-palette-embed .palette-list {
+    gap: 4px;
+  }
+
+  .webflow-palette-embed .palette-card {
+    padding: 10px;
+  }
+
+  .webflow-palette-embed .palette-line {
+    min-height: 36px;
+    font-size: 0.95rem;
+  }
+
+  .webflow-palette-embed .swatch {
+    width: 34px;
+    height: 34px;
+    margin-left: -17px;
+    margin-top: -17px;
+  }
+
+  .webflow-palette-embed .swatch::after {
+    inset: 0;
+  }
+}
+
+
+
+.webflow-palette-embed .recipe-modal.hidden {
+  display: none;
+}
+
+.webflow-palette-embed .recipe-modal-panel {
+  width: min(760px, 100%);
+  max-height: min(82vh, 900px);
+  overflow: auto;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(20, 23, 27, 0.96);
+  box-shadow: var(--shadow);
+}
+
+.webflow-palette-embed .recipe-modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.webflow-palette-embed .recipe-modal-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.webflow-palette-embed .recipe-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+  color: var(--text);
+  font: inherit;
+  font-size: 1.2rem;
+  cursor: grab;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.webflow-palette-embed .palette-card.dragging {
+  cursor: grabbing;
+  z-index: 3;
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,0.42),
+    0 10px 24px rgba(0,0,0,0.22);
+}
+
+.webflow-palette-embed .recipe-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.webflow-palette-embed .recipe-card {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+}
+
+.webflow-palette-embed .recipe-card-head {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+
+.webflow-palette-embed .recipe-card-head strong {
+  font-size: 0.98rem;
+}
+
+.webflow-palette-embed .recipe-meta {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.webflow-palette-embed .recipe-meta span,
+.webflow-palette-embed .recipe-note,
+.webflow-palette-embed .recipe-empty,
+.webflow-palette-embed .recipe-confidence {
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.webflow-palette-embed .recipe-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.webflow-palette-embed .recipe-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 9px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+}
+
+.webflow-palette-embed .recipe-export {
+  min-height: 46px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+
