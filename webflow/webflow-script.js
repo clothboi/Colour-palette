@@ -1105,7 +1105,7 @@ function buildCurrentExportBaseCanvas(options) {
     exportCtx.fillRect(cardX, cardY, paletteWidth, 1);
     drawExportPaletteLabel(exportCtx, {
       x: cardX + 14,
-      y: cardY + Math.max(2, Math.round((cardHeight - compactLabelHeight) / 2)),
+      y: cardY + (useUniformStack ? 2 : 12),
       hex: color.hex,
       percent: color.percent,
       labelHeight: compactLabelHeight,
@@ -1130,11 +1130,10 @@ function buildStripExportBaseCanvas(options) {
   const baseImageHeight = Math.round(baseImageWidth * (state.sourceHeight / Math.max(1, state.sourceWidth)));
   const imageHeight = Math.max(1900, baseImageHeight);
   const imageWidth = Math.round(imageHeight * sourceRatio);
-  const padding = 0;
   const cardGap = 12;
-  const columnsCount = state.colors.length > 20 ? 3 : state.colors.length > 10 ? 2 : 1;
+  const rowsPerColumn = Math.min(5, Math.max(1, state.colors.length));
+  const columnsCount = Math.max(1, Math.ceil(state.colors.length / 5));
   const columnGap = 12;
-  const rowsPerColumn = columnsCount === 1 ? Math.max(1, state.colors.length) : 10;
   const cardHeight = (imageHeight - (Math.max(0, rowsPerColumn - 1) * cardGap)) / rowsPerColumn;
   const cardWidth = Math.max(1, Math.round(cardHeight * 0.72));
   const paletteWidth = (columnsCount * cardWidth) + (Math.max(0, columnsCount - 1) * columnGap);
@@ -1154,23 +1153,13 @@ function buildStripExportBaseCanvas(options) {
   }
 
   state.colors.forEach((color, index) => {
-    const columnIndex = Math.floor(index / 10);
-    const rowIndex = columnsCount === 1 ? index : index % 10;
+    const columnIndex = Math.floor(index / 5);
+    const rowIndex = index % 5;
     const cardX = imageWidth + columnGap + (columnIndex * (cardWidth + columnGap));
     const cardY = rowIndex * (cardHeight + cardGap);
-    const textColor = luminance(color.r, color.g, color.b) > 0.62 ? "#15171a" : "#f2efe8";
-    const pillFill = luminance(color.r, color.g, color.b) > 0.62 ? "rgba(17, 20, 23, 0.14)" : "rgba(17, 20, 23, 0.28)";
     drawRoundedRect(exportCtx, cardX, cardY, cardWidth, cardHeight, 14, color.hex);
     exportCtx.fillStyle = "rgba(255,255,255,0.08)";
     exportCtx.fillRect(cardX, cardY, cardWidth, 1);
-    drawExportPaletteLabel(exportCtx, {
-      x: cardX + 12,
-      y: cardY + 12,
-      hex: color.hex,
-      percent: color.percent,
-      textColor,
-      labelFill: pillFill,
-    });
   });
 
   return exportCanvas;
