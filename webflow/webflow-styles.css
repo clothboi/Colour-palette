@@ -50,14 +50,14 @@
   grid-template-columns: max-content minmax(340px, 404px);
   gap: 8px;
   align-items: stretch;
-  justify-content: start;
+  justify-content: center;
 }
 
 .webflow-palette-embed .canvas-stage {
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   justify-content: flex-start;
   gap: 8px;
   width: var(--frame-width);
@@ -67,6 +67,10 @@
   height: 100%;
   --frame-height: calc(100vh - 156px);
   --frame-height: calc(100dvh - 156px);
+  --frame-width: min(40vw, calc(100vw - 460px));
+}
+
+.webflow-palette-embed[data-palette-has-image="true"] .canvas-stage {
   --frame-width: min(calc(var(--frame-height) * (var(--image-ratio, 900 / 1350))), calc(100vw - 460px));
 }
 

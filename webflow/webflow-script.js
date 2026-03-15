@@ -79,6 +79,7 @@ if (!root || root.dataset.webflowPaletteReady === "true") {
 }
 ensurePaletteMarkup(root);
 root.dataset.webflowPaletteReady = "true";
+root.dataset.paletteHasImage = "false";
 const input = root.querySelector('[data-role="image-input"]');
 const blurRange = root.querySelector('[data-role="blur-range"]');
 const importWarning = root.querySelector('[data-role="import-warning"]');
@@ -962,6 +963,7 @@ function endDrag() {
 function initializePalette() {
   state.colors = extractPalette(state.image, state.paletteSize);
   state.recipe = [];
+  root.dataset.paletteHasImage = "true";
   canvasWrap.style.setProperty("--image-ratio", `${state.image.width} / ${state.image.height}`);
   drawProcessedImage();
   recalculatePercentages();
