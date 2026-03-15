@@ -47,7 +47,7 @@
   position: relative;
   height: 100%;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(388px, 452px);
+  grid-template-columns: minmax(0, 1.3fr) minmax(340px, 404px);
   gap: 8px;
   align-items: stretch;
 }
@@ -62,9 +62,9 @@
   min-width: 0;
   min-height: 0;
   height: 100%;
-  --frame-height: calc(100vh - 164px);
-  --frame-height: calc(100dvh - 164px);
-  --frame-width: min(100%, max(calc(var(--frame-height) * (var(--image-ratio, 900 / 1350))), calc(var(--frame-height) * 1.08)));
+  --frame-height: calc(100vh - 156px);
+  --frame-height: calc(100dvh - 156px);
+  --frame-width: min(100%, calc(var(--frame-height) * 1.02));
 }
 
 .webflow-palette-embed .control-hud,
@@ -266,7 +266,7 @@
   height: var(--frame-height);
   max-height: var(--frame-height);
   min-height: 320px;
-  aspect-ratio: var(--image-ratio, 900 / 1350);
+  aspect-ratio: 1 / 1;
   border: 1px solid var(--border);
   border-radius: 24px;
   background:
@@ -331,9 +331,9 @@
 
 .webflow-palette-embed .empty-state-card {
   position: relative;
-  width: min(480px, 100%);
+  width: min(420px, calc(100% - 48px));
   padding: 18px 20px;
-  min-height: 96px;
+  min-height: 108px;
   border-radius: 16px;
   text-align: center;
   cursor: pointer;
