@@ -48,7 +48,7 @@
   height: 100%;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(388px, 452px);
-  gap: 12px;
+  gap: 8px;
   align-items: stretch;
 }
 
@@ -56,15 +56,15 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: flex-start;
-  gap: 12px;
+  gap: 8px;
   min-width: 0;
   min-height: 0;
   height: 100%;
   --frame-height: calc(100vh - 164px);
   --frame-height: calc(100dvh - 164px);
-  --frame-width: min(100%, calc(var(--frame-height) * (var(--image-ratio, 900 / 1350))));
+  --frame-width: min(100%, max(calc(var(--frame-height) * (var(--image-ratio, 900 / 1350))), calc(var(--frame-height) * 1.08)));
 }
 
 .webflow-palette-embed .control-hud,
@@ -333,26 +333,19 @@
   position: relative;
   width: min(480px, 100%);
   padding: 18px 20px;
+  min-height: 96px;
   border-radius: 16px;
   text-align: center;
   cursor: pointer;
   overflow: hidden;
 }
 
-.webflow-palette-embed .empty-state-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(132deg, transparent 0 46%, rgba(255, 255, 255, 0.09) 46% 48%, transparent 48% 100%),
-    linear-gradient(132deg, transparent 0 58%, rgba(255, 255, 255, 0.07) 58% 60%, transparent 60% 100%);
-  pointer-events: none;
-}
-
 .webflow-palette-embed .empty-state-upload {
-  display: grid;
-  gap: 6px;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   cursor: pointer;
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
 }
@@ -373,18 +366,14 @@
 }
 
 .webflow-palette-embed .empty-state-primary {
-  position: relative;
-  z-index: 1;
   display: block;
-  margin: 0 0 6px;
+  margin: 0;
   color: var(--text);
   font-size: clamp(1.05rem, 1.2vw, 1.18rem);
   font-weight: 700;
 }
 
 .webflow-palette-embed .empty-state-card p:last-child {
-  position: relative;
-  z-index: 1;
   margin: 0;
   color: var(--muted);
 }
