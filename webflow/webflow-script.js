@@ -29,7 +29,7 @@ function getPaletteMarkup() {
           <div data-role="swatch-layer" class="swatch-layer" aria-label="Color swatches"></div>
           <div data-role="empty-state" class="empty-state">
             <label class="empty-state-card empty-state-upload">
-              <p class="empty-state-label">Choose image</p>
+              <span class="empty-state-primary">Choose image</span>
               <p>or drag image in</p>
               <input data-role="image-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,image/heic,image/heif">
             </label>
@@ -962,6 +962,7 @@ function endDrag() {
 function initializePalette() {
   state.colors = extractPalette(state.image, state.paletteSize);
   state.recipe = [];
+  canvasWrap.style.setProperty("--image-ratio", `${state.image.width} / ${state.image.height}`);
   drawProcessedImage();
   recalculatePercentages();
   renderRecipe();
