@@ -565,7 +565,7 @@
 
 .webflow-palette-embed .palette-drawer-open {
   position: absolute;
-  top: -18px;
+  top: 0;
   left: 50%;
   z-index: 3;
   align-items: center;
@@ -579,17 +579,14 @@
   color: inherit;
   cursor: pointer;
   font: inherit;
-  box-shadow:
-    0 10px 24px rgba(0, 0, 0, 0.26),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
 }
 
 .webflow-palette-embed .palette-drawer-open:disabled {
   opacity: 0.38;
   cursor: default;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
 }
 
 .webflow-palette-embed .palette-drawer-open__label {
@@ -661,13 +658,13 @@
 
 .webflow-palette-embed .palette-drawer-open:not(:disabled):hover,
 .webflow-palette-embed .palette-drawer-open:not(:disabled):focus-visible {
-  transform: translate(-50%, -1px);
+  transform: translate(-50%, calc(-50% - 1px));
   border-color: rgba(255, 255, 255, 0.22);
   background: rgba(255, 255, 255, 0.08);
 }
 
 .webflow-palette-embed .palette-drawer-open:active:not(:disabled) {
-  transform: translate(-50%, 1px);
+  transform: translate(-50%, calc(-50% + 1px));
 }
 
 .webflow-palette-embed .palette-drawer-toggle__label {
@@ -1263,9 +1260,9 @@
   height: var(--palette-drawer-collapsed-height);
   min-height: var(--palette-drawer-collapsed-height);
   max-height: var(--palette-drawer-collapsed-height);
-  padding: 16px 12px 12px;
+  padding: 24px 12px 12px;
   border-radius: 22px 22px 18px 18px;
-  overflow: visible;
+  overflow: hidden;
   transition: inset 220ms cubic-bezier(0.22, 1, 0.36, 1), height 220ms cubic-bezier(0.22, 1, 0.36, 1), max-height 220ms cubic-bezier(0.22, 1, 0.36, 1), padding 220ms cubic-bezier(0.22, 1, 0.36, 1), border-radius 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -1279,52 +1276,25 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-summary {
-  display: grid;
-  flex: 1 1 auto;
-  min-height: 0;
-  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-  grid-template-rows: auto 1fr;
-  column-gap: 14px;
-  row-gap: 10px;
-  align-items: stretch;
+  gap: 10px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-summary__header {
-  display: contents;
-}
-
-.webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-toggle__copy {
-  grid-column: 1;
-  grid-row: 1;
-  align-self: start;
-}
-
-.webflow-palette-embed[data-mobile-layout="true"] .palette-preview-list {
-  grid-column: 1;
-  grid-row: 2;
-  align-self: start;
-  width: 100%;
-}
-
-.webflow-palette-embed[data-mobile-layout="true"] .palette-toolbar-controls--summary {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  align-self: stretch;
-  display: grid;
-  grid-template-columns: 50px minmax(0, 1fr) 50px;
-  gap: 8px;
-  width: 100%;
-  height: 100%;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 12px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-toolbar-controls {
   grid-template-columns: 44px 1fr 44px;
 }
 
+.webflow-palette-embed[data-mobile-layout="true"] .palette-toolbar-controls--summary {
+  width: 100%;
+}
+
 .webflow-palette-embed[data-mobile-layout="true"] .palette-button,
 .webflow-palette-embed[data-mobile-layout="true"] .palette-size-label {
   min-height: 44px;
-  height: 100%;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"]:not([data-palette-drawer-open="true"]) .palette-toolbar {
@@ -1347,7 +1317,6 @@
   min-height: 100%;
   max-height: none;
   border-radius: 20px;
-  overflow: hidden;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"][data-palette-drawer-open="true"] .palette-drawer-open,
