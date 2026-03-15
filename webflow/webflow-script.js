@@ -176,6 +176,8 @@ const state = {
   colors: [],
   swatches: [],
   dragId: null,
+  dragLens: null,
+  dragLensHideTimer: null,
   dragPointerType: null,
   animationFrame: null,
   sourceWidth: canvas.width,
@@ -190,6 +192,17 @@ const state = {
   paletteDragTop: 0,
   paletteGrabOffsetY: 0,
   recipe: [],
+};
+
+const DRAG_LENS = {
+  width: 96,
+  height: 124,
+  overlap: 22,
+  edgePadding: 8,
+  zoomSize: 66,
+  gridSize: 11,
+  cellSize: 6,
+  path: "M48 4C30.3 4 16 18.3 16 36c0 7.7 2.7 14.8 7.2 20.4C16.1 62.9 11 72.3 11 82.9C11 102.8 27.2 119 47.1 119h1.8C68.8 119 85 102.8 85 82.9c0-10.6-5.1-20-12.2-26.5C77.3 50.8 80 43.7 80 36C80 18.3 65.7 4 48 4Z",
 };
 
 function mixPigments(recipe) {
@@ -255,6 +268,178 @@ function estimatePaintRecipe(targetColor) {
 
 function formatPercent(value) {
   return `${Math.round(value)}%`;
+}
+
+function clearDragLensHideTimer() {
+  if (state.dragLensHideTimer) {
+    clearTimeout(state.dragLensHideTimer);
+    state.dragLensHideTimer = null;
+  }
+}
+
+function createSvgElement(name) {
+  return document.createElementNS("http://www.w3.org/2000/svg", name);
+}
+
+function createDragLens() {
+  clearDragLensHideTimer();
+  if (state.dragLens?.element?.isConnected) {
+    state.dragLens.element.remove();
+  }
+
+  const lens = document.createElement("div");
+  lens.className = "swatch-lens";
+  lens.dataset.placement = "above";
+  lens.setAttribute("aria-hidden", "true");
+
+  const shell = document.createElement("div");
+  shell.className = "swatch-lens-shell";
+  shell.style.setProperty("--swatch-color", "#F2EFE8");
+  shell.style.clipPath = `path("${DRAG_LENS.path}")`;
+  shell.style.webkitClipPath = `path("${DRAG_LENS.path}")`;
+
+  const zoom = document.createElement("div");
+  zoom.className = "swatch-lens-zoom";
+
+  const zoomCanvas = document.createElement("canvas");
+  zoomCanvas.className = "swatch-lens-canvas";
+  zoomCanvas.width = DRAG_LENS.zoomSize;
+  zoomCanvas.height = DRAG_LENS.zoomSize;
+  zoom.appendChild(zoomCanvas);
+
+  const reticle = document.createElement("div");
+  reticle.className = "swatch-lens-reticle";
+  zoom.appendChild(reticle);
+  shell.appendChild(zoom);
+
+  const outline = createSvgElement("svg");
+  outline.setAttribute("class", "swatch-lens-outline");
+  outline.setAttribute("viewBox", `0 0 ${DRAG_LENS.width} ${DRAG_LENS.height}`);
+  outline.setAttribute("aria-hidden", "true");
+
+  const path = createSvgElement("path");
+  path.setAttribute("d", DRAG_LENS.path);
+  outline.appendChild(path);
+
+  lens.append(shell, outline);
+  swatchLayer.appendChild(lens);
+
+  const zoomCtx = zoomCanvas.getContext("2d", { willReadFrequently: true });
+  if (zoomCtx) {
+    zoomCtx.imageSmoothingEnabled = false;
+  }
+
+  requestAnimationFrame(() => lens.classList.add("is-visible"));
+
+  state.dragLens = { element: lens, shell, canvas: zoomCanvas, ctx: zoomCtx };
+  return state.dragLens;
+}
+
+function destroyDragLens(immediate = false) {
+  clearDragLensHideTimer();
+  if (!state.dragLens) return;
+
+  const { element } = state.dragLens;
+  state.dragLens = null;
+
+  if (immediate || !element?.isConnected) {
+    element?.remove();
+    return;
+  }
+
+  element.classList.remove("is-visible");
+  state.dragLensHideTimer = setTimeout(() => {
+    element.remove();
+    state.dragLensHideTimer = null;
+  }, 180);
+}
+
+function positionDragLens(swatch) {
+  if (!state.dragLens) return;
+
+  const pointX = swatch.x;
+  const pointY = swatch.y;
+  const availableWidth = canvasWrap.clientWidth || canvasWrap.getBoundingClientRect().width;
+  const availableHeight = canvasWrap.clientHeight || canvasWrap.getBoundingClientRect().height;
+  const lensWidth = DRAG_LENS.width;
+  const lensHeight = DRAG_LENS.height;
+  const edgePadding = DRAG_LENS.edgePadding;
+
+  let placement = "above";
+  if (pointY < (lensHeight - DRAG_LENS.overlap + edgePadding)) {
+    placement = "below";
+  }
+
+  let nudgeX = 0;
+  const leftEdge = pointX - (lensWidth / 2);
+  const rightEdge = pointX + (lensWidth / 2);
+  if (leftEdge < edgePadding) {
+    nudgeX = edgePadding - leftEdge;
+  }
+  if (rightEdge + nudgeX > availableWidth - edgePadding) {
+    nudgeX += (availableWidth - edgePadding) - (rightEdge + nudgeX);
+  }
+
+  if (placement === "below" && (pointY + lensHeight - DRAG_LENS.overlap > availableHeight - edgePadding)) {
+    placement = "above";
+  }
+
+  state.dragLens.element.dataset.placement = placement;
+  state.dragLens.element.style.left = `${pointX}px`;
+  state.dragLens.element.style.top = `${pointY}px`;
+  state.dragLens.element.style.setProperty("--lens-nudge-x", `${Math.round(nudgeX)}px`);
+}
+
+function sampleLensNeighborhood(centerX, centerY, gridSize) {
+  const half = Math.floor(gridSize / 2);
+  const pixelX = clamp(Math.round(centerX * state.dpr), 0, canvas.width - 1);
+  const pixelY = clamp(Math.round(centerY * state.dpr), 0, canvas.height - 1);
+  const minX = clamp(pixelX - half, 0, canvas.width - 1);
+  const maxX = clamp(pixelX + half, 0, canvas.width - 1);
+  const minY = clamp(pixelY - half, 0, canvas.height - 1);
+  const maxY = clamp(pixelY + half, 0, canvas.height - 1);
+  const sourceWidth = maxX - minX + 1;
+  const sourceHeight = maxY - minY + 1;
+  const source = ctx.getImageData(minX, minY, sourceWidth, sourceHeight).data;
+  const samples = new Uint8ClampedArray(gridSize * gridSize * 4);
+
+  for (let gy = 0; gy < gridSize; gy += 1) {
+    for (let gx = 0; gx < gridSize; gx += 1) {
+      const sampleX = clamp(pixelX + gx - half, 0, canvas.width - 1);
+      const sampleY = clamp(pixelY + gy - half, 0, canvas.height - 1);
+      const sourceIndex = (((sampleY - minY) * sourceWidth) + (sampleX - minX)) * 4;
+      const targetIndex = ((gy * gridSize) + gx) * 4;
+      samples[targetIndex] = source[sourceIndex];
+      samples[targetIndex + 1] = source[sourceIndex + 1];
+      samples[targetIndex + 2] = source[sourceIndex + 2];
+      samples[targetIndex + 3] = source[sourceIndex + 3];
+    }
+  }
+
+  return samples;
+}
+
+function renderDragLens(swatch) {
+  if (!state.dragLens?.ctx) return;
+
+  const { ctx: lensCtx, shell } = state.dragLens;
+  const { gridSize, cellSize, zoomSize } = DRAG_LENS;
+  const samples = sampleLensNeighborhood(swatch.targetX, swatch.targetY, gridSize);
+  lensCtx.clearRect(0, 0, zoomSize, zoomSize);
+
+  for (let gy = 0; gy < gridSize; gy += 1) {
+    for (let gx = 0; gx < gridSize; gx += 1) {
+      const index = ((gy * gridSize) + gx) * 4;
+      const r = samples[index];
+      const g = samples[index + 1];
+      const b = samples[index + 2];
+      const a = samples[index + 3] / 255;
+      lensCtx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a.toFixed(3)})`;
+      lensCtx.fillRect(gx * cellSize, gy * cellSize, cellSize, cellSize);
+    }
+  }
+
+  shell.style.setProperty("--swatch-color", swatch.color.hex);
 }
 
 function refreshStageSize() {
@@ -845,6 +1030,7 @@ function createSwatch(color) {
   return { id: color.id, color, element: swatch, x: color.x * state.sourceWidth, y: color.y * state.sourceHeight, targetX: color.x * state.sourceWidth, targetY: color.y * state.sourceHeight };
 }
 function rebuildSwatches() {
+  destroyDragLens(true);
   swatchLayer.innerHTML = "";
   state.swatches = state.colors.map((color) => createSwatch(color));
   startAnimation();
@@ -852,10 +1038,18 @@ function rebuildSwatches() {
 
 function updateSwatchPositions() {
   state.swatches.forEach((swatch) => {
-    swatch.x += (swatch.targetX - swatch.x) * 0.18;
-    swatch.y += (swatch.targetY - swatch.y) * 0.18;
+    if (state.dragId === swatch.id) {
+      swatch.x = swatch.targetX;
+      swatch.y = swatch.targetY;
+    } else {
+      swatch.x += (swatch.targetX - swatch.x) * 0.18;
+      swatch.y += (swatch.targetY - swatch.y) * 0.18;
+    }
     swatch.element.style.left = `${swatch.x}px`;
     swatch.element.style.top = `${swatch.y}px`;
+    if (state.dragLens && state.dragId === swatch.id) {
+      positionDragLens(swatch);
+    }
   });
   state.animationFrame = requestAnimationFrame(updateSwatchPositions);
 }
@@ -900,6 +1094,9 @@ function updateSwatchColor(swatch) {
   swatch.color.y = swatch.targetY / state.sourceHeight;
   swatch.element.style.setProperty("--swatch-color", sampled.hex);
   swatch.element.setAttribute("aria-label", `${sampled.hex} swatch`);
+  if (state.dragLens && state.dragId === swatch.id) {
+    renderDragLens(swatch);
+  }
   recalculatePercentages();
   renderPalette();
   syncSwatchTargetsFromColors();
@@ -922,6 +1119,12 @@ function startDrag(event, id) {
   const point = getPointFromEvent(event);
   swatch.targetX = point.x;
   swatch.targetY = point.y;
+  swatch.x = point.x;
+  swatch.y = point.y;
+  swatch.element.style.left = `${swatch.x}px`;
+  swatch.element.style.top = `${swatch.y}px`;
+  createDragLens();
+  positionDragLens(swatch);
   updateSwatchColor(swatch);
 }
 
@@ -948,6 +1151,11 @@ function handleDrag(event) {
   const point = getPointFromEvent(event);
   swatch.targetX = point.x;
   swatch.targetY = point.y;
+  swatch.x = point.x;
+  swatch.y = point.y;
+  swatch.element.style.left = `${swatch.x}px`;
+  swatch.element.style.top = `${swatch.y}px`;
+  positionDragLens(swatch);
   updateSwatchColor(swatch);
 }
 
@@ -974,6 +1182,7 @@ function endDrag() {
     swatch.element.classList.remove("active");
     updateSwatchColor(swatch);
   }
+  destroyDragLens();
   if (state.dragPointerType !== "touch") {
     unlockPageScroll();
   }
