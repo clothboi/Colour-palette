@@ -108,10 +108,27 @@ if (!ctx || !swatchLayer || !paletteList || !emptyState || !canvasStage || !canv
 
 const PALETTE_MIN = 2;
 const PALETTE_MAX = 30;
+const PALETTE_TWO_COLUMN_THRESHOLD = 16;
+const PALETTE_GAP = 3;
+const PALETTE_SINGLE_MIN_HEIGHT = 52;
+const PALETTE_TWO_COLUMN_TARGET_MIN_HEIGHT = 34;
+const PALETTE_TWO_COLUMN_FLOOR_HEIGHT = 18;
 const SAMPLE_GRID = 72;
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
+}
+
+function isTwoColumnPalette(count = state.colors.length) {
+  return count >= PALETTE_TWO_COLUMN_THRESHOLD;
+}
+
+function getPaletteLeftColumnCount(count = state.colors.length) {
+  return Math.ceil(count / 2);
+}
+
+function getPaletteFrameClearance() {
+  return isTwoColumnPalette() ? 576 : 460;
 }
 
 function rgbToHex(r, g, b) {
@@ -190,6 +207,8 @@ const state = {
   paletteDragPointerId: null,
   paletteDropIndex: null,
   paletteDragTop: 0,
+  paletteDragLeft: 0,
+  paletteDragWidth: 0,
   paletteGrabOffsetY: 0,
   recipe: [],
 };
@@ -446,7 +465,7 @@ function refreshStageSize() {
   const imageRatio = state.image.width / state.image.height;
   const ratioValue = `${state.image.width} / ${state.image.height}`;
   const frameHeight = Math.max(320, Math.round(canvasWrap.clientHeight || canvasWrap.getBoundingClientRect().height || 0));
-  const maxWidth = Math.max(280, Math.round(window.innerWidth - 460));
+  const maxWidth = Math.max(280, Math.round(window.innerWidth - getPaletteFrameClearance()));
   const frameWidth = Math.min(Math.round(frameHeight * imageRatio), maxWidth);
 
   canvasStage.style.setProperty("--image-ratio", ratioValue);
@@ -779,18 +798,113 @@ function sampleCanvasColor(x, y) {
   return { r: pixel[0], g: pixel[1], b: pixel[2], hex: rgbToHex(pixel[0], pixel[1], pixel[2]) };
 }
 
-function getScaledPaletteHeights(availableHeight, gap = 3, minHeight = 52) {
-  const totalPercent = state.colors.reduce((sum, color) => sum + color.percent, 0) || 1;
-  const totalGaps = Math.max(0, state.colors.length - 1) * gap;
-  const usableHeight = Math.max(minHeight * state.colors.length, availableHeight - totalGaps);
-  const scaled = state.colors.map((color) => Math.max(minHeight, (color.percent / totalPercent) * usableHeight));
+function getScaledPaletteHeights(colors, availableHeight, gap = PALETTE_GAP, minHeight = PALETTE_SINGLE_MIN_HEIGHT) {
+  if (!colors.length) return [];
+  const totalPercent = colors.reduce((sum, color) => sum + color.percent, 0) || 1;
+  const totalGaps = Math.max(0, colors.length - 1) * gap;
+  const usableHeight = Math.max(minHeight * colors.length, availableHeight - totalGaps);
+  const scaled = colors.map((color) => Math.max(minHeight, (color.percent / totalPercent) * usableHeight));
   const heightSum = scaled.reduce((sum, value) => sum + value, 0);
   const scale = heightSum > 0 ? usableHeight / heightSum : 1;
   return scaled.map((value) => value * scale);
 }
 
-function getPaletteHeights() {
-  return getScaledPaletteHeights(paletteList.clientHeight, 3, 52);
+function getFittedPaletteHeights(colors, availableHeight, gap = PALETTE_GAP, preferredMinHeight = PALETTE_TWO_COLUMN_TARGET_MIN_HEIGHT, floorHeight = PALETTE_TWO_COLUMN_FLOOR_HEIGHT) {
+  if (!colors.length) return [];
+  const totalGaps = Math.max(0, colors.length - 1) * gap;
+  const usableHeight = Math.max(0, availableHeight - totalGaps);
+  if (!usableHeight) return colors.map(() => 0);
+
+  const totalPercent = colors.reduce((sum, color) => sum + color.percent, 0) || colors.length || 1;
+  const weightedHeights = colors.map((color) => Math.max(0.001, (color.percent / totalPercent) * usableHeight));
+  const averageHeight = usableHeight / colors.length;
+  const safeMinHeight = Math.min(preferredMinHeight, Math.max(floorHeight, averageHeight * 0.72), averageHeight);
+  const heights = new Array(colors.length).fill(0);
+  let flexible = weightedHeights.map((value, index) => ({ value, index }));
+  let remainingHeight = usableHeight;
+
+  while (flexible.length) {
+    const remainingWeight = flexible.reduce((sum, item) => sum + item.value, 0) || flexible.length;
+    const nextFlexible = [];
+    let fixedAny = false;
+
+    flexible.forEach((item) => {
+      const proposed = remainingHeight * (item.value / remainingWeight);
+      if (proposed < safeMinHeight) {
+        heights[item.index] = safeMinHeight;
+        remainingHeight -= safeMinHeight;
+        fixedAny = true;
+      } else {
+        nextFlexible.push(item);
+      }
+    });
+
+    if (!fixedAny) {
+      flexible.forEach((item) => {
+        heights[item.index] = remainingHeight * (item.value / remainingWeight);
+      });
+      break;
+    }
+
+    flexible = nextFlexible;
+  }
+
+  return heights;
+}
+
+function getPaletteHeightMap() {
+  const availableHeight = paletteList.clientHeight;
+  const heightById = new Map();
+
+  if (!isTwoColumnPalette()) {
+    const heights = getScaledPaletteHeights(state.colors, availableHeight, PALETTE_GAP, PALETTE_SINGLE_MIN_HEIGHT);
+    state.colors.forEach((color, index) => {
+      heightById.set(color.id, heights[index] || PALETTE_SINGLE_MIN_HEIGHT);
+    });
+    return heightById;
+  }
+
+  const leftCount = getPaletteLeftColumnCount();
+  const columns = [state.colors.slice(0, leftCount), state.colors.slice(leftCount)];
+  columns.forEach((columnColors) => {
+    const heights = getFittedPaletteHeights(columnColors, availableHeight, PALETTE_GAP, PALETTE_TWO_COLUMN_TARGET_MIN_HEIGHT, PALETTE_TWO_COLUMN_FLOOR_HEIGHT);
+    columnColors.forEach((color, index) => {
+      heightById.set(color.id, heights[index] || PALETTE_TWO_COLUMN_FLOOR_HEIGHT);
+    });
+  });
+
+  return heightById;
+}
+
+function getPaletteColumns(items, totalCount = items.length) {
+  if (!isTwoColumnPalette(totalCount)) {
+    return [items];
+  }
+
+  const leftCount = getPaletteLeftColumnCount(totalCount);
+  return [items.slice(0, leftCount), items.slice(leftCount)];
+}
+
+function createPaletteColumn(index) {
+  const column = document.createElement("div");
+  column.className = "palette-column";
+  column.dataset.column = `${index}`;
+  return column;
+}
+
+function createPalettePlaceholder(height) {
+  const placeholder = document.createElement("div");
+  placeholder.className = "palette-placeholder";
+  placeholder.style.height = `${height}px`;
+  return placeholder;
+}
+
+function updatePaletteLayoutMode() {
+  const layout = isTwoColumnPalette() ? "double" : "single";
+  root.dataset.paletteLayout = layout;
+  paletteList.dataset.layout = layout;
+  paletteList.classList.toggle("two-column", layout === "double");
+  paletteList.classList.toggle("single-column", layout === "single");
 }
 
 
@@ -810,7 +924,7 @@ function exportStudyImage() {
   exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
   exportCtx.drawImage(canvas, 0, 0, imageWidth, imageHeight);
 
-  const paletteHeights = getScaledPaletteHeights(imageHeight, gap, 54);
+  const paletteHeights = getScaledPaletteHeights(state.colors, imageHeight, gap, 54);
   let cardY = 0;
   state.colors.forEach((color, index) => {
     const cardHeight = paletteHeights[index] || 54;
@@ -874,6 +988,8 @@ function startPaletteDrag(event, id) {
   state.paletteDragPointerId = event.pointerId ?? null;
   state.paletteDropIndex = state.colors.findIndex((color) => color.id === id);
   state.paletteDragTop = rect.top - listRect.top;
+  state.paletteDragLeft = rect.left - listRect.left;
+  state.paletteDragWidth = rect.width;
   state.paletteGrabOffsetY = event.clientY - rect.top;
   setHoveredColor(id);
   lockPageScroll();
@@ -883,16 +999,43 @@ function startPaletteDrag(event, id) {
   renderPalette();
 }
 
-function getPaletteDragIndex(pointerY) {
-  const cards = [...paletteList.querySelectorAll('.palette-card:not(.dragging)')];
-  let index = 0;
+function getPaletteDragPosition(pointerX, pointerY, dragHeight) {
+  const listRect = paletteList.getBoundingClientRect();
+  const columns = [...paletteList.querySelectorAll(".palette-column")];
+  if (!columns.length) {
+    return { dropIndex: 0, top: 0, left: 0, width: listRect.width };
+  }
+
+  let columnIndex = 0;
+  if (isTwoColumnPalette() && columns.length > 1) {
+    const leftRect = columns[0].getBoundingClientRect();
+    const rightRect = columns[1].getBoundingClientRect();
+    const splitX = (leftRect.right + rightRect.left) / 2;
+    columnIndex = pointerX >= splitX ? 1 : 0;
+  }
+
+  const column = columns[columnIndex];
+  const columnRect = column.getBoundingClientRect();
+  const cards = [...column.querySelectorAll(".palette-card:not(.dragging)")];
+  let localIndex = 0;
   for (const card of cards) {
     const rect = card.getBoundingClientRect();
     const midpoint = rect.top + (rect.height / 2);
-    if (pointerY < midpoint) return index;
-    index += 1;
+    if (pointerY < midpoint) {
+      break;
+    }
+    localIndex += 1;
   }
-  return cards.length;
+
+  const baseIndex = columnIndex === 0 ? 0 : getPaletteLeftColumnCount(state.colors.length);
+  const minTop = columnRect.top - listRect.top;
+  const maxTop = Math.max(minTop, (columnRect.bottom - listRect.top) - dragHeight);
+  return {
+    dropIndex: baseIndex + localIndex,
+    top: clamp(pointerY - listRect.top - state.paletteGrabOffsetY, minTop, maxTop),
+    left: columnRect.left - listRect.left,
+    width: columnRect.width,
+  };
 }
 
 function commitPaletteOrder() {
@@ -928,6 +1071,16 @@ function createPaletteCard(color, height) {
   return card;
 }
 
+function appendPaletteItems(column, items, heightById, draggedHeight) {
+  items.forEach((item) => {
+    if (item && item.isPlaceholder) {
+      column.appendChild(createPalettePlaceholder(draggedHeight));
+      return;
+    }
+    column.appendChild(createPaletteCard(item, heightById.get(item.id)));
+  });
+}
+
 async function copyHexCode(hex) {
   try {
     if (navigator.clipboard?.writeText) {
@@ -953,42 +1106,47 @@ async function copyHexCode(hex) {
 }
 
 function renderPalette() {
+  updatePaletteLayoutMode();
   paletteList.innerHTML = '';
-  const heights = getPaletteHeights();
-  const heightById = new Map(state.colors.map((color, index) => [color.id, heights[index] || 52]));
+  const heightById = getPaletteHeightMap();
+  const columns = Array.from({ length: isTwoColumnPalette() ? 2 : 1 }, (_, index) => {
+    const column = createPaletteColumn(index);
+    paletteList.appendChild(column);
+    return column;
+  });
 
   if (!state.paletteDragId) {
-    state.colors.forEach((color) => {
-      paletteList.appendChild(createPaletteCard(color, heightById.get(color.id)));
+    getPaletteColumns(state.colors, state.colors.length).forEach((items, index) => {
+      appendPaletteItems(columns[index], items, heightById, 0);
     });
     return;
   }
 
   const dragId = state.paletteDragId;
   const draggedColor = state.colors.find((color) => color.id === dragId);
-  const draggedHeight = heightById.get(dragId) || 52;
-  const remainingColors = state.colors.filter((color) => color.id !== dragId);
-
-  remainingColors.forEach((color, index) => {
-    if (state.paletteDropIndex === index) {
-      const placeholder = document.createElement('div');
-      placeholder.className = 'palette-placeholder';
-      placeholder.style.height = `${draggedHeight}px`;
-      paletteList.appendChild(placeholder);
-    }
-    paletteList.appendChild(createPaletteCard(color, heightById.get(color.id)));
-  });
-
-  if (state.paletteDropIndex === remainingColors.length) {
-    const placeholder = document.createElement('div');
-    placeholder.className = 'palette-placeholder';
-    placeholder.style.height = `${draggedHeight}px`;
-    paletteList.appendChild(placeholder);
+  if (!draggedColor) {
+    state.paletteDragId = null;
+    renderPalette();
+    return;
   }
+  const draggedHeight = heightById.get(dragId) || PALETTE_SINGLE_MIN_HEIGHT;
+  const remainingColors = state.colors.filter((color) => color.id !== dragId);
+  const placeholderIndex = clamp(state.paletteDropIndex ?? remainingColors.length, 0, remainingColors.length);
+  const renderItems = [
+    ...remainingColors.slice(0, placeholderIndex),
+    { id: "__palette-placeholder__", isPlaceholder: true },
+    ...remainingColors.slice(placeholderIndex),
+  ];
+
+  getPaletteColumns(renderItems, state.colors.length).forEach((items, index) => {
+    appendPaletteItems(columns[index], items, heightById, draggedHeight);
+  });
 
   const dragCard = createPaletteCard(draggedColor, draggedHeight);
   dragCard.classList.add('dragging');
   dragCard.style.top = `${state.paletteDragTop}px`;
+  dragCard.style.left = `${state.paletteDragLeft}px`;
+  dragCard.style.width = `${state.paletteDragWidth}px`;
   paletteList.appendChild(dragCard);
 }
 
@@ -1125,16 +1283,20 @@ function startDrag(event, id) {
 function handleDrag(event) {
   if (state.paletteDragId) {
     event.preventDefault();
-    const listRect = paletteList.getBoundingClientRect();
     const dragCard = paletteList.querySelector(".palette-card.dragging");
-    const dragHeight = dragCard ? dragCard.getBoundingClientRect().height : 52;
-    state.paletteDragTop = clamp(event.clientY - listRect.top - state.paletteGrabOffsetY, 0, Math.max(0, paletteList.clientHeight - dragHeight));
-    const nextDropIndex = getPaletteDragIndex(event.clientY);
+    const dragHeight = dragCard ? dragCard.getBoundingClientRect().height : PALETTE_SINGLE_MIN_HEIGHT;
+    const nextPosition = getPaletteDragPosition(event.clientX, event.clientY, dragHeight);
+    const nextDropIndex = clamp(nextPosition.dropIndex, 0, state.colors.length);
+    state.paletteDragTop = nextPosition.top;
+    state.paletteDragLeft = nextPosition.left;
+    state.paletteDragWidth = nextPosition.width;
     if (nextDropIndex !== state.paletteDropIndex) {
       state.paletteDropIndex = nextDropIndex;
       renderPalette();
     } else if (dragCard) {
       dragCard.style.top = `${state.paletteDragTop}px`;
+      dragCard.style.left = `${state.paletteDragLeft}px`;
+      dragCard.style.width = `${state.paletteDragWidth}px`;
     }
     return;
   }
@@ -1163,6 +1325,8 @@ function endDrag() {
     state.paletteDragPointerId = null;
     state.paletteDropIndex = null;
     state.paletteDragTop = 0;
+    state.paletteDragLeft = 0;
+    state.paletteDragWidth = 0;
     state.paletteGrabOffsetY = 0;
     unlockPageScroll();
     setHoveredColor(null);
@@ -1188,6 +1352,7 @@ function endDrag() {
 function initializePalette() {
   state.colors = extractPalette(state.image, state.paletteSize);
   state.recipe = [];
+  updatePaletteLayoutMode();
   refreshStageSize();
   requestAnimationFrame(() => {
     drawProcessedImage();
@@ -1206,20 +1371,30 @@ function addPaletteColor() {
   if (!nextColor) return;
   state.colors.push({ ...nextColor, id: `color-${state.colors.length + 1}` });
   state.paletteSize = state.colors.length;
-  recalculatePercentages();
-  renderPalette();
-  rebuildSwatches();
-  updatePaletteLabel();
+  updatePaletteLayoutMode();
+  refreshStageSize();
+  requestAnimationFrame(() => {
+    drawProcessedImage();
+    recalculatePercentages();
+    renderPalette();
+    rebuildSwatches();
+    updatePaletteLabel();
+  });
 }
 
 function removePaletteColor() {
   if (!state.image || state.colors.length <= PALETTE_MIN) return;
   state.colors.pop();
   state.paletteSize = state.colors.length;
-  recalculatePercentages();
-  renderPalette();
-  rebuildSwatches();
-  updatePaletteLabel();
+  updatePaletteLayoutMode();
+  refreshStageSize();
+  requestAnimationFrame(() => {
+    drawProcessedImage();
+    recalculatePercentages();
+    renderPalette();
+    rebuildSwatches();
+    updatePaletteLabel();
+  });
 }
 
 async function handleFile(file) {

@@ -11,6 +11,13 @@
   --shadow: 0 18px 36px rgba(0, 0, 0, 0.24);
   --shadow-soft: 0 10px 28px rgba(0, 0, 0, 0.2);
   --accent: rgba(158, 188, 223, 0.92);
+  --palette-panel-width: 404px;
+  --frame-clearance: 460px;
+}
+
+.webflow-palette-embed[data-palette-layout="double"] {
+  --palette-panel-width: 520px;
+  --frame-clearance: 576px;
 }
 
 .webflow-palette-embed,
@@ -47,7 +54,7 @@
   position: relative;
   height: 100%;
   display: grid;
-  grid-template-columns: max-content minmax(340px, 404px);
+  grid-template-columns: max-content minmax(340px, var(--palette-panel-width));
   gap: 8px;
   align-items: stretch;
   justify-content: center;
@@ -67,7 +74,7 @@
   height: 100%;
   --frame-height: calc(100vh - 156px);
   --frame-height: calc(100dvh - 156px);
-  --frame-width: min(40vw, calc(100vw - 460px));
+  --frame-width: min(40vw, calc(100vw - var(--frame-clearance)));
 }
 
 .webflow-palette-embed .control-hud,
@@ -531,11 +538,25 @@
 .webflow-palette-embed .palette-list {
   min-height: 0;
   display: grid;
-  gap: 3px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
   align-content: stretch;
   overflow: hidden;
   position: relative;
   touch-action: none;
+}
+
+.webflow-palette-embed .palette-list.two-column {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 8px;
+}
+
+.webflow-palette-embed .palette-column {
+  min-height: 0;
+  display: grid;
+  gap: 3px;
+  align-content: stretch;
+  position: relative;
 }
 
 .webflow-palette-embed .palette-card {
@@ -562,8 +583,6 @@
 
 .webflow-palette-embed .palette-card.dragging {
   position: absolute;
-  left: 0;
-  right: 0;
   z-index: 4;
   cursor: grabbing;
   pointer-events: none;
@@ -660,6 +679,31 @@
   border-radius: 8px;
   border: 1px dashed rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.04);
+}
+
+.webflow-palette-embed .palette-list.two-column .palette-card,
+.webflow-palette-embed .palette-list.two-column .palette-placeholder {
+  border-radius: 7px;
+}
+
+.webflow-palette-embed .palette-list.two-column .palette-card {
+  padding: 7px 6px;
+}
+
+.webflow-palette-embed .palette-list.two-column .palette-meta {
+  gap: 4px;
+}
+
+.webflow-palette-embed .palette-list.two-column .palette-line {
+  gap: 5px;
+  padding: 4px 6px;
+  border-radius: 7px;
+}
+
+.webflow-palette-embed .palette-list.two-column .palette-copy,
+.webflow-palette-embed .palette-list.two-column .percent-badge {
+  font-size: 0.76rem;
+  line-height: 1.05;
 }
 
 .webflow-palette-embed .recipe-modal {
