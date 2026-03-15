@@ -195,12 +195,12 @@ const state = {
 };
 
 const DRAG_LENS = {
-  size: 38,
+  size: 76,
   overlap: 8,
   edgePadding: 8,
-  zoomSize: 35,
+  zoomSize: 70,
   gridSize: 5,
-  cellSize: 7,
+  cellSize: 14,
 };
 
 function mixPigments(recipe) {
