@@ -419,22 +419,21 @@
 .webflow-palette-embed .swatch-lens {
   position: absolute;
   z-index: 1;
-  width: 96px;
-  height: 124px;
+  width: 76px;
+  height: 76px;
   pointer-events: none;
   opacity: 0;
-  --lens-nudge-x: 0px;
   transition: opacity 140ms ease, transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .webflow-palette-embed .swatch-lens[data-placement="above"] {
-  transform-origin: 50% calc(100% - 18px);
-  transform: translate(calc(-50% + var(--lens-nudge-x)), calc(-100% + 22px)) scale(0.82);
+  transform-origin: 50% calc(100% - 12px);
+  transform: translate(-50%, calc(-100% + 14px)) scale(0.82);
 }
 
 .webflow-palette-embed .swatch-lens[data-placement="below"] {
-  transform-origin: 50% 18px;
-  transform: translate(calc(-50% + var(--lens-nudge-x)), -22px) scale(0.82);
+  transform-origin: 50% 12px;
+  transform: translate(-50%, -14px) scale(0.82);
 }
 
 .webflow-palette-embed .swatch-lens.is-visible {
@@ -442,24 +441,27 @@
 }
 
 .webflow-palette-embed .swatch-lens.is-visible[data-placement="above"] {
-  transform: translate(calc(-50% + var(--lens-nudge-x)), calc(-100% + 22px)) scale(1);
+  transform: translate(-50%, calc(-100% + 14px)) scale(1);
 }
 
 .webflow-palette-embed .swatch-lens.is-visible[data-placement="below"] {
-  transform: translate(calc(-50% + var(--lens-nudge-x)), -22px) scale(1);
+  transform: translate(-50%, -14px) scale(1);
 }
 
 .webflow-palette-embed .swatch-lens-shell {
   position: relative;
   width: 100%;
   height: 100%;
+  border-radius: 50%;
   overflow: hidden;
+  border: 1px solid rgba(10, 10, 10, 0.9);
   background:
-    linear-gradient(180deg, color-mix(in srgb, #fbfbf7 84%, var(--swatch-color) 16%), color-mix(in srgb, #eef2eb 70%, var(--swatch-color) 30%));
+    linear-gradient(180deg, color-mix(in srgb, #fbfbf7 88%, var(--swatch-color) 12%), color-mix(in srgb, #eef2eb 74%, var(--swatch-color) 26%));
   box-shadow:
-    0 18px 32px rgba(0, 0, 0, 0.24),
+    0 0 0 2px rgba(255, 255, 255, 0.24),
+    0 8px 22px rgba(0, 0, 0, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.38),
-    inset 0 -10px 18px rgba(62, 72, 68, 0.12);
+    inset 0 -8px 16px rgba(62, 72, 68, 0.12);
 }
 
 .webflow-palette-embed .swatch-lens-shell::before {
@@ -474,8 +476,7 @@
 
 .webflow-palette-embed .swatch-lens-zoom {
   position: absolute;
-  left: 15px;
-  top: 11px;
+  inset: 5px;
   width: 66px;
   height: 66px;
   border-radius: 50%;
@@ -506,27 +507,11 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border: 1px solid rgba(15, 17, 20, 0.82);
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.42);
   transform: translate(-50%, -50%);
-}
-
-.webflow-palette-embed .swatch-lens-outline {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.webflow-palette-embed .swatch-lens-outline path {
-  fill: none;
-  stroke: rgba(12, 14, 17, 0.94);
-  stroke-width: 3;
-  stroke-linejoin: round;
-  stroke-linecap: round;
 }
 
 .webflow-palette-embed .palette-panel {

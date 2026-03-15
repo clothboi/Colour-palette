@@ -195,14 +195,12 @@ const state = {
 };
 
 const DRAG_LENS = {
-  width: 96,
-  height: 124,
-  overlap: 22,
+  size: 76,
+  overlap: 14,
   edgePadding: 8,
   zoomSize: 66,
   gridSize: 11,
   cellSize: 6,
-  path: "M48 4C30.3 4 16 18.3 16 36c0 7.7 2.7 14.8 7.2 20.4C16.1 62.9 11 72.3 11 82.9C11 102.8 27.2 119 47.1 119h1.8C68.8 119 85 102.8 85 82.9c0-10.6-5.1-20-12.2-26.5C77.3 50.8 80 43.7 80 36C80 18.3 65.7 4 48 4Z",
 };
 
 function mixPigments(recipe) {
@@ -277,10 +275,6 @@ function clearDragLensHideTimer() {
   }
 }
 
-function createSvgElement(name) {
-  return document.createElementNS("http://www.w3.org/2000/svg", name);
-}
-
 function createDragLens() {
   clearDragLensHideTimer();
   if (state.dragLens?.element?.isConnected) {
@@ -295,8 +289,6 @@ function createDragLens() {
   const shell = document.createElement("div");
   shell.className = "swatch-lens-shell";
   shell.style.setProperty("--swatch-color", "#F2EFE8");
-  shell.style.clipPath = `path("${DRAG_LENS.path}")`;
-  shell.style.webkitClipPath = `path("${DRAG_LENS.path}")`;
 
   const zoom = document.createElement("div");
   zoom.className = "swatch-lens-zoom";
@@ -311,17 +303,7 @@ function createDragLens() {
   reticle.className = "swatch-lens-reticle";
   zoom.appendChild(reticle);
   shell.appendChild(zoom);
-
-  const outline = createSvgElement("svg");
-  outline.setAttribute("class", "swatch-lens-outline");
-  outline.setAttribute("viewBox", `0 0 ${DRAG_LENS.width} ${DRAG_LENS.height}`);
-  outline.setAttribute("aria-hidden", "true");
-
-  const path = createSvgElement("path");
-  path.setAttribute("d", DRAG_LENS.path);
-  outline.appendChild(path);
-
-  lens.append(shell, outline);
+  lens.append(shell);
   swatchLayer.appendChild(lens);
 
   const zoomCtx = zoomCanvas.getContext("2d", { willReadFrequently: true });
@@ -359,35 +341,22 @@ function positionDragLens(swatch) {
 
   const pointX = swatch.x;
   const pointY = swatch.y;
-  const availableWidth = canvasWrap.clientWidth || canvasWrap.getBoundingClientRect().width;
   const availableHeight = canvasWrap.clientHeight || canvasWrap.getBoundingClientRect().height;
-  const lensWidth = DRAG_LENS.width;
-  const lensHeight = DRAG_LENS.height;
+  const lensSize = DRAG_LENS.size;
   const edgePadding = DRAG_LENS.edgePadding;
 
   let placement = "above";
-  if (pointY < (lensHeight - DRAG_LENS.overlap + edgePadding)) {
+  if (pointY < (lensSize - DRAG_LENS.overlap + edgePadding)) {
     placement = "below";
   }
 
-  let nudgeX = 0;
-  const leftEdge = pointX - (lensWidth / 2);
-  const rightEdge = pointX + (lensWidth / 2);
-  if (leftEdge < edgePadding) {
-    nudgeX = edgePadding - leftEdge;
-  }
-  if (rightEdge + nudgeX > availableWidth - edgePadding) {
-    nudgeX += (availableWidth - edgePadding) - (rightEdge + nudgeX);
-  }
-
-  if (placement === "below" && (pointY + lensHeight - DRAG_LENS.overlap > availableHeight - edgePadding)) {
+  if (placement === "below" && (pointY + lensSize - DRAG_LENS.overlap > availableHeight - edgePadding)) {
     placement = "above";
   }
 
   state.dragLens.element.dataset.placement = placement;
   state.dragLens.element.style.left = `${pointX}px`;
   state.dragLens.element.style.top = `${pointY}px`;
-  state.dragLens.element.style.setProperty("--lens-nudge-x", `${Math.round(nudgeX)}px`);
 }
 
 function sampleLensNeighborhood(centerX, centerY, gridSize) {
