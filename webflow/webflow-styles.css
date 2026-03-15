@@ -491,9 +491,10 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 8px;
-  height: 8px;
+  width: var(--lens-cell-size, 14px);
+  height: var(--lens-cell-size, 14px);
   border: 1px solid var(--lens-reticle-color, rgba(15, 17, 20, 0.96));
+  box-shadow: 0 0 0 1px var(--lens-reticle-contrast, rgba(255, 255, 255, 0.96));
   background: transparent;
   transform: translate(-50%, -50%);
 }

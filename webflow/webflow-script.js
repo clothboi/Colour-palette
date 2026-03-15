@@ -409,7 +409,14 @@ function renderDragLens(swatch) {
   }
 
   shell.style.setProperty("--swatch-color", swatch.color.hex);
-  shell.style.setProperty("--lens-reticle-color", luminance(swatch.color.r, swatch.color.g, swatch.color.b) > 0.62 ? "rgba(15, 17, 20, 0.96)" : "rgba(255, 255, 255, 0.96)");
+  shell.style.setProperty("--lens-cell-size", `${cellSize}px`);
+  if (luminance(swatch.color.r, swatch.color.g, swatch.color.b) > 0.62) {
+    shell.style.setProperty("--lens-reticle-color", "rgba(15, 17, 20, 0.98)");
+    shell.style.setProperty("--lens-reticle-contrast", "rgba(255, 255, 255, 0.98)");
+  } else {
+    shell.style.setProperty("--lens-reticle-color", "rgba(255, 255, 255, 0.98)");
+    shell.style.setProperty("--lens-reticle-contrast", "rgba(15, 17, 20, 0.98)");
+  }
 }
 
 function refreshStageSize() {
