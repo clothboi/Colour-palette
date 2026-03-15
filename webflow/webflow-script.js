@@ -45,6 +45,23 @@ function getPaletteMarkup() {
       </div>
 
       <aside class="palette-panel" data-role="palette-panel">
+        <button class="palette-drawer-open" type="button" data-action="palette-drawer-open" aria-label="Open reorder menu" aria-expanded="false">
+          <span class="palette-drawer-open__bar" aria-hidden="true"></span>
+        </button>
+        <div class="palette-drawer-summary" data-role="palette-drawer-summary">
+          <div class="palette-drawer-summary__header">
+            <span class="palette-drawer-toggle__copy">
+              <span class="palette-drawer-toggle__label">Palette Rail</span>
+              <span class="palette-drawer-toggle__status" data-role="palette-preview-status">Upload an image to build a palette.</span>
+            </span>
+            <div class="palette-toolbar-controls palette-toolbar-controls--summary">
+              <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
+              <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
+              <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
+            </div>
+          </div>
+          <span class="palette-preview-list" data-role="palette-preview-list" aria-hidden="true"></span>
+        </div>
         <div class="palette-toolbar">
           <div class="palette-toolbar-head">
             <span class="palette-rail-label">Palette Rail</span>
@@ -56,13 +73,6 @@ function getPaletteMarkup() {
             <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
           </div>
         </div>
-        <button class="palette-drawer-toggle" type="button" data-action="palette-drawer-toggle" aria-expanded="false">
-          <span class="palette-drawer-toggle__copy">
-            <span class="palette-drawer-toggle__label">Palette Rail</span>
-            <span class="palette-drawer-toggle__status" data-role="palette-preview-status">Upload an image to build a palette.</span>
-          </span>
-          <span class="palette-preview-list" data-role="palette-preview-list" aria-hidden="true"></span>
-        </button>
         <div class="palette-drawer-sheet" data-role="palette-drawer-sheet" aria-hidden="false">
           <div data-role="palette-list" class="palette-list"></div>
         </div>
@@ -152,17 +162,19 @@ const swatchLayer = root.querySelector('[data-role="swatch-layer"]');
 const paletteList = root.querySelector('[data-role="palette-list"]');
 const palettePanel = root.querySelector('[data-role="palette-panel"]');
 const paletteDrawerSheet = root.querySelector('[data-role="palette-drawer-sheet"]');
+const paletteDrawerSummary = root.querySelector('[data-role="palette-drawer-summary"]');
 const palettePreviewList = root.querySelector('[data-role="palette-preview-list"]');
 const palettePreviewStatus = root.querySelector('[data-role="palette-preview-status"]');
 const emptyState = root.querySelector('[data-role="empty-state"]');
 const canvasStage = root.querySelector('.canvas-stage');
 const canvasWrap = root.querySelector('[data-role="canvas-wrap"]');
+const controlHud = root.querySelector('.control-hud');
 const mobileViewToggle = root.querySelector('[data-action="toggle-mobile-view"]');
-const paletteDrawerToggle = root.querySelector('[data-action="palette-drawer-toggle"]');
+const paletteDrawerOpen = root.querySelector('[data-action="palette-drawer-open"]');
 const paletteDrawerClose = root.querySelector('[data-action="palette-drawer-close"]');
-const paletteMinus = root.querySelector('[data-action="palette-minus"]');
-const palettePlus = root.querySelector('[data-action="palette-plus"]');
-const paletteSizeLabel = root.querySelector('[data-role="palette-size-label"]');
+const paletteMinusButtons = [...root.querySelectorAll('[data-action="palette-minus"]')];
+const palettePlusButtons = [...root.querySelectorAll('[data-action="palette-plus"]')];
+const paletteSizeLabels = [...root.querySelectorAll('[data-role="palette-size-label"]')];
 const recipeButton = root.querySelector('[data-action="recipe"]');
 const imageExportButton = root.querySelector('[data-action="export-image"]');
 const recipeModal = root.querySelector('[data-role="recipe-modal"]');
@@ -179,7 +191,7 @@ const saveClose = root.querySelector('[data-action="save-close"]');
 const saveExport = root.querySelector('[data-action="save-export-image"]');
 const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
 const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-if (!ctx || !swatchLayer || !paletteList || !palettePanel || !paletteDrawerSheet || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !mobileViewToggle || !paletteDrawerToggle || !paletteDrawerClose || !paletteMinus || !palettePlus || !paletteSizeLabel || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+if (!ctx || !swatchLayer || !paletteList || !palettePanel || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !mobileViewToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !paletteSizeLabels.length || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
   return;
 }
 
@@ -206,7 +218,8 @@ const mobileLayoutQuery = window.matchMedia(`(max-width: ${MOBILE_LAYOUT_MAX_WID
 const paletteDrawerId = `palette-drawer-${Math.random().toString(36).slice(2, 10)}`;
 
 paletteDrawerSheet.id = paletteDrawerId;
-paletteDrawerToggle.setAttribute("aria-controls", paletteDrawerId);
+paletteDrawerOpen.setAttribute("aria-controls", paletteDrawerId);
+paletteDrawerClose.setAttribute("aria-controls", paletteDrawerId);
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -575,6 +588,7 @@ function refreshStageSize() {
     state.processedReferenceCanvas = null;
     canvasStage.style.removeProperty("--image-ratio");
     canvasStage.style.removeProperty("--frame-width");
+    canvasStage.style.removeProperty("--frame-height");
     canvasWrap.style.removeProperty("--image-ratio");
     return;
   }
@@ -582,13 +596,44 @@ function refreshStageSize() {
   root.dataset.paletteHasImage = "true";
   const imageRatio = state.image.width / state.image.height;
   const ratioValue = `${state.image.width} / ${state.image.height}`;
+  canvasStage.style.setProperty("--image-ratio", ratioValue);
+  canvasWrap.style.setProperty("--image-ratio", ratioValue);
+
+  if (isEffectiveMobileLayout()) {
+    const stageStyles = window.getComputedStyle(canvasStage);
+    const gap = parseFloat(stageStyles.rowGap || stageStyles.gap || "0") || 0;
+    const paddingTop = parseFloat(stageStyles.paddingTop || "0") || 0;
+    const paddingBottom = parseFloat(stageStyles.paddingBottom || "0") || 0;
+    const paddingLeft = parseFloat(stageStyles.paddingLeft || "0") || 0;
+    const paddingRight = parseFloat(stageStyles.paddingRight || "0") || 0;
+    const stageHeight = canvasStage.clientHeight || canvasStage.getBoundingClientRect().height || 0;
+    const stageWidth = canvasStage.clientWidth || canvasStage.getBoundingClientRect().width || 0;
+    const warningVisible = !importWarning.classList.contains("hidden");
+    const fixedHeight = controlHud.getBoundingClientRect().height + (warningVisible ? importWarning.getBoundingClientRect().height : 0);
+    const gapCount = warningVisible ? 2 : 1;
+    const availableHeight = Math.max(
+      220,
+      Math.round(stageHeight - paddingTop - paddingBottom - fixedHeight - (gap * gapCount)),
+    );
+    const availableWidth = Math.max(180, Math.round(stageWidth - paddingLeft - paddingRight));
+
+    let frameWidth = availableWidth;
+    let frameHeight = Math.round(frameWidth / imageRatio);
+    if (frameHeight > availableHeight) {
+      frameHeight = availableHeight;
+      frameWidth = Math.round(frameHeight * imageRatio);
+    }
+
+    canvasStage.style.setProperty("--frame-width", `${Math.max(180, frameWidth)}px`);
+    canvasStage.style.setProperty("--frame-height", `${Math.max(220, frameHeight)}px`);
+    return;
+  }
+
   const frameHeight = Math.max(320, Math.round(canvasWrap.clientHeight || canvasWrap.getBoundingClientRect().height || 0));
   const maxWidth = Math.max(280, Math.round(window.innerWidth - getPaletteFrameClearance()));
   const frameWidth = Math.min(Math.round(frameHeight * imageRatio), maxWidth);
-
-  canvasStage.style.setProperty("--image-ratio", ratioValue);
   canvasStage.style.setProperty("--frame-width", `${frameWidth}px`);
-  canvasWrap.style.setProperty("--image-ratio", ratioValue);
+  canvasStage.style.removeProperty("--frame-height");
 }
 
 function renderPalettePreview() {
@@ -607,10 +652,16 @@ function renderPalettePreview() {
 }
 
 function updatePaletteLabel() {
-  paletteSizeLabel.textContent = `Palette: ${state.paletteSize}`;
-  paletteMinus.disabled = state.paletteSize <= PALETTE_MIN;
-  palettePlus.disabled = state.paletteSize >= PALETTE_MAX;
-  paletteDrawerToggle.disabled = !state.colors.length;
+  paletteSizeLabels.forEach((label) => {
+    label.textContent = `Palette: ${state.paletteSize}`;
+  });
+  paletteMinusButtons.forEach((button) => {
+    button.disabled = state.paletteSize <= PALETTE_MIN;
+  });
+  palettePlusButtons.forEach((button) => {
+    button.disabled = state.paletteSize >= PALETTE_MAX;
+  });
+  paletteDrawerOpen.disabled = !state.colors.length;
   palettePreviewStatus.textContent = state.colors.length
     ? `${state.colors.length} ${state.colors.length === 1 ? "colour" : "colours"} ready`
     : "Upload an image to build a palette.";
@@ -627,8 +678,10 @@ function syncLayoutState() {
   root.dataset.paletteDrawerOpen = effectiveMobileLayout && state.isPaletteDrawerOpen ? "true" : "false";
 
   mobileViewToggle.setAttribute("aria-pressed", String(state.forceMobileView));
-  paletteDrawerToggle.hidden = !effectiveMobileLayout;
-  paletteDrawerToggle.setAttribute("aria-expanded", effectiveMobileLayout && state.isPaletteDrawerOpen ? "true" : "false");
+  paletteDrawerOpen.hidden = !effectiveMobileLayout || state.isPaletteDrawerOpen;
+  paletteDrawerOpen.setAttribute("aria-expanded", effectiveMobileLayout && state.isPaletteDrawerOpen ? "true" : "false");
+  paletteDrawerSummary.hidden = !effectiveMobileLayout || state.isPaletteDrawerOpen;
+  paletteDrawerSummary.setAttribute("aria-hidden", String(!effectiveMobileLayout || state.isPaletteDrawerOpen));
   paletteDrawerClose.hidden = !effectiveMobileLayout || !state.isPaletteDrawerOpen;
   paletteDrawerSheet.hidden = effectiveMobileLayout ? !state.isPaletteDrawerOpen : false;
   paletteDrawerSheet.setAttribute("aria-hidden", effectiveMobileLayout ? String(!state.isPaletteDrawerOpen) : "false");
@@ -665,7 +718,7 @@ function closePaletteDrawer({ restoreFocus = true } = {}) {
   syncLayoutState();
   if (restoreFocus) {
     requestAnimationFrame(() => {
-      paletteDrawerToggle.focus({ preventScroll: true });
+      paletteDrawerOpen.focus({ preventScroll: true });
     });
   }
 }
@@ -1874,18 +1927,16 @@ mobileViewToggle.addEventListener("click", () => {
     syncSwatchTargetsFromColors();
   });
 });
-paletteDrawerToggle.addEventListener("click", () => {
-  if (state.isPaletteDrawerOpen) {
-    closePaletteDrawer();
-    return;
-  }
-  openPaletteDrawer();
-});
+paletteDrawerOpen.addEventListener("click", openPaletteDrawer);
 paletteDrawerClose.addEventListener("click", () => {
   closePaletteDrawer();
 });
-paletteMinus.addEventListener("click", removePaletteColor);
-palettePlus.addEventListener("click", addPaletteColor);
+paletteMinusButtons.forEach((button) => {
+  button.addEventListener("click", removePaletteColor);
+});
+palettePlusButtons.forEach((button) => {
+  button.addEventListener("click", addPaletteColor);
+});
 canvasWrap.addEventListener("dragover", (event) => event.preventDefault());
 canvasWrap.addEventListener("drop", async (event) => {
   event.preventDefault();
