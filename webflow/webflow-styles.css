@@ -453,35 +453,19 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  overflow: hidden;
-  border: 1px solid rgba(10, 10, 10, 0.9);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, #fbfbf7 88%, var(--swatch-color) 12%), color-mix(in srgb, #eef2eb 74%, var(--swatch-color) 26%));
-  box-shadow:
-    0 0 0 2px rgba(255, 255, 255, 0.24),
-    0 8px 22px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.38),
-    inset 0 -8px 16px rgba(62, 72, 68, 0.12);
-}
-
-.webflow-palette-embed .swatch-lens-shell::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.42), transparent 36%),
-    radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.3), transparent 38%);
-  pointer-events: none;
 }
 
 .webflow-palette-embed .swatch-lens-zoom {
   position: absolute;
-  inset: 5px;
-  width: 66px;
-  height: 66px;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   overflow: hidden;
+  border: 1px solid rgba(10, 10, 10, 0.9);
   box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.24),
+    0 8px 22px rgba(0, 0, 0, 0.28),
     inset 0 0 0 1px rgba(10, 10, 10, 0.16),
     inset 0 8px 18px rgba(255, 255, 255, 0.18);
   background: rgba(233, 239, 232, 0.82);
@@ -507,11 +491,35 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 8px;
-  height: 8px;
-  border: 1px solid rgba(15, 17, 20, 0.82);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.42);
+  width: 10px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(15, 17, 20, 0.92);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.88),
+    0 0 8px rgba(0, 0, 0, 0.18);
   transform: translate(-50%, -50%);
+}
+
+.webflow-palette-embed .swatch-lens-reticle::before,
+.webflow-palette-embed .swatch-lens-reticle::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: rgba(15, 17, 20, 0.92);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.76);
+  transform: translate(-50%, -50%);
+}
+
+.webflow-palette-embed .swatch-lens-reticle::before {
+  width: 16px;
+  height: 1px;
+}
+
+.webflow-palette-embed .swatch-lens-reticle::after {
+  width: 1px;
+  height: 16px;
 }
 
 .webflow-palette-embed .palette-panel {
