@@ -545,13 +545,13 @@ function drawProcessedImage() {
   let offsetX = 0;
   let offsetY = 0;
   if (imageRatio > frameRatio) {
-    drawHeight = reducedHeight;
-    drawWidth = reducedHeight * imageRatio;
-    offsetX = (reducedWidth - drawWidth) / 2;
-  } else {
     drawWidth = reducedWidth;
     drawHeight = reducedWidth / imageRatio;
     offsetY = (reducedHeight - drawHeight) / 2;
+  } else {
+    drawHeight = reducedHeight;
+    drawWidth = reducedHeight * imageRatio;
+    offsetX = (reducedWidth - drawWidth) / 2;
   }
   downscaleCtx.drawImage(state.image, offsetX, offsetY, drawWidth, drawHeight);
   ctx.clearRect(0, 0, displayWidth, displayHeight);
