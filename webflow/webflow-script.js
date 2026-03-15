@@ -195,12 +195,12 @@ const state = {
 };
 
 const DRAG_LENS = {
-  size: 76,
-  overlap: 14,
+  size: 38,
+  overlap: 8,
   edgePadding: 8,
-  zoomSize: 66,
-  gridSize: 11,
-  cellSize: 6,
+  zoomSize: 35,
+  gridSize: 5,
+  cellSize: 7,
 };
 
 function mixPigments(recipe) {
@@ -409,6 +409,7 @@ function renderDragLens(swatch) {
   }
 
   shell.style.setProperty("--swatch-color", swatch.color.hex);
+  shell.style.setProperty("--lens-reticle-color", luminance(swatch.color.r, swatch.color.g, swatch.color.b) > 0.62 ? "rgba(15, 17, 20, 0.96)" : "rgba(255, 255, 255, 0.96)");
 }
 
 function refreshStageSize() {
