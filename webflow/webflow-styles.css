@@ -465,19 +465,7 @@
   border: 1px solid rgba(10, 10, 10, 0.9);
   box-shadow:
     0 0 0 2px rgba(255, 255, 255, 0.24),
-    0 8px 22px rgba(0, 0, 0, 0.28),
-    inset 0 0 0 1px rgba(10, 10, 10, 0.16),
-    inset 0 8px 18px rgba(255, 255, 255, 0.18);
-  background: rgba(233, 239, 232, 0.82);
-}
-
-.webflow-palette-embed .swatch-lens-zoom::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 34% 24%, rgba(255, 255, 255, 0.18), transparent 28%);
-  pointer-events: none;
+    0 8px 22px rgba(0, 0, 0, 0.28);
 }
 
 .webflow-palette-embed .swatch-lens-canvas {
@@ -485,18 +473,6 @@
   width: 100%;
   height: 100%;
   image-rendering: pixelated;
-}
-
-.webflow-palette-embed .swatch-lens-reticle {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: var(--lens-cell-size, 14px);
-  height: var(--lens-cell-size, 14px);
-  border: 1px solid var(--lens-reticle-color, rgba(15, 17, 20, 0.96));
-  box-shadow: 0 0 0 1px var(--lens-reticle-contrast, rgba(255, 255, 255, 0.96));
-  background: transparent;
-  transform: translate(-50%, -50%);
 }
 
 .webflow-palette-embed .palette-panel {

@@ -298,10 +298,6 @@ function createDragLens() {
   zoomCanvas.width = DRAG_LENS.zoomSize;
   zoomCanvas.height = DRAG_LENS.zoomSize;
   zoom.appendChild(zoomCanvas);
-
-  const reticle = document.createElement("div");
-  reticle.className = "swatch-lens-reticle";
-  zoom.appendChild(reticle);
   shell.appendChild(zoom);
   lens.append(shell);
   swatchLayer.appendChild(lens);
@@ -391,7 +387,7 @@ function sampleLensNeighborhood(centerX, centerY, gridSize) {
 function renderDragLens(swatch) {
   if (!state.dragLens?.ctx) return;
 
-  const { ctx: lensCtx, shell } = state.dragLens;
+  const { ctx: lensCtx } = state.dragLens;
   const { gridSize, cellSize, zoomSize } = DRAG_LENS;
   const samples = sampleLensNeighborhood(swatch.targetX, swatch.targetY, gridSize);
   lensCtx.clearRect(0, 0, zoomSize, zoomSize);
@@ -408,15 +404,18 @@ function renderDragLens(swatch) {
     }
   }
 
-  shell.style.setProperty("--swatch-color", swatch.color.hex);
-  shell.style.setProperty("--lens-cell-size", `${cellSize}px`);
-  if (luminance(swatch.color.r, swatch.color.g, swatch.color.b) > 0.62) {
-    shell.style.setProperty("--lens-reticle-color", "rgba(15, 17, 20, 0.98)");
-    shell.style.setProperty("--lens-reticle-contrast", "rgba(255, 255, 255, 0.98)");
-  } else {
-    shell.style.setProperty("--lens-reticle-color", "rgba(255, 255, 255, 0.98)");
-    shell.style.setProperty("--lens-reticle-contrast", "rgba(15, 17, 20, 0.98)");
-  }
+  const center = Math.floor(gridSize / 2);
+  const centerIndex = ((center * gridSize) + center) * 4;
+  const centerR = samples[centerIndex];
+  const centerG = samples[centerIndex + 1];
+  const centerB = samples[centerIndex + 2];
+  const reticleColor = luminance(centerR, centerG, centerB) > 0.62 ? "rgba(10, 10, 10, 0.98)" : "rgba(255, 255, 255, 0.98)";
+
+  lensCtx.save();
+  lensCtx.strokeStyle = reticleColor;
+  lensCtx.lineWidth = 2;
+  lensCtx.strokeRect((center * cellSize) + 1, (center * cellSize) + 1, cellSize - 2, cellSize - 2);
+  lensCtx.restore();
 }
 
 function refreshStageSize() {
