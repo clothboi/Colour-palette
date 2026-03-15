@@ -547,6 +547,7 @@
 }
 
 .webflow-palette-embed .palette-panel {
+  position: relative;
   min-height: 0;
   display: grid;
   grid-template-rows: auto auto auto minmax(0, 1fr);
@@ -563,55 +564,40 @@
 }
 
 .webflow-palette-embed .palette-drawer-open {
-  position: relative;
-  align-self: center;
-  width: 64px;
-  height: 28px;
-  padding: 0;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 3;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  height: 34px;
+  padding: 0 18px;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 999px 999px 16px 16px;
+  border-radius: 999px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.04));
   color: inherit;
   cursor: pointer;
+  font: inherit;
+  transform: translate(-50%, -50%);
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
-}
-
-.webflow-palette-embed .palette-drawer-open::before,
-.webflow-palette-embed .palette-drawer-open::after {
-  content: "";
-  position: absolute;
-  top: 13px;
-  width: 10px;
-  height: 2px;
-  border-radius: 999px;
-  background: rgba(246, 242, 234, 0.94);
-}
-
-.webflow-palette-embed .palette-drawer-open::before {
-  left: calc(50% - 10px);
-  transform: rotate(38deg);
-}
-
-.webflow-palette-embed .palette-drawer-open::after {
-  right: calc(50% - 10px);
-  transform: rotate(-38deg);
 }
 
 .webflow-palette-embed .palette-drawer-open:disabled {
   opacity: 0.38;
   cursor: default;
-  transform: none;
+  transform: translate(-50%, -50%);
 }
 
-.webflow-palette-embed .palette-drawer-open__bar {
-  position: absolute;
-  top: 6px;
-  left: 50%;
-  width: 24px;
-  height: 3px;
-  border-radius: 999px;
-  background: rgba(246, 242, 234, 0.42);
-  transform: translateX(-50%);
+.webflow-palette-embed .palette-drawer-open__label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .webflow-palette-embed .palette-drawer-summary {
@@ -649,7 +635,8 @@
 }
 
 .webflow-palette-embed .palette-toolbar-controls--summary {
-  width: min(224px, 100%);
+  width: 100%;
+  min-width: 0;
 }
 
 .webflow-palette-embed .palette-rail-label {
@@ -671,16 +658,13 @@
 
 .webflow-palette-embed .palette-drawer-open:not(:disabled):hover,
 .webflow-palette-embed .palette-drawer-open:not(:disabled):focus-visible {
+  transform: translate(-50%, calc(-50% - 1px));
   border-color: rgba(255, 255, 255, 0.22);
   background: rgba(255, 255, 255, 0.08);
 }
 
 .webflow-palette-embed .palette-drawer-open:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-.webflow-palette-embed .palette-drawer-open {
-  font: inherit;
+  transform: translate(-50%, calc(-50% + 1px));
 }
 
 .webflow-palette-embed .palette-drawer-toggle__label {
@@ -718,6 +702,16 @@
   min-height: 0;
   display: grid;
   grid-template-rows: minmax(0, 1fr);
+}
+
+.webflow-palette-embed:not([data-mobile-layout="true"]) .palette-drawer-sheet {
+  height: 100%;
+}
+
+.webflow-palette-embed:not([data-mobile-layout="true"]) .palette-list,
+.webflow-palette-embed:not([data-mobile-layout="true"]) .palette-column {
+  min-height: 100%;
+  height: 100%;
 }
 
 .webflow-palette-embed .palette-toolbar {
@@ -1266,7 +1260,7 @@
   height: var(--palette-drawer-collapsed-height);
   min-height: var(--palette-drawer-collapsed-height);
   max-height: var(--palette-drawer-collapsed-height);
-  padding: 8px 12px 12px;
+  padding: 24px 12px 12px;
   border-radius: 22px 22px 18px 18px;
   overflow: hidden;
   transition: inset 220ms cubic-bezier(0.22, 1, 0.36, 1), height 220ms cubic-bezier(0.22, 1, 0.36, 1), max-height 220ms cubic-bezier(0.22, 1, 0.36, 1), padding 220ms cubic-bezier(0.22, 1, 0.36, 1), border-radius 220ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -1285,12 +1279,17 @@
   gap: 10px;
 }
 
+.webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-summary__header {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 12px;
+}
+
 .webflow-palette-embed[data-mobile-layout="true"] .palette-toolbar-controls {
   grid-template-columns: 44px 1fr 44px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-toolbar-controls--summary {
-  width: min(220px, 62vw);
+  width: 100%;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-button,
@@ -1389,7 +1388,7 @@ function getPaletteMarkup() {
 
       <aside class="palette-panel" data-role="palette-panel">
         <button class="palette-drawer-open" type="button" data-action="palette-drawer-open" aria-label="Open reorder menu" aria-expanded="false">
-          <span class="palette-drawer-open__bar" aria-hidden="true"></span>
+          <span class="palette-drawer-open__label">Open</span>
         </button>
         <div class="palette-drawer-summary" data-role="palette-drawer-summary">
           <div class="palette-drawer-summary__header">
@@ -1504,6 +1503,7 @@ const ctx = canvas.getContext("2d", { willReadFrequently: true });
 const swatchLayer = root.querySelector('[data-role="swatch-layer"]');
 const paletteList = root.querySelector('[data-role="palette-list"]');
 const palettePanel = root.querySelector('[data-role="palette-panel"]');
+const paletteToolbar = root.querySelector('.palette-toolbar');
 const paletteDrawerSheet = root.querySelector('[data-role="palette-drawer-sheet"]');
 const paletteDrawerSummary = root.querySelector('[data-role="palette-drawer-summary"]');
 const palettePreviewList = root.querySelector('[data-role="palette-preview-list"]');
@@ -1534,7 +1534,7 @@ const saveClose = root.querySelector('[data-action="save-close"]');
 const saveExport = root.querySelector('[data-action="save-export-image"]');
 const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
 const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-if (!ctx || !swatchLayer || !paletteList || !palettePanel || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !mobileViewToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !paletteSizeLabels.length || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+if (!ctx || !swatchLayer || !paletteList || !palettePanel || !paletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !mobileViewToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !paletteSizeLabels.length || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
   return;
 }
 
@@ -2455,8 +2455,35 @@ function getFittedPaletteHeights(colors, availableHeight, gap = PALETTE_GAP, pre
   return heights;
 }
 
+function getPaletteAvailableHeight() {
+  const listHeight = paletteList.clientHeight || paletteList.getBoundingClientRect().height || 0;
+  const sheetHeight = paletteDrawerSheet.clientHeight || paletteDrawerSheet.getBoundingClientRect().height || 0;
+  const panelHeight = palettePanel.clientHeight || palettePanel.getBoundingClientRect().height || 0;
+  if (!panelHeight) {
+    return Math.max(0, Math.round(Math.max(listHeight, sheetHeight)));
+  }
+
+  const panelStyles = window.getComputedStyle(palettePanel);
+  const paddingTop = parseFloat(panelStyles.paddingTop || "0") || 0;
+  const paddingBottom = parseFloat(panelStyles.paddingBottom || "0") || 0;
+  const gap = parseFloat(panelStyles.rowGap || panelStyles.gap || "0") || 0;
+  const summaryVisible = !paletteDrawerSummary.hidden && window.getComputedStyle(paletteDrawerSummary).display !== "none";
+  const openVisible = !paletteDrawerOpen.hidden && window.getComputedStyle(paletteDrawerOpen).display !== "none";
+  const toolbarVisible = window.getComputedStyle(paletteToolbar).display !== "none";
+  const usedHeights = [
+    openVisible ? paletteDrawerOpen.getBoundingClientRect().height : 0,
+    summaryVisible ? paletteDrawerSummary.getBoundingClientRect().height : 0,
+    toolbarVisible ? paletteToolbar.getBoundingClientRect().height : 0,
+  ].filter((value) => value > 0);
+  const visibleItems = usedHeights.length + 1;
+  const gaps = Math.max(0, visibleItems - 1) * gap;
+  const computedHeight = Math.max(0, Math.round(panelHeight - paddingTop - paddingBottom - gaps - usedHeights.reduce((sum, value) => sum + value, 0)));
+
+  return Math.max(Math.round(listHeight), Math.round(sheetHeight), computedHeight);
+}
+
 function getPaletteHeightMap() {
-  const availableHeight = paletteList.clientHeight;
+  const availableHeight = getPaletteAvailableHeight();
   const heightById = new Map();
 
   if (!isTwoColumnPalette()) {

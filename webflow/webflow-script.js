@@ -46,7 +46,7 @@ function getPaletteMarkup() {
 
       <aside class="palette-panel" data-role="palette-panel">
         <button class="palette-drawer-open" type="button" data-action="palette-drawer-open" aria-label="Open reorder menu" aria-expanded="false">
-          <span class="palette-drawer-open__bar" aria-hidden="true"></span>
+          <span class="palette-drawer-open__label">Open</span>
         </button>
         <div class="palette-drawer-summary" data-role="palette-drawer-summary">
           <div class="palette-drawer-summary__header">
@@ -161,6 +161,7 @@ const ctx = canvas.getContext("2d", { willReadFrequently: true });
 const swatchLayer = root.querySelector('[data-role="swatch-layer"]');
 const paletteList = root.querySelector('[data-role="palette-list"]');
 const palettePanel = root.querySelector('[data-role="palette-panel"]');
+const paletteToolbar = root.querySelector('.palette-toolbar');
 const paletteDrawerSheet = root.querySelector('[data-role="palette-drawer-sheet"]');
 const paletteDrawerSummary = root.querySelector('[data-role="palette-drawer-summary"]');
 const palettePreviewList = root.querySelector('[data-role="palette-preview-list"]');
@@ -191,7 +192,7 @@ const saveClose = root.querySelector('[data-action="save-close"]');
 const saveExport = root.querySelector('[data-action="save-export-image"]');
 const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
 const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-if (!ctx || !swatchLayer || !paletteList || !palettePanel || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !mobileViewToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !paletteSizeLabels.length || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+if (!ctx || !swatchLayer || !paletteList || !palettePanel || !paletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !mobileViewToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !paletteSizeLabels.length || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
   return;
 }
 
@@ -1112,8 +1113,35 @@ function getFittedPaletteHeights(colors, availableHeight, gap = PALETTE_GAP, pre
   return heights;
 }
 
+function getPaletteAvailableHeight() {
+  const listHeight = paletteList.clientHeight || paletteList.getBoundingClientRect().height || 0;
+  const sheetHeight = paletteDrawerSheet.clientHeight || paletteDrawerSheet.getBoundingClientRect().height || 0;
+  const panelHeight = palettePanel.clientHeight || palettePanel.getBoundingClientRect().height || 0;
+  if (!panelHeight) {
+    return Math.max(0, Math.round(Math.max(listHeight, sheetHeight)));
+  }
+
+  const panelStyles = window.getComputedStyle(palettePanel);
+  const paddingTop = parseFloat(panelStyles.paddingTop || "0") || 0;
+  const paddingBottom = parseFloat(panelStyles.paddingBottom || "0") || 0;
+  const gap = parseFloat(panelStyles.rowGap || panelStyles.gap || "0") || 0;
+  const summaryVisible = !paletteDrawerSummary.hidden && window.getComputedStyle(paletteDrawerSummary).display !== "none";
+  const openVisible = !paletteDrawerOpen.hidden && window.getComputedStyle(paletteDrawerOpen).display !== "none";
+  const toolbarVisible = window.getComputedStyle(paletteToolbar).display !== "none";
+  const usedHeights = [
+    openVisible ? paletteDrawerOpen.getBoundingClientRect().height : 0,
+    summaryVisible ? paletteDrawerSummary.getBoundingClientRect().height : 0,
+    toolbarVisible ? paletteToolbar.getBoundingClientRect().height : 0,
+  ].filter((value) => value > 0);
+  const visibleItems = usedHeights.length + 1;
+  const gaps = Math.max(0, visibleItems - 1) * gap;
+  const computedHeight = Math.max(0, Math.round(panelHeight - paddingTop - paddingBottom - gaps - usedHeights.reduce((sum, value) => sum + value, 0)));
+
+  return Math.max(Math.round(listHeight), Math.round(sheetHeight), computedHeight);
+}
+
 function getPaletteHeightMap() {
-  const availableHeight = paletteList.clientHeight;
+  const availableHeight = getPaletteAvailableHeight();
   const heightById = new Map();
 
   if (!isTwoColumnPalette()) {
