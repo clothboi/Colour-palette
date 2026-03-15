@@ -108,6 +108,7 @@ if (!ctx || !swatchLayer || !paletteList || !emptyState || !canvasStage || !canv
 
 const PALETTE_MIN = 2;
 const PALETTE_MAX = 30;
+const DEFAULT_PALETTE_SIZE = 4;
 const PALETTE_TWO_COLUMN_THRESHOLD = 16;
 const PALETTE_GAP = 3;
 const PALETTE_SINGLE_MIN_HEIGHT = 52;
@@ -199,7 +200,7 @@ const state = {
   animationFrame: null,
   sourceWidth: canvas.width,
   sourceHeight: canvas.height,
-  paletteSize: 4,
+  paletteSize: DEFAULT_PALETTE_SIZE,
   dpr: window.devicePixelRatio || 1,
   scrollLockY: 0,
   hoveredColorId: null,
@@ -1407,6 +1408,7 @@ async function handleFile(file) {
 
   try {
     state.image = await readImage(file);
+    state.paletteSize = DEFAULT_PALETTE_SIZE;
     emptyState.classList.add("hidden");
     initializePalette();
   } catch (error) {
