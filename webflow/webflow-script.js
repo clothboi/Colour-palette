@@ -45,6 +45,17 @@ function getPaletteMarkup() {
       </div>
 
       <aside class="palette-panel" data-role="palette-panel">
+        <div class="palette-toolbar">
+          <div class="palette-toolbar-head">
+            <span class="palette-rail-label">Palette Rail</span>
+            <button class="palette-drawer-close" type="button" data-action="palette-drawer-close" aria-label="Close palette drawer">Close</button>
+          </div>
+          <div class="palette-toolbar-controls">
+            <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
+            <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
+            <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
+          </div>
+        </div>
         <button class="palette-drawer-toggle" type="button" data-action="palette-drawer-toggle" aria-expanded="false">
           <span class="palette-drawer-toggle__copy">
             <span class="palette-drawer-toggle__label">Palette Rail</span>
@@ -53,17 +64,6 @@ function getPaletteMarkup() {
           <span class="palette-preview-list" data-role="palette-preview-list" aria-hidden="true"></span>
         </button>
         <div class="palette-drawer-sheet" data-role="palette-drawer-sheet" aria-hidden="false">
-          <div class="palette-toolbar">
-            <div class="palette-toolbar-head">
-              <span class="palette-rail-label">Palette Rail</span>
-              <button class="palette-drawer-close" type="button" data-action="palette-drawer-close" aria-label="Close palette drawer">Close</button>
-            </div>
-            <div class="palette-toolbar-controls">
-              <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
-              <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
-              <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
-            </div>
-          </div>
           <div data-role="palette-list" class="palette-list"></div>
         </div>
       </aside>
@@ -230,7 +230,7 @@ function getPaletteLeftColumnCount(count = state.colors.length) {
 
 function getPaletteFrameClearance() {
   if (isEffectiveMobileLayout()) {
-    return 40;
+    return 24;
   }
   return isTwoColumnPalette() ? 576 : 460;
 }
@@ -629,7 +629,7 @@ function syncLayoutState() {
   mobileViewToggle.setAttribute("aria-pressed", String(state.forceMobileView));
   paletteDrawerToggle.hidden = !effectiveMobileLayout;
   paletteDrawerToggle.setAttribute("aria-expanded", effectiveMobileLayout && state.isPaletteDrawerOpen ? "true" : "false");
-  paletteDrawerClose.hidden = !effectiveMobileLayout;
+  paletteDrawerClose.hidden = !effectiveMobileLayout || !state.isPaletteDrawerOpen;
   paletteDrawerSheet.hidden = effectiveMobileLayout ? !state.isPaletteDrawerOpen : false;
   paletteDrawerSheet.setAttribute("aria-hidden", effectiveMobileLayout ? String(!state.isPaletteDrawerOpen) : "false");
 

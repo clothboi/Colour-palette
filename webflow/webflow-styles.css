@@ -13,7 +13,7 @@
   --accent: rgba(158, 188, 223, 0.92);
   --palette-panel-width: 404px;
   --frame-clearance: 460px;
-  --palette-drawer-collapsed-height: 118px;
+  --palette-drawer-collapsed-height: 188px;
 }
 
 .webflow-palette-embed[data-palette-layout="double"] {
@@ -546,7 +546,7 @@
 .webflow-palette-embed .palette-panel {
   min-height: 0;
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto auto 1fr;
   gap: 10px;
   padding: 14px;
   border-radius: 20px;
@@ -614,8 +614,7 @@
 .webflow-palette-embed .palette-drawer-sheet {
   min-height: 0;
   display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 10px;
+  grid-template-rows: minmax(0, 1fr);
 }
 
 .webflow-palette-embed .palette-toolbar {
@@ -1110,7 +1109,6 @@
 
 .webflow-palette-embed[data-mobile-layout="true"] .workspace {
   grid-template-columns: 1fr;
-  grid-template-rows: minmax(0, 1fr) auto;
   gap: 10px;
   min-height: calc(100vh - 20px);
   min-height: calc(100dvh - 20px);
@@ -1121,9 +1119,10 @@
   width: 100%;
   max-width: none;
   min-width: 0;
-  height: auto;
-  --frame-height: min(58dvh, 700px);
-  --frame-height: min(58svh, 700px);
+  height: 100%;
+  padding-bottom: calc(var(--palette-drawer-collapsed-height) + 14px);
+  --frame-height: min(70dvh, 920px);
+  --frame-height: min(70svh, 920px);
   --frame-width: min(100%, calc(100vw - 20px));
 }
 
@@ -1160,10 +1159,18 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-panel {
-  grid-template-rows: auto;
-  gap: 0;
-  padding: 10px;
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
   border-radius: 18px;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"]:not([data-palette-drawer-open="true"]) .palette-toolbar-head {
+  display: none;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-toggle {
@@ -1177,22 +1184,30 @@
   outline: none;
 }
 
+.webflow-palette-embed[data-mobile-layout="true"] .palette-toolbar-controls {
+  grid-template-columns: 44px 1fr 44px;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .palette-button,
+.webflow-palette-embed[data-mobile-layout="true"] .palette-size-label {
+  min-height: 44px;
+}
+
 .webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-sheet {
-  position: absolute;
-  inset: 0;
-  z-index: 20;
-  padding: 14px;
-  border: 1px solid var(--border-strong);
-  border-radius: 18px;
-  background: var(--panel-solid);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    var(--shadow-soft);
-  backdrop-filter: blur(18px);
+  flex: 1 1 auto;
   overflow: auto;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-sheet[hidden] {
+  display: none;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"][data-palette-drawer-open="true"] .palette-panel {
+  inset: 0;
+  padding: 14px;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"][data-palette-drawer-open="true"] .palette-drawer-toggle {
   display: none;
 }
 
