@@ -79,7 +79,7 @@ function getPaletteMarkup() {
           <section class="save-control-group">
             <span class="save-control-label">Style</span>
             <div class="save-option-row">
-              <button class="save-option-button" type="button" data-save-style="current">Current</button>
+              <button class="save-option-button" type="button" data-save-style="current">Default</button>
               <button class="save-option-button" type="button" data-save-style="strip">Strip</button>
             </div>
           </section>
@@ -1051,7 +1051,8 @@ function scaleCanvasToLongestEdge(sourceCanvas, longestEdge) {
   return scaledCanvas;
 }
 
-function buildCurrentExportBaseCanvas() {
+function buildCurrentExportBaseCanvas(options) {
+  const showNodes = Boolean(options?.stripNodes);
   const imageWidth = 1100;
   const imageHeight = Math.max(700, Math.round(imageWidth * (state.sourceHeight / Math.max(1, state.sourceWidth))));
   const paletteWidth = 320;
@@ -1090,7 +1091,9 @@ function buildCurrentExportBaseCanvas() {
     cardY += cardHeight + gap;
   });
 
-  drawExportSwatchNodes(exportCtx, 0, 0, imageWidth, imageHeight);
+  if (showNodes) {
+    drawExportSwatchNodes(exportCtx, 0, 0, imageWidth, imageHeight);
+  }
   return exportCanvas;
 }
 
@@ -1099,16 +1102,15 @@ function buildStripExportBaseCanvas(options) {
   const exportWidth = 1100;
   const padding = 24;
   const sectionGap = 14;
-  const cardGap = 10;
-  const cardHeight = 92;
+  const cardGap = 12;
   const imageWidth = exportWidth - (padding * 2);
   const imageHeight = Math.max(660, Math.round(imageWidth * (state.sourceHeight / Math.max(1, state.sourceWidth))));
-  const twoColumn = isTwoColumnPalette(state.colors.length);
+  const columnsCount = Math.min(3, Math.max(1, state.colors.length));
   const columnGap = 12;
-  const columnWidth = twoColumn ? Math.floor((imageWidth - columnGap) / 2) : imageWidth;
-  const columns = getPaletteColumns(state.colors, state.colors.length);
-  const tallestColumnCount = Math.max(...columns.map((column) => column.length), 0);
-  const paletteHeight = tallestColumnCount ? (tallestColumnCount * cardHeight) + ((tallestColumnCount - 1) * cardGap) : 0;
+  const columnWidth = Math.floor((imageWidth - (columnGap * Math.max(0, columnsCount - 1))) / columnsCount);
+  const cardHeight = Math.round(columnWidth * 1.72);
+  const rowCount = Math.ceil(state.colors.length / columnsCount);
+  const paletteHeight = rowCount ? (rowCount * cardHeight) + ((rowCount - 1) * cardGap) : 0;
   const exportHeight = padding + imageHeight + sectionGap + paletteHeight + padding;
   const exportCanvas = document.createElement("canvas");
   exportCanvas.width = exportWidth;
@@ -1123,23 +1125,23 @@ function buildStripExportBaseCanvas(options) {
     drawExportSwatchNodes(exportCtx, padding, padding, imageWidth, imageHeight);
   }
 
-  columns.forEach((columnColors, columnIndex) => {
+  state.colors.forEach((color, index) => {
+    const columnIndex = index % columnsCount;
+    const rowIndex = Math.floor(index / columnsCount);
     const cardX = padding + (columnIndex * (columnWidth + columnGap));
-    columnColors.forEach((color, rowIndex) => {
-      const cardY = padding + imageHeight + sectionGap + (rowIndex * (cardHeight + cardGap));
-      const textColor = luminance(color.r, color.g, color.b) > 0.62 ? "#15171a" : "#f2efe8";
-      const pillFill = luminance(color.r, color.g, color.b) > 0.62 ? "rgba(17, 20, 23, 0.14)" : "rgba(17, 20, 23, 0.28)";
-      drawRoundedRect(exportCtx, cardX, cardY, columnWidth, cardHeight, 14, color.hex);
-      exportCtx.fillStyle = "rgba(255,255,255,0.08)";
-      exportCtx.fillRect(cardX, cardY, columnWidth, 1);
-      drawExportPaletteLabel(exportCtx, {
-        x: cardX + 12,
-        y: cardY + 12,
-        hex: color.hex,
-        percent: color.percent,
-        textColor,
-        labelFill: pillFill,
-      });
+    const cardY = padding + imageHeight + sectionGap + (rowIndex * (cardHeight + cardGap));
+    const textColor = luminance(color.r, color.g, color.b) > 0.62 ? "#15171a" : "#f2efe8";
+    const pillFill = luminance(color.r, color.g, color.b) > 0.62 ? "rgba(17, 20, 23, 0.14)" : "rgba(17, 20, 23, 0.28)";
+    drawRoundedRect(exportCtx, cardX, cardY, columnWidth, cardHeight, 14, color.hex);
+    exportCtx.fillStyle = "rgba(255,255,255,0.08)";
+    exportCtx.fillRect(cardX, cardY, columnWidth, 1);
+    drawExportPaletteLabel(exportCtx, {
+      x: cardX + 12,
+      y: cardY + 12,
+      hex: color.hex,
+      percent: color.percent,
+      textColor,
+      labelFill: pillFill,
     });
   });
 
@@ -1154,7 +1156,7 @@ function buildExportCanvas(options = state.saveExport) {
   };
   const baseCanvas = exportOptions.layout === EXPORT_LAYOUT_STRIP
     ? buildStripExportBaseCanvas(exportOptions)
-    : buildCurrentExportBaseCanvas();
+    : buildCurrentExportBaseCanvas(exportOptions);
   return scaleCanvasToLongestEdge(baseCanvas, exportOptions.longestEdge);
 }
 
@@ -1177,7 +1179,7 @@ function syncSaveModalControls() {
     button.setAttribute("aria-pressed", active ? "true" : "false");
   });
   saveStripNodes.checked = state.saveExport.stripNodes;
-  saveNodesRow.hidden = state.saveExport.layout !== EXPORT_LAYOUT_STRIP;
+  saveNodesRow.hidden = false;
 }
 
 function resetSaveExportState() {
@@ -1730,9 +1732,6 @@ if (saveModal) {
 saveStyleButtons.forEach((button) => {
   button.addEventListener("click", () => {
     state.saveExport.layout = button.dataset.saveStyle === EXPORT_LAYOUT_STRIP ? EXPORT_LAYOUT_STRIP : EXPORT_LAYOUT_CURRENT;
-    if (state.saveExport.layout !== EXPORT_LAYOUT_STRIP) {
-      state.saveExport.stripNodes = false;
-    }
     syncSaveModalControls();
     renderSavePreview();
   });
