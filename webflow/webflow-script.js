@@ -7,16 +7,11 @@ function getPaletteMarkup() {
         <div class="control-hud" aria-label="Color study controls">
           <div class="hud-bar">
             <p class="eyebrow">Colour Palette</p>
-            <span class="hud-status">Drop, upload, drag, export</span>
             <span class="hud-count">Studio blur map</span>
           </div>
           <div class="hud-rule" aria-hidden="true"></div>
           <div class="hud-actions">
             <div class="hud-buttons">
-              <label class="upload-pill">
-                <span>Choose image</span>
-                <input data-role="image-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,image/heic,image/heif">
-              </label>
               <button class="recipe-button" type="button" data-action="recipe">Paint Recipe</button>
               <button class="recipe-button" type="button" data-action="export-image">Save Image</button>
             </div>
@@ -33,10 +28,11 @@ function getPaletteMarkup() {
           <canvas data-role="display-canvas" width="900" height="1350"></canvas>
           <div data-role="swatch-layer" class="swatch-layer" aria-label="Color swatches"></div>
           <div data-role="empty-state" class="empty-state">
-            <div class="empty-state-card">
-              <p class="empty-state-label">Ready for an image</p>
-              <p>Drop in a reference to generate a blurred palette field and inspect dominant tones.</p>
-            </div>
+            <label class="empty-state-card empty-state-upload">
+              <p class="empty-state-label">Choose image</p>
+              <p>or drag image in</p>
+              <input data-role="image-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,image/heic,image/heif">
+            </label>
           </div>
         </div>
       </div>
@@ -46,7 +42,7 @@ function getPaletteMarkup() {
           <span class="palette-rail-label">Palette Rail</span>
           <div class="palette-toolbar-controls">
             <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
-            <span data-role="palette-size-label" class="palette-size-label">Palette size 4</span>
+            <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
             <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
           </div>
         </div>
@@ -260,7 +256,7 @@ function formatPercent(value) {
 }
 
 function updatePaletteLabel() {
-  paletteSizeLabel.textContent = `Palette size ${state.paletteSize}`;
+  paletteSizeLabel.textContent = `Palette: ${state.paletteSize}`;
   paletteMinus.disabled = state.paletteSize <= PALETTE_MIN;
   palettePlus.disabled = state.paletteSize >= PALETTE_MAX;
 }

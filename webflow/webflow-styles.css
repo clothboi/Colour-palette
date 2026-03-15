@@ -36,28 +36,32 @@
 
 .webflow-palette-embed .app-shell {
   width: min(1440px, calc(100% - 12px));
-  min-height: calc(100vh - 12px);
-  min-height: calc(100dvh - 12px);
+  height: calc(100vh - 12px);
+  height: calc(100dvh - 12px);
   margin: 6px auto;
   padding: 6px;
 }
 
 .webflow-palette-embed .workspace {
   position: relative;
-  min-height: calc(100vh - 24px);
-  min-height: calc(100dvh - 24px);
-  min-height: 0;
+  height: 100%;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(248px, 292px);
+  grid-template-columns: minmax(0, auto) minmax(236px, 276px);
   gap: 8px;
+  justify-content: center;
   align-items: stretch;
 }
 
 .webflow-palette-embed .canvas-stage {
   position: relative;
-  min-width: 0;
-  min-height: calc(100vh - 24px);
-  min-height: calc(100dvh - 24px);
+  width: min(100%, calc((100dvh - 176px) * 0.6667));
+  max-width: calc(100vw - 320px);
+  min-width: min(100%, 300px);
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 8px;
+  align-content: start;
 }
 
 .webflow-palette-embed .control-hud,
@@ -75,27 +79,24 @@
 }
 
 .webflow-palette-embed .control-hud {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 10;
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  width: min(724px, calc(100% - 20px));
-  padding: 12px 14px;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 13px;
   border-radius: 16px;
 }
 
 .webflow-palette-embed .hud-bar {
   display: grid;
-  grid-template-columns: auto minmax(160px, 1fr) auto;
-  gap: 14px;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
   align-items: baseline;
 }
 
 .webflow-palette-embed .eyebrow,
-.webflow-palette-embed .hud-status,
 .webflow-palette-embed .hud-count,
 .webflow-palette-embed .palette-rail-label,
 .webflow-palette-embed .recipe-modal-kicker {
@@ -111,16 +112,10 @@
   white-space: nowrap;
 }
 
-.webflow-palette-embed .hud-status,
 .webflow-palette-embed .hud-count,
 .webflow-palette-embed .palette-rail-label,
 .webflow-palette-embed .recipe-modal-kicker {
   color: var(--muted);
-}
-
-.webflow-palette-embed .hud-status {
-  justify-self: center;
-  text-align: center;
 }
 
 .webflow-palette-embed .hud-count {
@@ -135,23 +130,22 @@
 
 .webflow-palette-embed .hud-actions {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(172px, 220px);
-  gap: 10px;
-  align-items: center;
+  grid-template-columns: 1fr;
+  gap: 8px;
 }
 
 .webflow-palette-embed .hud-buttons {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
 .webflow-palette-embed .hud-slider {
   display: grid;
   gap: 6px;
-  padding: 9px 12px;
+  padding: 9px 12px 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 999px;
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.04);
 }
 
@@ -200,6 +194,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   min-height: 40px;
   padding: 10px 15px;
   border-radius: 999px;
@@ -231,11 +226,9 @@
 }
 
 .webflow-palette-embed .import-warning {
-  position: absolute;
-  top: 112px;
-  left: 10px;
-  z-index: 9;
-  width: min(560px, calc(100% - 20px));
+  position: relative;
+  z-index: 1;
+  width: 100%;
   padding: 10px 12px;
   border-color: rgba(236, 193, 121, 0.24);
   background: rgba(66, 49, 20, 0.34);
@@ -266,8 +259,8 @@
 .webflow-palette-embed .canvas-wrap {
   position: relative;
   overflow: hidden;
-  min-height: calc(100vh - 24px);
-  min-height: calc(100dvh - 24px);
+  width: 100%;
+  aspect-ratio: 2 / 3;
   border: 1px solid var(--border);
   border-radius: 24px;
   background:
@@ -321,6 +314,20 @@
   padding: 14px 16px;
   border-radius: 16px;
   text-align: center;
+}
+
+.webflow-palette-embed .empty-state-upload {
+  display: grid;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.webflow-palette-embed .empty-state-upload:hover,
+.webflow-palette-embed .empty-state-upload:focus-within {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .webflow-palette-embed .empty-state-label {
@@ -384,6 +391,12 @@
 .webflow-palette-embed .palette-toolbar {
   display: grid;
   gap: 8px;
+}
+
+.webflow-palette-embed .palette-rail-label {
+  color: var(--text);
+  font-weight: 600;
+  text-align: center;
 }
 
 .webflow-palette-embed .palette-toolbar-controls {
@@ -670,28 +683,19 @@
     grid-template-columns: 1fr;
     gap: 8px;
     min-height: auto;
+    justify-content: stretch;
   }
 
   .webflow-palette-embed .canvas-stage {
-    min-height: 58dvh;
-    min-height: 58svh;
-  }
-
-  .webflow-palette-embed .control-hud,
-  .webflow-palette-embed .import-warning {
-    position: absolute;
-    left: 8px;
-    right: 8px;
-    width: auto;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    height: auto;
   }
 
   .webflow-palette-embed .control-hud {
-    top: 8px;
+    position: relative;
     padding: 12px;
-  }
-
-  .webflow-palette-embed .import-warning {
-    top: 150px;
   }
 
   .webflow-palette-embed .hud-bar {
@@ -699,7 +703,6 @@
     gap: 6px;
   }
 
-  .webflow-palette-embed .hud-status,
   .webflow-palette-embed .hud-count {
     justify-self: start;
     text-align: left;
@@ -711,10 +714,9 @@
 
   .webflow-palette-embed .hud-buttons {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .webflow-palette-embed .upload-pill,
   .webflow-palette-embed .recipe-button,
   .webflow-palette-embed .recipe-export {
     width: 100%;
