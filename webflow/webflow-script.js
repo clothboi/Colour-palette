@@ -639,10 +639,12 @@ function refreshStageSize() {
 
 function renderPalettePreview() {
   palettePreviewList.innerHTML = "";
+  palettePreviewList.style.removeProperty("--preview-count");
   if (!state.colors.length) {
     return;
   }
 
+  palettePreviewList.style.setProperty("--preview-count", `${state.colors.length}`);
   state.colors.forEach((color) => {
     const tile = document.createElement("span");
     tile.className = "palette-preview-tile";
