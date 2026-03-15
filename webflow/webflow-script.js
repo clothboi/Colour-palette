@@ -194,6 +194,21 @@ const state = {
   recipe: [],
 };
 
+const renderProfile = (() => {
+  const ua = navigator.userAgent || "";
+  const platform = navigator.platform || "";
+  const maxTouchPoints = navigator.maxTouchPoints || 0;
+  const isIOSDevice = /iPad|iPhone|iPod/.test(ua) || (platform === "MacIntel" && maxTouchPoints > 1);
+  return {
+    isIOSDevice,
+    blurReductionFactor: isIOSDevice ? 0.38 : 0.62,
+    blurRadiusBoost: isIOSDevice ? 1.08 : 1,
+    grainAmount: isIOSDevice ? 14 : 18,
+    minReducedWidth: isIOSDevice ? 20 : 14,
+    minReducedHeight: isIOSDevice ? 28 : 20,
+  };
+})();
+
 const DRAG_LENS = {
   size: 76,
   overlap: 8,
@@ -716,12 +731,14 @@ function drawProcessedImage() {
   const downscaleCanvas = document.createElement("canvas");
   const downscaleCtx = downscaleCanvas.getContext("2d");
   const blurValue = Number(blurRange.value);
-  const blurReduction = Math.max(1, blurValue * 0.62);
-  const reducedWidth = Math.max(14, Math.round(displayWidth / blurReduction));
-  const reducedHeight = Math.max(20, Math.round(displayHeight / blurReduction));
+  const blurReduction = Math.max(1, blurValue * renderProfile.blurReductionFactor);
+  const reducedWidth = Math.max(renderProfile.minReducedWidth, Math.round(displayWidth / blurReduction));
+  const reducedHeight = Math.max(renderProfile.minReducedHeight, Math.round(displayHeight / blurReduction));
+  const effectiveBlurValue = blurValue * renderProfile.blurRadiusBoost;
   downscaleCanvas.width = reducedWidth;
   downscaleCanvas.height = reducedHeight;
   downscaleCtx.imageSmoothingEnabled = true;
+  downscaleCtx.imageSmoothingQuality = "high";
   const imageRatio = state.image.width / state.image.height;
   const frameRatio = displayWidth / displayHeight;
   let drawWidth;
@@ -741,12 +758,13 @@ function drawProcessedImage() {
   ctx.clearRect(0, 0, displayWidth, displayHeight);
   ctx.save();
   ctx.imageSmoothingEnabled = true;
-  ctx.filter = `blur(${blurValue}px) saturate(118%) contrast(104%)`;
+  ctx.imageSmoothingQuality = "high";
+  ctx.filter = `blur(${effectiveBlurValue}px) saturate(118%) contrast(104%)`;
   ctx.drawImage(downscaleCanvas, 0, 0, displayWidth, displayHeight);
   ctx.restore();
   const imageData = ctx.getImageData(0, 0, displayWidth, displayHeight);
   for (let i = 0; i < imageData.data.length; i += 4) {
-    const grain = (Math.random() - 0.5) * 18;
+    const grain = (Math.random() - 0.5) * renderProfile.grainAmount;
     imageData.data[i] = clamp(imageData.data[i] + grain, 0, 255);
     imageData.data[i + 1] = clamp(imageData.data[i + 1] + grain, 0, 255);
     imageData.data[i + 2] = clamp(imageData.data[i + 2] + grain, 0, 255);
