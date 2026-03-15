@@ -80,7 +80,7 @@ function getPaletteMarkup() {
             <span class="save-control-label">Style</span>
             <div class="save-option-row">
               <button class="save-option-button" type="button" data-save-style="current">Default</button>
-              <button class="save-option-button" type="button" data-save-style="strip">Strip</button>
+              <button class="save-option-button" type="button" data-save-style="strip">Swatches</button>
             </div>
           </section>
           <section class="save-control-group">
@@ -1019,19 +1019,25 @@ function drawExportPaletteLabel(context, options) {
     percent,
     textColor = "#f2efe8",
     labelFill = "rgba(42, 44, 48, 0.64)",
+    labelHeight = 34,
+    radius = 10,
+    paddingX = 12,
+    hexFontSize = 18,
+    percentFontSize = 17,
   } = options;
-  context.font = '700 18px "Space Grotesk", sans-serif';
+  context.font = `700 ${hexFontSize}px "Space Grotesk", sans-serif`;
   const hexWidth = context.measureText(hex).width;
-  context.font = '300 17px "Space Grotesk", sans-serif';
+  context.font = `300 ${percentFontSize}px "Space Grotesk", sans-serif`;
   const percentLabel = formatPercent(percent);
   const percentWidth = context.measureText(percentLabel).width;
-  const labelWidth = Math.max(132, Math.ceil(hexWidth + percentWidth + 28));
-  drawRoundedRect(context, x, y, labelWidth, 34, 10, labelFill);
+  const labelWidth = Math.max(72, Math.ceil(hexWidth + percentWidth + (paddingX * 2) + 10));
+  const textBaselineY = y + (labelHeight / 2) + Math.max(4, (hexFontSize * 0.24));
+  drawRoundedRect(context, x, y, labelWidth, labelHeight, radius, labelFill);
   context.fillStyle = textColor;
-  context.font = '700 18px "Space Grotesk", sans-serif';
-  context.fillText(hex, x + 12, y + 22);
-  context.font = '300 17px "Space Grotesk", sans-serif';
-  context.fillText(percentLabel, x + 12 + hexWidth + 10, y + 22);
+  context.font = `700 ${hexFontSize}px "Space Grotesk", sans-serif`;
+  context.fillText(hex, x + paddingX, textBaselineY);
+  context.font = `300 ${percentFontSize}px "Space Grotesk", sans-serif`;
+  context.fillText(percentLabel, x + paddingX + hexWidth + 10, textBaselineY);
 }
 
 function scaleCanvasToLongestEdge(sourceCanvas, longestEdge) {
@@ -1051,6 +1057,13 @@ function scaleCanvasToLongestEdge(sourceCanvas, longestEdge) {
   return scaledCanvas;
 }
 
+function getUniformPaletteHeights(count, availableHeight, gap = PALETTE_GAP) {
+  if (!count) return [];
+  const totalGapHeight = Math.max(0, count - 1) * gap;
+  const cardHeight = Math.max(1, (availableHeight - totalGapHeight) / count);
+  return new Array(count).fill(cardHeight);
+}
+
 function buildCurrentExportBaseCanvas(options) {
   const showNodes = Boolean(options?.stripNodes);
   const imageWidth = 1100;
@@ -1058,13 +1071,18 @@ function buildCurrentExportBaseCanvas(options) {
   const paletteWidth = 320;
   const gap = 3;
   const minCardHeight = 54;
+  const useUniformStack = state.colors.length > 15;
   const minPaletteHeight = (state.colors.length * minCardHeight) + (Math.max(0, state.colors.length - 1) * gap);
-  const paletteAreaHeight = Math.max(imageHeight, minPaletteHeight);
-  const paletteHeights = getScaledPaletteHeights(state.colors, paletteAreaHeight, gap, minCardHeight);
-  const exportHeight = Math.max(
-    imageHeight,
-    Math.round(paletteHeights.reduce((sum, value) => sum + value, 0) + (Math.max(0, paletteHeights.length - 1) * gap)),
-  );
+  const paletteAreaHeight = useUniformStack ? imageHeight : Math.max(imageHeight, minPaletteHeight);
+  const paletteHeights = useUniformStack
+    ? getUniformPaletteHeights(state.colors.length, imageHeight, gap)
+    : getScaledPaletteHeights(state.colors, paletteAreaHeight, gap, minCardHeight);
+  const exportHeight = useUniformStack
+    ? imageHeight
+    : Math.max(
+      imageHeight,
+      Math.round(paletteHeights.reduce((sum, value) => sum + value, 0) + (Math.max(0, paletteHeights.length - 1) * gap)),
+    );
   const exportCanvas = document.createElement("canvas");
   exportCanvas.width = imageWidth + paletteWidth;
   exportCanvas.height = exportHeight;
@@ -1078,15 +1096,23 @@ function buildCurrentExportBaseCanvas(options) {
   state.colors.forEach((color, index) => {
     const cardHeight = paletteHeights[index] || minCardHeight;
     const cardX = imageWidth;
+    const compactLabelHeight = useUniformStack ? clamp(Math.round(cardHeight - 6), 12, 26) : 34;
+    const compactHexSize = useUniformStack ? clamp(Math.round(compactLabelHeight * 0.46), 8, 13) : 18;
+    const compactPercentSize = useUniformStack ? clamp(Math.round(compactLabelHeight * 0.42), 7, 12) : 17;
     exportCtx.fillStyle = color.hex;
     exportCtx.fillRect(cardX, cardY, paletteWidth, cardHeight);
     exportCtx.fillStyle = "rgba(255,255,255,0.08)";
     exportCtx.fillRect(cardX, cardY, paletteWidth, 1);
     drawExportPaletteLabel(exportCtx, {
       x: cardX + 14,
-      y: cardY + 12,
+      y: cardY + Math.max(2, Math.round((cardHeight - compactLabelHeight) / 2)),
       hex: color.hex,
       percent: color.percent,
+      labelHeight: compactLabelHeight,
+      radius: useUniformStack ? 8 : 10,
+      paddingX: useUniformStack ? 8 : 12,
+      hexFontSize: compactHexSize,
+      percentFontSize: compactPercentSize,
     });
     cardY += cardHeight + gap;
   });
@@ -1099,19 +1125,21 @@ function buildCurrentExportBaseCanvas(options) {
 
 function buildStripExportBaseCanvas(options) {
   const showNodes = Boolean(options?.stripNodes);
-  const exportWidth = 1100;
-  const padding = 24;
-  const sectionGap = 14;
+  const sourceRatio = state.sourceWidth / Math.max(1, state.sourceHeight);
+  const baseImageWidth = 1100;
+  const baseImageHeight = Math.round(baseImageWidth * (state.sourceHeight / Math.max(1, state.sourceWidth)));
+  const imageHeight = Math.max(1900, baseImageHeight);
+  const imageWidth = Math.round(imageHeight * sourceRatio);
+  const padding = 0;
   const cardGap = 12;
-  const imageWidth = exportWidth - (padding * 2);
-  const imageHeight = Math.max(660, Math.round(imageWidth * (state.sourceHeight / Math.max(1, state.sourceWidth))));
-  const columnsCount = Math.min(3, Math.max(1, state.colors.length));
+  const columnsCount = state.colors.length > 20 ? 3 : state.colors.length > 10 ? 2 : 1;
   const columnGap = 12;
-  const columnWidth = Math.floor((imageWidth - (columnGap * Math.max(0, columnsCount - 1))) / columnsCount);
-  const cardHeight = Math.round(columnWidth * 1.72);
-  const rowCount = Math.ceil(state.colors.length / columnsCount);
-  const paletteHeight = rowCount ? (rowCount * cardHeight) + ((rowCount - 1) * cardGap) : 0;
-  const exportHeight = padding + imageHeight + sectionGap + paletteHeight + padding;
+  const rowsPerColumn = columnsCount === 1 ? Math.max(1, state.colors.length) : 10;
+  const cardHeight = (imageHeight - (Math.max(0, rowsPerColumn - 1) * cardGap)) / rowsPerColumn;
+  const cardWidth = Math.max(1, Math.round(cardHeight * 0.72));
+  const paletteWidth = (columnsCount * cardWidth) + (Math.max(0, columnsCount - 1) * columnGap);
+  const exportWidth = imageWidth + columnGap + paletteWidth;
+  const exportHeight = imageHeight;
   const exportCanvas = document.createElement("canvas");
   exportCanvas.width = exportWidth;
   exportCanvas.height = exportHeight;
@@ -1119,22 +1147,22 @@ function buildStripExportBaseCanvas(options) {
 
   exportCtx.fillStyle = "#111417";
   exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
-  exportCtx.drawImage(canvas, padding, padding, imageWidth, imageHeight);
+  exportCtx.drawImage(canvas, 0, 0, imageWidth, imageHeight);
 
   if (showNodes) {
-    drawExportSwatchNodes(exportCtx, padding, padding, imageWidth, imageHeight);
+    drawExportSwatchNodes(exportCtx, 0, 0, imageWidth, imageHeight);
   }
 
   state.colors.forEach((color, index) => {
-    const columnIndex = index % columnsCount;
-    const rowIndex = Math.floor(index / columnsCount);
-    const cardX = padding + (columnIndex * (columnWidth + columnGap));
-    const cardY = padding + imageHeight + sectionGap + (rowIndex * (cardHeight + cardGap));
+    const columnIndex = Math.floor(index / 10);
+    const rowIndex = columnsCount === 1 ? index : index % 10;
+    const cardX = imageWidth + columnGap + (columnIndex * (cardWidth + columnGap));
+    const cardY = rowIndex * (cardHeight + cardGap);
     const textColor = luminance(color.r, color.g, color.b) > 0.62 ? "#15171a" : "#f2efe8";
     const pillFill = luminance(color.r, color.g, color.b) > 0.62 ? "rgba(17, 20, 23, 0.14)" : "rgba(17, 20, 23, 0.28)";
-    drawRoundedRect(exportCtx, cardX, cardY, columnWidth, cardHeight, 14, color.hex);
+    drawRoundedRect(exportCtx, cardX, cardY, cardWidth, cardHeight, 14, color.hex);
     exportCtx.fillStyle = "rgba(255,255,255,0.08)";
-    exportCtx.fillRect(cardX, cardY, columnWidth, 1);
+    exportCtx.fillRect(cardX, cardY, cardWidth, 1);
     drawExportPaletteLabel(exportCtx, {
       x: cardX + 12,
       y: cardY + 12,
