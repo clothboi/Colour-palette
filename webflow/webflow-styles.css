@@ -716,12 +716,14 @@
   justify-content: center;
   gap: 12px;
   padding: 16px;
+  --recipe-modal-width: min(720px, calc(100% - 32px));
   background: rgba(8, 10, 12, 0.72);
   backdrop-filter: blur(16px);
 }
 
 .webflow-palette-embed .recipe-modal-panel {
-  width: min(720px, 100%);
+  position: relative;
+  width: var(--recipe-modal-width);
   max-height: min(82vh, 900px);
   overflow: auto;
   padding: 16px;
@@ -742,11 +744,18 @@
 }
 
 .webflow-palette-embed .recipe-close {
+  position: absolute;
+  top: -46px;
+  right: 0;
   width: 38px;
   height: 38px;
   border-radius: 11px;
   font-size: 1.12rem;
   cursor: pointer;
+}
+
+.webflow-palette-embed .recipe-export {
+  width: var(--recipe-modal-width);
 }
 
 .webflow-palette-embed .recipe-stack {
