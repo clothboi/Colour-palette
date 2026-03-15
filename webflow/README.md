@@ -9,11 +9,13 @@ This folder is ready to be hosted from GitHub and embedded into Webflow.
 - `webflow-head-snippet.html`
   Paste into Webflow page settings or site settings head code.
 - `webflow-footer-snippet.html`
-  Paste into Webflow page settings or site settings footer code.
+  Paste into Webflow page settings or site settings footer code. This bootstrap loader pulls the latest hosted CSS/JS automatically.
 - `webflow-styles.css`
   Hosted stylesheet for the embed.
 - `webflow-script.js`
   Hosted JavaScript for the embed.
+- `webflow-bootstrap.js`
+  Stable loader that fetches the app assets with a rolling cache-bust so pushes flow through without editing Webflow.
 
 ## Publish with GitHub
 
@@ -28,8 +30,8 @@ This folder is ready to be hosted from GitHub and embedded into Webflow.
 ## Notes
 
 - The app is scoped under `.webflow-palette-embed` to avoid clashing with Webflow styles.
-- The script now initializes every `[data-webflow-palette]` instance on the page, so the component can be reused.
-- The recommended embed is now just a single container div, so future UI updates can come from GitHub without manually updating the Webflow Embed block again.
+- The script initializes every `[data-webflow-palette]` instance on the page, so the component can be reused.
+- The recommended embed is a single container div, so future UI updates can come from GitHub without manually updating the Webflow Embed block again.
 - Older embeds that already contain the full markup still continue to work.
-- If the embed ever disappears after a push, refresh the asset URLs in Webflow with a new `?v=` value to bypass jsDelivr cache.
+- The bootstrap loader refreshes the hosted CSS/JS with a rolling cache-bust, so normal GitHub pushes should flow through without changing Webflow code.
 - The asset URLs use [jsDelivr](https://www.jsdelivr.com/github), which serves files directly from GitHub repositories.
