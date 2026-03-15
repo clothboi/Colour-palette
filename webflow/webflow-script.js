@@ -257,6 +257,27 @@ function formatPercent(value) {
   return `${Math.round(value)}%`;
 }
 
+function refreshStageSize() {
+  if (!state.image) {
+    root.dataset.paletteHasImage = "false";
+    canvasStage.style.removeProperty("--image-ratio");
+    canvasStage.style.removeProperty("--frame-width");
+    canvasWrap.style.removeProperty("--image-ratio");
+    return;
+  }
+
+  root.dataset.paletteHasImage = "true";
+  const imageRatio = state.image.width / state.image.height;
+  const ratioValue = `${state.image.width} / ${state.image.height}`;
+  const frameHeight = Math.max(320, Math.round(canvasWrap.clientHeight || canvasWrap.getBoundingClientRect().height || 0));
+  const maxWidth = Math.max(280, Math.round(window.innerWidth - 460));
+  const frameWidth = Math.min(Math.round(frameHeight * imageRatio), maxWidth);
+
+  canvasStage.style.setProperty("--image-ratio", ratioValue);
+  canvasStage.style.setProperty("--frame-width", `${frameWidth}px`);
+  canvasWrap.style.setProperty("--image-ratio", ratioValue);
+}
+
 function updatePaletteLabel() {
   paletteSizeLabel.textContent = `Palette: ${state.paletteSize}`;
   paletteMinus.disabled = state.paletteSize <= PALETTE_MIN;
@@ -964,10 +985,7 @@ function endDrag() {
 function initializePalette() {
   state.colors = extractPalette(state.image, state.paletteSize);
   state.recipe = [];
-  root.dataset.paletteHasImage = "true";
-  const imageRatio = `${state.image.width} / ${state.image.height}`;
-  canvasStage.style.setProperty("--image-ratio", imageRatio);
-  canvasWrap.style.setProperty("--image-ratio", imageRatio);
+  refreshStageSize();
   requestAnimationFrame(() => {
     drawProcessedImage();
     recalculatePercentages();
@@ -1070,11 +1088,14 @@ if (recipeModal) {
 }
 window.addEventListener("resize", () => {
   if (!state.image) return;
-  drawProcessedImage();
-  syncSwatchTargetsFromColors();
-  recalculatePercentages();
-  renderPalette();
-  syncSwatchTargetsFromColors();
+  refreshStageSize();
+  requestAnimationFrame(() => {
+    drawProcessedImage();
+    syncSwatchTargetsFromColors();
+    recalculatePercentages();
+    renderPalette();
+    syncSwatchTargetsFromColors();
+  });
 });
 updatePaletteLabel();
 }

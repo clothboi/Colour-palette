@@ -70,10 +70,6 @@
   --frame-width: min(40vw, calc(100vw - 460px));
 }
 
-.webflow-palette-embed[data-palette-has-image="true"] .canvas-stage {
-  --frame-width: min(calc(var(--frame-height) * (var(--image-ratio, 900 / 1350))), calc(100vw - 460px));
-}
-
 .webflow-palette-embed .control-hud,
 .webflow-palette-embed .palette-panel,
 .webflow-palette-embed .recipe-modal-panel,
