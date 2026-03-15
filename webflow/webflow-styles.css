@@ -67,11 +67,11 @@
   height: 100%;
   --frame-height: calc(100vh - 156px);
   --frame-height: calc(100dvh - 156px);
-  --frame-width: min(50vw, calc(100vw - 460px));
+  --frame-width: min(40vw, calc(100vw - 460px));
 }
 
 .webflow-palette-embed[data-palette-has-image="true"] .canvas-stage {
-  --frame-width: min(max(50vw, calc(var(--frame-height) * (var(--image-ratio, 900 / 1350)))), calc(100vw - 460px));
+  --frame-width: min(calc(var(--frame-height) * (var(--image-ratio, 900 / 1350))), calc(100vw - 460px));
 }
 
 .webflow-palette-embed .control-hud,
