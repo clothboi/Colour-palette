@@ -1312,7 +1312,8 @@
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-sheet {
   flex: 1 1 auto;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-sheet[hidden] {
@@ -1329,6 +1330,21 @@
   overflow: hidden;
 }
 
+.webflow-palette-embed[data-mobile-layout="true"][data-palette-drawer-open="true"] .palette-toolbar-head {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"][data-palette-drawer-open="true"] .palette-rail-label {
+  grid-column: 1;
+  justify-self: start;
+  text-align: left;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"][data-palette-drawer-open="true"] .palette-drawer-close {
+  grid-column: 2;
+}
+
 .webflow-palette-embed[data-mobile-layout="true"][data-palette-drawer-open="true"] .palette-drawer-open,
 .webflow-palette-embed[data-mobile-layout="true"][data-palette-drawer-open="true"] .palette-drawer-summary {
   display: none;
@@ -1339,11 +1355,16 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-list {
-  overflow: visible;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: visible;
   align-content: start;
   touch-action: pan-y;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-card {
+  width: 100%;
+  max-width: 100%;
   touch-action: none;
 }
