@@ -31,4 +31,5 @@ This folder is ready to be hosted from GitHub and embedded into Webflow.
 - The script now initializes every `[data-webflow-palette]` instance on the page, so the component can be reused.
 - The recommended embed is now just a single container div, so future UI updates can come from GitHub without manually updating the Webflow Embed block again.
 - Older embeds that already contain the full markup still continue to work.
+- If the embed ever disappears after a push, refresh the asset URLs in Webflow with a new `?v=` value to bypass jsDelivr cache.
 - The asset URLs use [jsDelivr](https://www.jsdelivr.com/github), which serves files directly from GitHub repositories.
