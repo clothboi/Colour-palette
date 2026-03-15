@@ -1,98 +1,213 @@
-<div class="webflow-palette-embed">
-  <style>
+<div class="webflow-palette-embed" data-webflow-palette></div>
+<style>
 .webflow-palette-embed {
   --bg: #17191c;
-  --panel: rgba(255, 255, 255, 0.06);
-  --border: rgba(255, 255, 255, 0.14);
+  --panel: rgba(255, 255, 255, 0.055);
+  --panel-strong: rgba(12, 14, 17, 0.72);
+  --panel-solid: rgba(15, 17, 20, 0.86);
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.16);
   --text: #f6f2ea;
-  --muted: rgba(246, 242, 234, 0.7);
-  --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
-  --accent: rgba(158, 188, 223, 0.9);
+  --muted: rgba(246, 242, 234, 0.68);
+  --muted-strong: rgba(246, 242, 234, 0.82);
+  --shadow: 0 18px 36px rgba(0, 0, 0, 0.24);
+  --shadow-soft: 0 10px 28px rgba(0, 0, 0, 0.2);
+  --accent: rgba(158, 188, 223, 0.92);
+  --palette-panel-width: 404px;
+  --frame-clearance: 460px;
+  --palette-drawer-collapsed-height: 118px;
 }
 
-.webflow-palette-embed, .webflow-palette-embed * {
+.webflow-palette-embed[data-palette-layout="double"] {
+  --palette-panel-width: 520px;
+  --frame-clearance: 576px;
+}
+
+.webflow-palette-embed,
+.webflow-palette-embed * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
 }
 
 .webflow-palette-embed {
-  height: 100%;
+  position: relative;
   width: 100%;
-  overflow-x: hidden;
-}
-
-.webflow-palette-embed {
+  height: 100vh;
+  height: 100dvh;
   margin: 0;
   min-height: 100vh;
   min-height: 100dvh;
   overflow: hidden;
-  font-family: "Space Grotesk", sans-serif;
   color: var(--text);
+  font-family: "Space Grotesk", sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(122, 160, 208, 0.25), transparent 26%),
-    radial-gradient(circle at 80% 20%, rgba(145, 110, 157, 0.18), transparent 22%),
-    linear-gradient(160deg, #111315 0%, #1d1f22 55%, #141618 100%);
+    radial-gradient(circle at top left, rgba(122, 160, 208, 0.22), transparent 24%),
+    radial-gradient(circle at 80% 16%, rgba(145, 110, 157, 0.12), transparent 20%),
+    linear-gradient(160deg, #111315 0%, #1b1e21 58%, #141618 100%);
 }
 
 .webflow-palette-embed .app-shell {
-  width: min(1280px, calc(100% - 20px));
-  height: calc(100vh - 20px);
-  height: calc(100dvh - 20px);
-  margin: 10px auto;
-  padding: 16px;
+  position: relative;
+  width: min(1720px, calc(100% - 16px));
+  height: calc(100vh - 16px);
+  height: calc(100dvh - 16px);
+  margin: 8px auto;
+  padding: 8px;
+}
+
+.webflow-palette-embed .workspace {
+  position: relative;
+  height: 100%;
   display: grid;
-  grid-template-rows: auto auto 1fr;
-  gap: 12px;
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  background: rgba(13, 15, 17, 0.82);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(24px);
-}
-
-.webflow-palette-embed .hero {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: end;
-  gap: 12px;
-}
-
-.webflow-palette-embed .hero > div:first-child {
-  max-width: 68%;
-}
-
-.webflow-palette-embed .hero-actions {
-  display: flex;
+  grid-template-columns: max-content minmax(340px, var(--palette-panel-width));
   gap: 8px;
-  align-self: end;
-  justify-self: end;
-  margin-bottom: 12px;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.webflow-palette-embed .canvas-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  width: var(--frame-width);
+  max-width: 100%;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  --frame-height: calc(100vh - 156px);
+  --frame-height: calc(100dvh - 156px);
+  --frame-width: min(40vw, calc(100vw - var(--frame-clearance)));
+}
+
+.webflow-palette-embed .control-hud,
+.webflow-palette-embed .palette-panel,
+.webflow-palette-embed .recipe-modal-panel,
+.webflow-palette-embed .recipe-export,
+.webflow-palette-embed .save-modal-panel,
+.webflow-palette-embed .save-export,
+.webflow-palette-embed .import-warning,
+.webflow-palette-embed .empty-state-card {
+  border: 1px solid var(--border);
+  background: var(--panel-strong);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    var(--shadow-soft);
+  backdrop-filter: blur(18px);
+}
+
+.webflow-palette-embed .control-hud {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: var(--frame-width);
+  max-width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+}
+
+.webflow-palette-embed .hud-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+
+.webflow-palette-embed .hud-bar__group {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.webflow-palette-embed .hud-bar__group--title {
+  justify-content: flex-start;
+}
+
+.webflow-palette-embed .hud-bar__group--center {
+  justify-content: center;
+}
+
+.webflow-palette-embed .hud-bar__group--status {
+  justify-content: flex-end;
+}
+
+.webflow-palette-embed .eyebrow,
+.webflow-palette-embed .hud-count,
+.webflow-palette-embed .palette-rail-label,
+.webflow-palette-embed .recipe-modal-kicker {
+  margin: 0;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
 }
 
 .webflow-palette-embed .eyebrow {
-  margin: 0 0 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.7rem;
+  color: var(--text);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.webflow-palette-embed .hud-count,
+.webflow-palette-embed .recipe-modal-kicker {
   color: var(--muted);
 }
 
-.webflow-palette-embed h1 {
-  margin: 0;
-  max-width: 13ch;
-  font-size: clamp(1.6rem, 3vw, 3rem);
-  line-height: 0.95;
+.webflow-palette-embed .hud-count {
+  white-space: nowrap;
+  text-align: right;
 }
 
-.webflow-palette-embed .lede {
-  margin: 8px 0 0;
-  max-width: 52ch;
-  font-size: 0.9rem;
+.webflow-palette-embed .hud-rule {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.webflow-palette-embed .hud-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.webflow-palette-embed .hud-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.webflow-palette-embed .hud-slider {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.webflow-palette-embed .hud-slider span,
+.webflow-palette-embed .palette-size-label,
+.webflow-palette-embed .palette-drawer-toggle__status,
+.webflow-palette-embed .empty-state-card p,
+.webflow-palette-embed .recipe-meta span,
+.webflow-palette-embed .recipe-note,
+.webflow-palette-embed .recipe-empty,
+.webflow-palette-embed .recipe-confidence {
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.webflow-palette-embed .hud-slider span,
+.webflow-palette-embed .palette-size-label,
+.webflow-palette-embed .palette-drawer-toggle__status {
   color: var(--muted);
-  line-height: 1.45;
 }
 
-.webflow-palette-embed #image-input {
+.webflow-palette-embed [data-role="image-input"] {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -104,75 +219,136 @@
   border: 0;
 }
 
-.webflow-palette-embed .upload-pill,
 .webflow-palette-embed .recipe-button,
-.webflow-palette-embed .palette-button {
-  border: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+.webflow-palette-embed .hud-mobile-toggle,
+.webflow-palette-embed .palette-button,
+.webflow-palette-embed .palette-drawer-close,
+.webflow-palette-embed .recipe-close,
+.webflow-palette-embed .recipe-export,
+.webflow-palette-embed .save-close,
+.webflow-palette-embed .save-export,
+.webflow-palette-embed .save-option-button {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text);
-}
-
-.webflow-palette-embed .upload-pill,
-.webflow-palette-embed .recipe-button {
-  flex-shrink: 0;
-  min-height: 48px;
-  padding: 12px 18px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: transform 180ms ease, border-color 180ms ease;
   font: inherit;
 }
 
-.webflow-palette-embed .upload-pill:hover,
+.webflow-palette-embed .recipe-button,
+.webflow-palette-embed .recipe-export,
+.webflow-palette-embed .save-export {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 40px;
+  padding: 10px 15px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+  white-space: nowrap;
+}
+
+.webflow-palette-embed .hud-mobile-toggle,
+.webflow-palette-embed .palette-drawer-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+  white-space: nowrap;
+}
+
+.webflow-palette-embed .hud-mobile-toggle[aria-pressed="true"] {
+  border-color: rgba(158, 188, 223, 0.58);
+  background: linear-gradient(180deg, rgba(158, 188, 223, 0.22), rgba(158, 188, 223, 0.08));
+  color: var(--text);
+}
+
 .webflow-palette-embed .recipe-button:hover,
-.webflow-palette-embed .palette-button:hover {
+.webflow-palette-embed .hud-mobile-toggle:hover,
+.webflow-palette-embed .palette-button:hover,
+.webflow-palette-embed .palette-drawer-close:hover,
+.webflow-palette-embed .recipe-close:hover,
+.webflow-palette-embed .recipe-export:hover,
+.webflow-palette-embed .save-close:hover,
+.webflow-palette-embed .save-export:hover,
+.webflow-palette-embed .save-option-button:hover,
+.webflow-palette-embed .recipe-button:focus-visible,
+.webflow-palette-embed .hud-mobile-toggle:focus-visible,
+.webflow-palette-embed .palette-button:focus-visible,
+.webflow-palette-embed .palette-drawer-close:focus-visible,
+.webflow-palette-embed .recipe-close:focus-visible,
+.webflow-palette-embed .recipe-export:focus-visible,
+.webflow-palette-embed .save-close:focus-visible,
+.webflow-palette-embed .save-export:focus-visible,
+.webflow-palette-embed .save-option-button:focus-visible {
   transform: translateY(-1px);
   border-color: rgba(255, 255, 255, 0.22);
-}
-
-.webflow-palette-embed .controls {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.webflow-palette-embed .controls label,
-.webflow-palette-embed .palette-panel,
-.webflow-palette-embed .canvas-wrap {
-  border: 1px solid var(--border);
-  background: var(--panel);
-}
-
-.webflow-palette-embed .controls label {
-  display: grid;
-  gap: 8px;
-  padding: 10px 14px;
-  border-radius: 16px;
-}
-
-.webflow-palette-embed .controls span {
-  font-size: 0.88rem;
-  color: var(--muted);
+  background: rgba(255, 255, 255, 0.08);
+  outline: none;
 }
 
 .webflow-palette-embed input[type="range"] {
   width: 100%;
+  margin: 0;
   accent-color: #9ebcdf;
 }
 
-.webflow-palette-embed .workspace {
-  min-height: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1.85fr) minmax(290px, 0.82fr);
-  gap: 12px;
+.webflow-palette-embed .import-warning {
+  position: relative;
+  z-index: 2;
+  width: var(--frame-width);
+  max-width: 100%;
+  padding: 10px 12px;
+  border-color: rgba(236, 193, 121, 0.24);
+  background: rgba(66, 49, 20, 0.34);
+  color: #efe4ce;
+}
+
+.webflow-palette-embed .import-warning.hidden,
+.webflow-palette-embed .empty-state.hidden,
+.webflow-palette-embed .recipe-modal.hidden,
+.webflow-palette-embed .save-modal.hidden {
+  display: none;
+}
+
+.webflow-palette-embed .import-warning strong {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.webflow-palette-embed .import-warning p {
+  margin: 0;
+  color: rgba(239, 228, 206, 0.92);
+  font-size: 0.84rem;
+  line-height: 1.45;
 }
 
 .webflow-palette-embed .canvas-wrap {
   position: relative;
   overflow: hidden;
-  min-height: 0;
-  height: 100%;
-  border-radius: 22px;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+  width: var(--frame-width);
+  max-width: 100%;
+  height: var(--frame-height);
+  max-height: var(--frame-height);
+  min-height: 320px;
+  aspect-ratio: var(--image-ratio, 900 / 1350);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0)),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.12)),
+    rgba(14, 16, 19, 0.84);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    var(--shadow);
 }
 
 .webflow-palette-embed canvas {
@@ -189,57 +365,10 @@
   inset: 0;
   z-index: 2;
   background-image:
-    radial-gradient(circle at 20% 18%, rgba(255,255,255,0.08), transparent 12%),
-    radial-gradient(circle at 76% 30%, rgba(255,255,255,0.05), transparent 16%);
+    radial-gradient(circle at 20% 18%, rgba(255, 255, 255, 0.07), transparent 12%),
+    radial-gradient(circle at 76% 30%, rgba(255, 255, 255, 0.04), transparent 16%);
   pointer-events: none;
   mix-blend-mode: screen;
-}
-
-.webflow-palette-embed .empty-state {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  text-align: center;
-  color: rgba(246, 242, 234, 0.7);
-  background:
-    linear-gradient(160deg, rgba(255,255,255,0.04), transparent),
-    repeating-linear-gradient(135deg, rgba(255,255,255,0.03) 0 2px, transparent 2px 10px);
-}
-
-.webflow-palette-embed .empty-state.hidden {
-  display: none;
-}
-
-.webflow-palette-embed .import-warning {
-  margin: 0 0 10px;
-  padding: 12px 14px;
-  border: 1px solid rgba(236, 193, 121, 0.28);
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(236, 193, 121, 0.16), rgba(236, 193, 121, 0.06));
-  color: #efe4ce;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
-}
-
-.webflow-palette-embed .import-warning.hidden {
-  display: none;
-}
-
-.webflow-palette-embed .import-warning strong {
-  display: block;
-  margin-bottom: 4px;
-  font-size: 0.84rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.webflow-palette-embed .import-warning p {
-  margin: 0;
-  font-size: 0.88rem;
-  line-height: 1.45;
-  color: rgba(239, 228, 206, 0.9);
 }
 
 .webflow-palette-embed .swatch-layer {
@@ -250,8 +379,81 @@
   touch-action: none;
 }
 
+.webflow-palette-embed .empty-state {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.webflow-palette-embed .empty-state::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      132deg,
+      rgba(255, 255, 255, 0.085) 0 2px,
+      transparent 2px 22px
+    );
+  opacity: 0.34;
+  pointer-events: none;
+}
+
+.webflow-palette-embed .empty-state-card {
+  position: relative;
+  width: min(420px, calc(100% - 48px));
+  padding: 18px 20px;
+  min-height: 108px;
+  border-radius: 16px;
+  text-align: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.webflow-palette-embed .empty-state-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.webflow-palette-embed .empty-state-upload:hover,
+.webflow-palette-embed .empty-state-upload:focus-within {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.webflow-palette-embed .empty-state-label {
+  margin: 0 0 6px;
+  color: var(--muted-strong);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.73rem;
+}
+
+.webflow-palette-embed .empty-state-primary {
+  display: block;
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(1.05rem, 1.2vw, 1.18rem);
+  font-weight: 700;
+}
+
+.webflow-palette-embed .empty-state-card p:last-child {
+  margin: 0;
+  color: var(--muted);
+}
+
 .webflow-palette-embed .swatch {
   position: absolute;
+  z-index: 2;
   width: 28px;
   height: 28px;
   margin-left: -14px;
@@ -260,7 +462,7 @@
   border: 1px solid rgba(10, 10, 10, 0.9);
   background: var(--swatch-color);
   box-shadow:
-    0 0 0 2px rgba(255, 255, 255, 0.26),
+    0 0 0 2px rgba(255, 255, 255, 0.24),
     0 8px 22px rgba(0, 0, 0, 0.28);
   cursor: grab;
   pointer-events: auto;
@@ -277,14 +479,70 @@
 }
 
 .webflow-palette-embed .swatch.active {
+  cursor: grabbing;
   transform: scale(1.08);
   box-shadow:
-    0 0 0 2px rgba(255, 255, 255, 0.38),
-    0 14px 28px rgba(0, 0, 0, 0.4);
+    0 0 0 2px rgba(255, 255, 255, 0.34),
+    0 14px 28px rgba(0, 0, 0, 0.36);
 }
 
-.webflow-palette-embed .swatch.active {
-  cursor: grabbing;
+.webflow-palette-embed .swatch-lens {
+  position: absolute;
+  z-index: 1;
+  width: 76px;
+  height: 76px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 140ms ease, transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.webflow-palette-embed .swatch-lens[data-placement="above"] {
+  transform-origin: 50% calc(100% - 7px);
+  transform: translate(-50%, calc(-100% + 8px)) scale(0.82);
+}
+
+.webflow-palette-embed .swatch-lens[data-placement="below"] {
+  transform-origin: 50% 7px;
+  transform: translate(-50%, -8px) scale(0.82);
+}
+
+.webflow-palette-embed .swatch-lens.is-visible {
+  opacity: 1;
+}
+
+.webflow-palette-embed .swatch-lens.is-visible[data-placement="above"] {
+  transform: translate(-50%, calc(-100% + 8px)) scale(1);
+}
+
+.webflow-palette-embed .swatch-lens.is-visible[data-placement="below"] {
+  transform: translate(-50%, -8px) scale(1);
+}
+
+.webflow-palette-embed .swatch-lens-shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.webflow-palette-embed .swatch-lens-zoom {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid rgba(10, 10, 10, 0.9);
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.24),
+    0 8px 22px rgba(0, 0, 0, 0.28);
+}
+
+.webflow-palette-embed .swatch-lens-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
 }
 
 .webflow-palette-embed .palette-panel {
@@ -292,236 +550,194 @@
   display: grid;
   grid-template-rows: auto 1fr;
   gap: 10px;
-  padding: 10px;
-  border-radius: 22px;
+  padding: 14px;
+  border-radius: 20px;
+  min-width: 0;
+}
+
+.webflow-palette-embed .palette-drawer-toggle {
+  display: none;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.webflow-palette-embed .palette-drawer-toggle:disabled {
+  opacity: 0.62;
+  cursor: default;
+}
+
+.webflow-palette-embed .palette-drawer-toggle:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.72);
+  outline-offset: 6px;
+}
+
+.webflow-palette-embed .palette-drawer-toggle__copy {
+  display: grid;
+  gap: 4px;
+}
+
+.webflow-palette-embed .palette-drawer-toggle__label {
+  color: var(--text);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.webflow-palette-embed .palette-preview-list {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.webflow-palette-embed .palette-preview-list::-webkit-scrollbar {
+  display: none;
+}
+
+.webflow-palette-embed .palette-preview-tile {
+  flex: 0 0 56px;
+  height: 56px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+.webflow-palette-embed .palette-drawer-sheet {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 10px;
 }
 
 .webflow-palette-embed .palette-toolbar {
   display: grid;
-  grid-template-columns: 42px 1fr 42px;
-  align-items: center;
-  gap: 8px;
-}
-.webflow-palette-embed .palette-button {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  font: inherit;
-  font-size: 1.35rem;
-  cursor: grab;
-  transition: transform 120ms ease, box-shadow 120ms ease;
+  gap: 10px;
 }
 
-.webflow-palette-embed .palette-card.dragging {
-  cursor: grabbing;
-  z-index: 3;
-  box-shadow:
-    inset 0 0 0 2px rgba(255,255,255,0.42),
-    0 10px 24px rgba(0,0,0,0.22);
+.webflow-palette-embed .palette-toolbar-head {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.webflow-palette-embed .palette-rail-label {
+  grid-column: 2;
+  color: var(--text);
+  font-weight: 700;
+  text-align: center;
+}
+
+.webflow-palette-embed .palette-drawer-close {
+  grid-column: 3;
+  justify-self: end;
+}
+
+.webflow-palette-embed .palette-toolbar-controls {
+  display: grid;
+  grid-template-columns: 38px 1fr 38px;
+  align-items: center;
+  gap: 6px;
+}
+
+.webflow-palette-embed .palette-button {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
 }
 
 .webflow-palette-embed .palette-button:disabled {
-  opacity: 0.45;
+  opacity: 0.4;
   cursor: default;
+  transform: none;
 }
 
 .webflow-palette-embed .palette-size-label {
   display: grid;
   place-items: center;
-  min-height: 42px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.webflow-palette-embed .recipe-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  padding: 18px;
-  background: rgba(8, 10, 12, 0.68);
-  backdrop-filter: blur(16px);
-}
-
-.webflow-palette-embed .recipe-modal.hidden {
-  display: none;
-}
-
-.webflow-palette-embed .recipe-modal-panel {
-  width: min(760px, 100%);
-  max-height: min(82vh, 900px);
-  overflow: auto;
-  padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  background: rgba(20, 23, 27, 0.96);
-  box-shadow: var(--shadow);
-}
-
-.webflow-palette-embed .recipe-modal-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: start;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.webflow-palette-embed .recipe-modal-head h2 {
-  margin: 0;
-  font-size: 1.05rem;
-}
-
-.webflow-palette-embed .recipe-close {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
-  color: var(--text);
-  font: inherit;
-  font-size: 1.2rem;
-  cursor: grab;
-  transition: transform 120ms ease, box-shadow 120ms ease;
-}
-
-.webflow-palette-embed .palette-card.dragging {
-  cursor: grabbing;
-  z-index: 3;
-  box-shadow:
-    inset 0 0 0 2px rgba(255,255,255,0.42),
-    0 10px 24px rgba(0,0,0,0.22);
-}
-
-.webflow-palette-embed .recipe-stack {
-  display: grid;
-  gap: 12px;
-}
-
-.webflow-palette-embed .recipe-card {
-  padding: 12px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: rgba(255,255,255,0.04);
-}
-
-.webflow-palette-embed .recipe-card-head {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  box-sizing: border-box;
-  margin: 0 0 10px;
-  padding: 10px 12px;
-  border-radius: 10px;
-}
-
-.webflow-palette-embed .recipe-card-head strong {
-  font-size: 0.98rem;
-}
-
-.webflow-palette-embed .recipe-meta {
-  display: grid;
-  gap: 6px;
-  margin-bottom: 10px;
-}
-
-.webflow-palette-embed .recipe-meta span,
-.webflow-palette-embed .recipe-note,
-.webflow-palette-embed .recipe-empty,
-.recipe-confidence {
-  color: var(--muted);
-  font-size: 0.86rem;
-  line-height: 1.45;
-}
-
-.webflow-palette-embed .recipe-list {
-  display: grid;
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.webflow-palette-embed .recipe-list li {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 7px 9px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.05);
-}
-
-.webflow-palette-embed .recipe-export {
-  min-height: 46px;
-  padding: 12px 20px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
-  color: var(--text);
-  font: inherit;
-  cursor: pointer;
-  box-shadow: var(--shadow);
+  min-height: 38px;
+  padding: 0 10px;
+  border-radius: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  white-space: nowrap;
 }
 
 .webflow-palette-embed .palette-list {
   min-height: 0;
   display: grid;
-  gap: 3px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
   align-content: stretch;
   overflow: hidden;
+  position: relative;
+  touch-action: none;
+}
+
+.webflow-palette-embed .palette-list.two-column {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 8px;
+}
+
+.webflow-palette-embed .palette-column {
+  min-height: 0;
+  display: grid;
+  gap: 3px;
+  align-content: stretch;
   position: relative;
 }
 
 .webflow-palette-embed .palette-card {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr;
   align-content: start;
   justify-items: start;
-  padding: 12px;
+  padding: 10px;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   cursor: grab;
+  touch-action: none;
   transition: transform 140ms ease, box-shadow 140ms ease;
-}
-
-.webflow-palette-embed .palette-card.dragging {
-  position: absolute;
-  left: 0;
-  right: 0;
-  cursor: grabbing;
-  z-index: 4;
-  pointer-events: none;
-  box-shadow:
-    inset 0 0 0 2px rgba(255,255,255,0.42),
-    0 10px 24px rgba(0,0,0,0.22);
-}
-
-.palette-placeholder {
-  border-radius: 8px;
-  border: 1px dashed rgba(255,255,255,0.22);
-  background: rgba(255,255,255,0.04);
 }
 
 .webflow-palette-embed .palette-card::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent 45%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), transparent 45%);
   pointer-events: none;
+}
+
+.webflow-palette-embed .palette-card.dragging {
+  position: absolute;
+  z-index: 4;
+  cursor: grabbing;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.42),
+    0 10px 24px rgba(0, 0, 0, 0.22);
 }
 
 .webflow-palette-embed .palette-card.hovered {
   box-shadow:
-    inset 0 0 0 2px rgba(255,255,255,0.42),
-    inset 0 1px 0 rgba(255,255,255,0.08),
-    0 0 0 1px rgba(255,255,255,0.16);
+    inset 0 0 0 2px rgba(255, 255, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
 .webflow-palette-embed .palette-meta,
@@ -532,22 +748,21 @@
 
 .webflow-palette-embed .palette-meta {
   display: grid;
-  gap: 6px;
+  gap: 5px;
   justify-items: start;
-  align-content: start;
 }
 
 .webflow-palette-embed .palette-line {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   padding: 5px 8px;
   border-radius: 8px;
-  background: rgba(42, 44, 48, 0.64);
+  background: rgba(34, 36, 40, 0.62);
   color: #f2efe8;
 }
 
-.palette-code {
+.webflow-palette-embed .palette-code {
   display: inline-flex;
   align-items: center;
   width: fit-content;
@@ -590,7 +805,7 @@
 }
 
 .webflow-palette-embed .palette-copy:focus-visible {
-  outline: 2px solid rgba(255,255,255,0.7);
+  outline: 2px solid rgba(255, 255, 255, 0.7);
   outline-offset: 4px;
   border-radius: 6px;
 }
@@ -599,139 +814,84 @@
   display: inline-flex;
   width: fit-content;
   color: #ece7de;
-  font-size: 0.88rem;
+  font-size: 0.84rem;
 }
 
-@media (max-width: 900px) {
-  .webflow-palette-embed {
-    overflow: auto;
-    overflow-x: hidden;
-  }
-
-  .webflow-palette-embed .app-shell {
-    width: calc(100% - 8px);
-    max-width: calc(100% - 8px);
-    height: auto;
-    min-height: calc(100vh - 8px);
-    min-height: calc(100dvh - 8px);
-    margin: 4px auto;
-    padding: 10px;
-    gap: 10px;
-  }
-
-  .webflow-palette-embed .hero,
-  .webflow-palette-embed .workspace {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-
-  .webflow-palette-embed .hero {
-    gap: 10px;
-  }
-
-  .webflow-palette-embed .hero > div:first-child {
-    max-width: 100%;
-  }
-
-  .webflow-palette-embed .hero-actions {
-    display: grid;
-    grid-template-columns: 1fr;
-    justify-self: stretch;
-    align-self: stretch;
-    margin-bottom: 0;
-  }
-
-  .webflow-palette-embed .upload-pill,
-  .webflow-palette-embed .recipe-button {
-    display: grid;
-    place-items: center;
-    width: 100%;
-    min-height: 52px;
-  }
-
-  .webflow-palette-embed .controls label {
-    padding: 12px 14px;
-  }
-
-  .webflow-palette-embed .workspace {
-    gap: 10px;
-    min-width: 0;
-  }
-
-  .webflow-palette-embed .canvas-wrap {
-    min-height: 52dvh;
-    border-radius: 18px;
-  }
-
-  .webflow-palette-embed .palette-panel {
-    min-height: 75dvh;
-    border-radius: 18px;
-    min-width: 0;
-  }
-
-  .webflow-palette-embed .palette-toolbar {
-    grid-template-columns: 54px 1fr 54px;
-    gap: 10px;
-  }
-
-  .webflow-palette-embed .palette-button,
-  .webflow-palette-embed .palette-size-label {
-    min-height: 52px;
-  }
-
-  .webflow-palette-embed .palette-button {
-    width: 54px;
-    height: 52px;
-    font-size: 1.45rem;
-  }
-
-  .webflow-palette-embed .palette-size-label {
-    font-size: 0.98rem;
-  }
-
-  .webflow-palette-embed .palette-list {
-    gap: 4px;
-  }
-
-  .webflow-palette-embed .palette-card {
-    padding: 10px;
-  }
-
-  .webflow-palette-embed .palette-line {
-    min-height: 36px;
-    font-size: 0.95rem;
-  }
-
-  .webflow-palette-embed .swatch {
-    width: 34px;
-    height: 34px;
-    margin-left: -17px;
-    margin-top: -17px;
-  }
-
-  .webflow-palette-embed .swatch::after {
-    inset: 0;
-  }
+.webflow-palette-embed .palette-placeholder {
+  border-radius: 8px;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
 }
 
+.webflow-palette-embed .palette-list.two-column .palette-card,
+.webflow-palette-embed .palette-list.two-column .palette-placeholder {
+  border-radius: 7px;
+}
 
+.webflow-palette-embed .palette-list.two-column .palette-card {
+  padding: 7px 6px;
+}
 
-.webflow-palette-embed .recipe-modal.hidden {
-  display: none;
+.webflow-palette-embed .palette-list.two-column .palette-meta {
+  gap: 4px;
+}
+
+.webflow-palette-embed .palette-list.two-column .palette-line {
+  gap: 5px;
+  padding: 4px 6px;
+  border-radius: 7px;
+}
+
+.webflow-palette-embed .palette-list.two-column .palette-copy,
+.webflow-palette-embed .palette-list.two-column .percent-badge {
+  font-size: 0.76rem;
+  line-height: 1.05;
+}
+
+.webflow-palette-embed .recipe-modal,
+.webflow-palette-embed .save-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(8, 10, 12, 0.72);
+  backdrop-filter: blur(16px);
+}
+
+.webflow-palette-embed .recipe-modal {
+  --recipe-modal-width: min(720px, calc(100% - 32px));
+}
+
+.webflow-palette-embed .save-modal {
+  --save-modal-width: min(860px, calc(100% - 32px));
 }
 
 .webflow-palette-embed .recipe-modal-panel {
-  width: min(760px, 100%);
-  max-height: min(82vh, 900px);
-  overflow: auto;
-  padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  background: rgba(20, 23, 27, 0.96);
-  box-shadow: var(--shadow);
+  width: var(--recipe-modal-width);
 }
 
-.webflow-palette-embed .recipe-modal-head {
+.webflow-palette-embed .recipe-modal-panel,
+.webflow-palette-embed .save-modal-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-height: min(82vh, 960px);
+  overflow: visible;
+  padding: 16px;
+  border-radius: 18px;
+}
+
+.webflow-palette-embed .save-modal-panel {
+  width: var(--save-modal-width);
+}
+
+.webflow-palette-embed .recipe-modal-head,
+.webflow-palette-embed .save-modal-head {
   display: flex;
   justify-content: space-between;
   align-items: start;
@@ -739,30 +899,146 @@
   margin-bottom: 12px;
 }
 
-.webflow-palette-embed .recipe-modal-head h2 {
+.webflow-palette-embed .recipe-modal-head h2,
+.webflow-palette-embed .save-modal-head h2 {
+  margin: 4px 0 0;
+  font-size: 1.08rem;
+}
+
+.webflow-palette-embed .save-modal-kicker {
   margin: 0;
-  font-size: 1.05rem;
+  color: var(--muted);
 }
 
-.webflow-palette-embed .recipe-close {
-  width: 40px;
-  height: 40px;
+.webflow-palette-embed .recipe-close,
+.webflow-palette-embed .save-close {
+  position: absolute;
+  top: -46px;
+  right: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  font-size: 1.12rem;
+  cursor: pointer;
+}
+
+.webflow-palette-embed .recipe-export {
+  width: var(--recipe-modal-width);
+}
+
+.webflow-palette-embed .save-export {
+  width: var(--save-modal-width);
+}
+
+.webflow-palette-embed [data-role="recipe-content"] {
+  min-height: 0;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+.webflow-palette-embed .save-modal-content {
+  display: grid;
+  gap: 16px;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+.webflow-palette-embed .save-controls {
+  display: grid;
+  gap: 12px;
+}
+
+.webflow-palette-embed .save-control-group,
+.webflow-palette-embed .save-toggle,
+.webflow-palette-embed .save-preview-shell {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+}
+
+.webflow-palette-embed .save-control-group {
+  display: grid;
+  gap: 9px;
+  padding: 12px;
+}
+
+.webflow-palette-embed .save-control-label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.webflow-palette-embed .save-option-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.webflow-palette-embed .save-option-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.webflow-palette-embed .save-option-row-sizes .save-option-button {
+  flex: 1 1 calc(25% - 6px);
+}
+
+.webflow-palette-embed .save-option-button.active,
+.webflow-palette-embed .save-option-button[aria-pressed="true"] {
+  border-color: rgba(158, 188, 223, 0.3);
+  background: rgba(158, 188, 223, 0.14);
+}
+
+.webflow-palette-embed .save-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
+.webflow-palette-embed .save-toggle span {
+  color: var(--muted-strong);
+  font-size: 0.88rem;
+}
+
+.webflow-palette-embed .save-toggle input {
+  margin: 0;
+  accent-color: #9ebcdf;
+}
+
+.webflow-palette-embed .save-preview-shell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 260px;
+  padding: 12px;
+  overflow: auto;
+}
+
+.webflow-palette-embed .save-preview-shell canvas {
+  display: block;
+  width: 100%;
+  height: auto;
   border-radius: 12px;
-  border: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
-  color: var(--text);
-  font: inherit;
-  font-size: 1.2rem;
-  cursor: grab;
-  transition: transform 120ms ease, box-shadow 120ms ease;
+  background: #111417;
 }
 
-.webflow-palette-embed .palette-card.dragging {
-  cursor: grabbing;
-  z-index: 3;
-  box-shadow:
-    inset 0 0 0 2px rgba(255,255,255,0.42),
-    0 10px 24px rgba(0,0,0,0.22);
+.webflow-palette-embed .save-preview-empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  text-align: center;
+  max-width: 28ch;
 }
 
 .webflow-palette-embed .recipe-stack {
@@ -772,16 +1048,15 @@
 
 .webflow-palette-embed .recipe-card {
   padding: 12px;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
-  background: rgba(255,255,255,0.04);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .webflow-palette-embed .recipe-card-head {
   display: flex;
   align-items: center;
   width: 100%;
-  box-sizing: border-box;
   margin: 0 0 10px;
   padding: 10px 12px;
   border-radius: 10px;
@@ -793,17 +1068,15 @@
 
 .webflow-palette-embed .recipe-meta {
   display: grid;
-  gap: 6px;
+  gap: 5px;
   margin-bottom: 10px;
 }
 
 .webflow-palette-embed .recipe-meta span,
 .webflow-palette-embed .recipe-note,
 .webflow-palette-embed .recipe-empty,
-.recipe-confidence {
+.webflow-palette-embed .recipe-confidence {
   color: var(--muted);
-  font-size: 0.86rem;
-  line-height: 1.45;
 }
 
 .webflow-palette-embed .recipe-list {
@@ -820,104 +1093,358 @@
   gap: 12px;
   padding: 7px 9px;
   border-radius: 10px;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
 }
 
-.webflow-palette-embed .recipe-export {
-  min-height: 46px;
-  padding: 12px 20px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
-  color: var(--text);
-  font: inherit;
-  cursor: pointer;
-  box-shadow: var(--shadow);
+.webflow-palette-embed[data-mobile-layout="true"] {
+  overflow: auto;
+  overflow-x: hidden;
 }
-  
-  </style>
-<main class="app-shell">
-    <section class="hero">
-      <div>
-        <p class="eyebrow">Color Study Tool</p>
-        <h1>Blur an image into a soft palette map.</h1>
-        <p class="lede">
-          Upload an image to reduce it into a dreamy field of color, then inspect the dominant tones with draggable swatch points and a live distribution panel.
-        </p>
-      </div>
-      <div class="hero-actions">
-        <button id="recipe-button" class="recipe-button" type="button">Paint Recipe</button>
-        <button id="image-export-button" class="recipe-button" type="button">Save Image</button>
-        <label class="upload-pill" for="image-input">Choose image</label>
-      </div>
-      <input id="image-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,image/heic,image/heif">
-    </section>
 
-    <section id="import-warning" class="import-warning hidden" aria-live="polite"></section>
+.webflow-palette-embed[data-mobile-layout="true"] .app-shell {
+  width: calc(100% - 10px);
+  height: auto;
+  min-height: calc(100vh - 10px);
+  min-height: calc(100dvh - 10px);
+  margin: 5px auto;
+  padding: 5px;
+}
 
-    <section class="controls">
-      <label>
-        <span>Blur intensity</span>
-        <input id="blur-range" type="range" min="0" max="40" value="40">
-      </label>
-    </section>
+.webflow-palette-embed[data-mobile-layout="true"] .workspace {
+  grid-template-columns: 1fr;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 10px;
+  min-height: calc(100vh - 20px);
+  min-height: calc(100dvh - 20px);
+  justify-content: stretch;
+}
 
+.webflow-palette-embed[data-mobile-layout="true"] .canvas-stage {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  height: auto;
+  --frame-height: min(58dvh, 700px);
+  --frame-height: min(58svh, 700px);
+  --frame-width: min(100%, calc(100vw - 20px));
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .control-hud {
+  width: 100%;
+  padding: 12px;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .hud-bar {
+  gap: 8px;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .hud-count {
+  text-align: right;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .hud-buttons {
+  grid-template-columns: 1fr;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .recipe-button,
+.webflow-palette-embed[data-mobile-layout="true"] .recipe-export,
+.webflow-palette-embed[data-mobile-layout="true"] .save-export {
+  width: 100%;
+  min-height: 44px;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .save-option-row-sizes .save-option-button {
+  flex: 1 1 calc(50% - 4px);
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .canvas-wrap {
+  border-radius: 20px;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .palette-panel {
+  grid-template-rows: auto;
+  gap: 0;
+  padding: 10px;
+  border-radius: 18px;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-toggle {
+  display: grid;
+  gap: 12px;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-toggle:not(:disabled):hover,
+.webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-toggle:not(:disabled):focus-visible {
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  padding: 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 18px;
+  background: var(--panel-solid);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    var(--shadow-soft);
+  backdrop-filter: blur(18px);
+  overflow: auto;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-sheet[hidden] {
+  display: none;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .palette-list {
+  overflow: visible;
+  align-content: start;
+  touch-action: pan-y;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .palette-card {
+  touch-action: none;
+}
+
+</style>
+<script>
+(() => {
+function getPaletteMarkup() {
+  return `
+  <main class="app-shell">
     <section class="workspace">
-      <div class="canvas-wrap" id="canvas-wrap">
-        <canvas id="display-canvas" width="900" height="1350"></canvas>
-        <div id="swatch-layer" class="swatch-layer" aria-label="Color swatches"></div>
-        <div id="empty-state" class="empty-state">
-          <p>Drop in an image to generate a blurred color map.</p>
+      <div class="canvas-stage">
+        <div class="control-hud" aria-label="Color study controls">
+          <div class="hud-bar">
+            <div class="hud-bar__group hud-bar__group--title">
+              <p class="eyebrow">Colour Palette</p>
+            </div>
+            <div class="hud-bar__group hud-bar__group--center">
+              <button class="hud-mobile-toggle" type="button" data-action="toggle-mobile-view" aria-pressed="false">Mobile View</button>
+            </div>
+            <div class="hud-bar__group hud-bar__group--status">
+              <span class="hud-count">Studio blur map</span>
+            </div>
+          </div>
+          <div class="hud-rule" aria-hidden="true"></div>
+          <div class="hud-actions">
+            <div class="hud-buttons">
+              <button class="recipe-button" type="button" data-action="recipe">Paint Recipe</button>
+              <button class="recipe-button" type="button" data-action="export-image">Save Image</button>
+            </div>
+            <label class="hud-slider">
+              <span>Blur</span>
+              <input data-role="blur-range" type="range" min="0" max="40" value="40">
+            </label>
+          </div>
+        </div>
+
+        <section data-role="import-warning" class="import-warning hidden" aria-live="polite"></section>
+
+        <div class="canvas-wrap" data-role="canvas-wrap">
+          <canvas data-role="display-canvas" width="900" height="1350"></canvas>
+          <div data-role="swatch-layer" class="swatch-layer" aria-label="Color swatches"></div>
+          <div data-role="empty-state" class="empty-state">
+            <label class="empty-state-card empty-state-upload">
+              <span class="empty-state-primary">Choose image</span>
+              <p>or drag image in</p>
+              <input data-role="image-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,image/heic,image/heif">
+            </label>
+          </div>
         </div>
       </div>
-      <div class="palette-panel">
-        <div class="palette-toolbar">
-          <button id="palette-minus" class="palette-button" type="button" aria-label="Decrease palette size">-</button>
-          <span id="palette-size-label" class="palette-size-label">Palette size 4</span>
-          <button id="palette-plus" class="palette-button" type="button" aria-label="Increase palette size">+</button>
+
+      <aside class="palette-panel" data-role="palette-panel">
+        <button class="palette-drawer-toggle" type="button" data-action="palette-drawer-toggle" aria-expanded="false">
+          <span class="palette-drawer-toggle__copy">
+            <span class="palette-drawer-toggle__label">Palette Rail</span>
+            <span class="palette-drawer-toggle__status" data-role="palette-preview-status">Upload an image to build a palette.</span>
+          </span>
+          <span class="palette-preview-list" data-role="palette-preview-list" aria-hidden="true"></span>
+        </button>
+        <div class="palette-drawer-sheet" data-role="palette-drawer-sheet" aria-hidden="false">
+          <div class="palette-toolbar">
+            <div class="palette-toolbar-head">
+              <span class="palette-rail-label">Palette Rail</span>
+              <button class="palette-drawer-close" type="button" data-action="palette-drawer-close" aria-label="Close palette drawer">Close</button>
+            </div>
+            <div class="palette-toolbar-controls">
+              <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
+              <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
+              <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
+            </div>
+          </div>
+          <div data-role="palette-list" class="palette-list"></div>
         </div>
-        <div id="palette-list" class="palette-list"></div>
-      </div>
+      </aside>
     </section>
   </main>
-  <div id="recipe-modal" class="recipe-modal hidden" aria-hidden="true">
-    <div class="recipe-modal-panel" role="dialog" aria-modal="true" aria-labelledby="recipe-modal-title">
-      <div class="recipe-modal-head">
-        <h2 id="recipe-modal-title">Paint recipes</h2>
-        <button id="recipe-close" class="recipe-close" type="button" aria-label="Close paint recipes">x</button>
-      </div>
-      <div id="recipe-content"></div>
-    </div>
-    <button id="recipe-export" class="recipe-export" type="button">Save recipe</button>
-  </div>
-  <script>
-(() => {
-const root = document.currentScript.closest(".webflow-palette-embed");
-const input = root.querySelector("#image-input");
-const blurRange = root.querySelector("#blur-range");
-const importWarning = root.querySelector("#import-warning");
-const canvas = root.querySelector("#display-canvas");
-const ctx = canvas.getContext("2d", { willReadFrequently: true });
-const swatchLayer = root.querySelector("#swatch-layer");
-const paletteList = root.querySelector("#palette-list");
-const emptyState = root.querySelector("#empty-state");
-const canvasWrap = root.querySelector("#canvas-wrap");
-const paletteMinus = root.querySelector("#palette-minus");
-const palettePlus = root.querySelector("#palette-plus");
-const paletteSizeLabel = root.querySelector("#palette-size-label");
-const recipeButton = root.querySelector("#recipe-button");
-const imageExportButton = root.querySelector("#image-export-button");
-const recipeModal = root.querySelector("#recipe-modal");
-const recipeContent = root.querySelector("#recipe-content");
-const recipeClose = root.querySelector("#recipe-close");
-const recipeExport = root.querySelector("#recipe-export");
 
-const PALETTE_MIN = 4;
-const PALETTE_MAX = 8;
+  <div data-role="recipe-modal" class="recipe-modal hidden" aria-hidden="true">
+    <div class="recipe-modal-panel" role="dialog" aria-modal="true" aria-label="Paint recipes">
+      <div class="recipe-modal-head">
+        <div>
+          <p class="recipe-modal-kicker">Colour mix study</p>
+          <h2>Paint recipes</h2>
+        </div>
+        <button class="recipe-close" type="button" data-action="recipe-close" aria-label="Close paint recipes">x</button>
+      </div>
+      <div data-role="recipe-content"></div>
+    </div>
+    <button class="recipe-export" type="button" data-action="recipe-export">Save recipe</button>
+  </div>
+
+  <div data-role="save-modal" class="save-modal hidden" aria-hidden="true">
+    <div class="save-modal-panel" role="dialog" aria-modal="true" aria-label="Save image options">
+      <div class="save-modal-head">
+        <div>
+          <p class="save-modal-kicker">Export study</p>
+          <h2>Save image</h2>
+        </div>
+        <button class="save-close" type="button" data-action="save-close" aria-label="Close save options">x</button>
+      </div>
+      <div data-role="save-content" class="save-modal-content">
+        <div class="save-controls">
+          <section class="save-control-group">
+            <span class="save-control-label">Style</span>
+            <div class="save-option-row">
+              <button class="save-option-button" type="button" data-save-style="current">Default</button>
+              <button class="save-option-button" type="button" data-save-style="strip">Swatches</button>
+            </div>
+          </section>
+          <section class="save-control-group">
+            <span class="save-control-label">Size</span>
+            <div class="save-option-row save-option-row-sizes">
+              <button class="save-option-button" type="button" data-save-size="1000">1k</button>
+              <button class="save-option-button" type="button" data-save-size="2000">2k</button>
+              <button class="save-option-button" type="button" data-save-size="3000">3k</button>
+              <button class="save-option-button" type="button" data-save-size="4000">4k</button>
+            </div>
+          </section>
+          <label data-role="save-nodes-row" class="save-toggle">
+            <input data-role="save-strip-nodes" type="checkbox">
+            <span>Show nodes</span>
+          </label>
+        </div>
+        <div class="save-preview-shell">
+          <canvas data-role="save-preview-canvas" aria-label="Save preview"></canvas>
+          <p data-role="save-preview-empty" class="save-preview-empty" hidden></p>
+        </div>
+      </div>
+    </div>
+    <button class="save-export" type="button" data-action="save-export-image">Save image</button>
+  </div>`;
+}
+
+function ensurePaletteMarkup(root) {
+  if (root.querySelector('[data-role="display-canvas"]')) {
+    return;
+  }
+  root.innerHTML = getPaletteMarkup();
+}
+
+function initPalette(root) {
+if (!root || root.dataset.webflowPaletteReady === "true") {
+  return;
+}
+ensurePaletteMarkup(root);
+root.dataset.webflowPaletteReady = "true";
+root.dataset.paletteHasImage = "false";
+const input = root.querySelector('[data-role="image-input"]');
+const blurRange = root.querySelector('[data-role="blur-range"]');
+const importWarning = root.querySelector('[data-role="import-warning"]');
+const canvas = root.querySelector('[data-role="display-canvas"]');
+if (!input || !blurRange || !importWarning || !canvas) {
+  return;
+}
+const ctx = canvas.getContext("2d", { willReadFrequently: true });
+const swatchLayer = root.querySelector('[data-role="swatch-layer"]');
+const paletteList = root.querySelector('[data-role="palette-list"]');
+const palettePanel = root.querySelector('[data-role="palette-panel"]');
+const paletteDrawerSheet = root.querySelector('[data-role="palette-drawer-sheet"]');
+const palettePreviewList = root.querySelector('[data-role="palette-preview-list"]');
+const palettePreviewStatus = root.querySelector('[data-role="palette-preview-status"]');
+const emptyState = root.querySelector('[data-role="empty-state"]');
+const canvasStage = root.querySelector('.canvas-stage');
+const canvasWrap = root.querySelector('[data-role="canvas-wrap"]');
+const mobileViewToggle = root.querySelector('[data-action="toggle-mobile-view"]');
+const paletteDrawerToggle = root.querySelector('[data-action="palette-drawer-toggle"]');
+const paletteDrawerClose = root.querySelector('[data-action="palette-drawer-close"]');
+const paletteMinus = root.querySelector('[data-action="palette-minus"]');
+const palettePlus = root.querySelector('[data-action="palette-plus"]');
+const paletteSizeLabel = root.querySelector('[data-role="palette-size-label"]');
+const recipeButton = root.querySelector('[data-action="recipe"]');
+const imageExportButton = root.querySelector('[data-action="export-image"]');
+const recipeModal = root.querySelector('[data-role="recipe-modal"]');
+const recipeContent = root.querySelector('[data-role="recipe-content"]');
+const recipeClose = root.querySelector('[data-action="recipe-close"]');
+const recipeExport = root.querySelector('[data-action="recipe-export"]');
+const saveModal = root.querySelector('[data-role="save-modal"]');
+const saveContent = root.querySelector('[data-role="save-content"]');
+const savePreviewCanvas = root.querySelector('[data-role="save-preview-canvas"]');
+const savePreviewEmpty = root.querySelector('[data-role="save-preview-empty"]');
+const saveNodesRow = root.querySelector('[data-role="save-nodes-row"]');
+const saveStripNodes = root.querySelector('[data-role="save-strip-nodes"]');
+const saveClose = root.querySelector('[data-action="save-close"]');
+const saveExport = root.querySelector('[data-action="save-export-image"]');
+const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
+const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
+if (!ctx || !swatchLayer || !paletteList || !palettePanel || !paletteDrawerSheet || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !mobileViewToggle || !paletteDrawerToggle || !paletteDrawerClose || !paletteMinus || !palettePlus || !paletteSizeLabel || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+  return;
+}
+
+const PALETTE_MIN = 2;
+const PALETTE_MAX = 30;
+const DEFAULT_PALETTE_SIZE = 4;
+const MOBILE_LAYOUT_MAX_WIDTH = 980;
+const PALETTE_TWO_COLUMN_THRESHOLD = 16;
+const PALETTE_GAP = 3;
+const PALETTE_SINGLE_MIN_HEIGHT = 52;
+const PALETTE_TWO_COLUMN_TARGET_MIN_HEIGHT = 34;
+const PALETTE_TWO_COLUMN_FLOOR_HEIGHT = 18;
 const SAMPLE_GRID = 72;
+const PERCENTAGE_SAMPLE_LONG_EDGE = 96;
+const EXPORT_LAYOUT_CURRENT = "current";
+const EXPORT_LAYOUT_STRIP = "strip";
+const EXPORT_DEFAULT_LONGEST_EDGE = 2000;
+const EXPORT_PREVIEW_LONGEST_EDGE = 1200;
+const EXPORT_SIZE_PRESETS = [1000, 2000, 3000, 4000];
+const SCROLL_LOCK_SWATCH_DRAG = "swatch-drag";
+const SCROLL_LOCK_PALETTE_DRAG = "palette-drag";
+const SCROLL_LOCK_PALETTE_DRAWER = "palette-drawer";
+const mobileLayoutQuery = window.matchMedia(`(max-width: ${MOBILE_LAYOUT_MAX_WIDTH}px)`);
+const paletteDrawerId = `palette-drawer-${Math.random().toString(36).slice(2, 10)}`;
+
+paletteDrawerSheet.id = paletteDrawerId;
+paletteDrawerToggle.setAttribute("aria-controls", paletteDrawerId);
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
+}
+
+function isRealMobileLayout() {
+  return mobileLayoutQuery.matches;
+}
+
+function isEffectiveMobileLayout() {
+  return isRealMobileLayout() || state.forceMobileView;
+}
+
+function isTwoColumnPalette(count = state.colors.length) {
+  return count >= PALETTE_TWO_COLUMN_THRESHOLD;
+}
+
+function getPaletteLeftColumnCount(count = state.colors.length) {
+  return Math.ceil(count / 2);
+}
+
+function getPaletteFrameClearance() {
+  if (isEffectiveMobileLayout()) {
+    return 40;
+  }
+  return isTwoColumnPalette() ? 576 : 460;
 }
 
 function rgbToHex(r, g, b) {
@@ -935,6 +1462,10 @@ function luminance(r, g, b) {
 
 function colorDistance(a, b) {
   return Math.abs(a.r - b.r) + Math.abs(a.g - b.g) + Math.abs(a.b - b.b);
+}
+
+function labDistanceSquared(labA, labB) {
+  return ((labA.l - labB.l) ** 2) + ((labA.a - labB.a) ** 2) + ((labA.b - labB.b) ** 2);
 }
 
 function srgbToLinear(channel) {
@@ -982,20 +1513,57 @@ const state = {
   colors: [],
   swatches: [],
   dragId: null,
+  dragLens: null,
+  dragLensHideTimer: null,
   dragPointerType: null,
   animationFrame: null,
   sourceWidth: canvas.width,
   sourceHeight: canvas.height,
-  paletteSize: 4,
+  processedReferenceCanvas: null,
+  paletteSize: DEFAULT_PALETTE_SIZE,
+  saveExport: {
+    layout: EXPORT_LAYOUT_CURRENT,
+    longestEdge: EXPORT_DEFAULT_LONGEST_EDGE,
+    stripNodes: false,
+  },
   dpr: window.devicePixelRatio || 1,
+  forceMobileView: false,
+  isPaletteDrawerOpen: false,
   scrollLockY: 0,
+  scrollLocks: new Set(),
   hoveredColorId: null,
   paletteDragId: null,
   paletteDragPointerId: null,
   paletteDropIndex: null,
   paletteDragTop: 0,
+  paletteDragLeft: 0,
+  paletteDragWidth: 0,
   paletteGrabOffsetY: 0,
   recipe: [],
+};
+
+const renderProfile = (() => {
+  const ua = navigator.userAgent || "";
+  const platform = navigator.platform || "";
+  const maxTouchPoints = navigator.maxTouchPoints || 0;
+  const isIOSDevice = /iPad|iPhone|iPod/.test(ua) || (platform === "MacIntel" && maxTouchPoints > 1);
+  return {
+    isIOSDevice,
+    blurReductionFactor: isIOSDevice ? 0.38 : 0.62,
+    blurRadiusBoost: isIOSDevice ? 1.08 : 1,
+    grainAmount: isIOSDevice ? 14 : 18,
+    minReducedWidth: isIOSDevice ? 20 : 14,
+    minReducedHeight: isIOSDevice ? 28 : 20,
+  };
+})();
+
+const DRAG_LENS = {
+  size: 76,
+  overlap: 8,
+  edgePadding: 8,
+  zoomSize: 70,
+  gridSize: 5,
+  cellSize: 14,
 };
 
 function mixPigments(recipe) {
@@ -1063,10 +1631,255 @@ function formatPercent(value) {
   return `${Math.round(value)}%`;
 }
 
+function clearDragLensHideTimer() {
+  if (state.dragLensHideTimer) {
+    clearTimeout(state.dragLensHideTimer);
+    state.dragLensHideTimer = null;
+  }
+}
+
+function createDragLens() {
+  clearDragLensHideTimer();
+  if (state.dragLens?.element?.isConnected) {
+    state.dragLens.element.remove();
+  }
+
+  const lens = document.createElement("div");
+  lens.className = "swatch-lens";
+  lens.dataset.placement = "above";
+  lens.setAttribute("aria-hidden", "true");
+
+  const shell = document.createElement("div");
+  shell.className = "swatch-lens-shell";
+  shell.style.setProperty("--swatch-color", "#F2EFE8");
+
+  const zoom = document.createElement("div");
+  zoom.className = "swatch-lens-zoom";
+
+  const zoomCanvas = document.createElement("canvas");
+  zoomCanvas.className = "swatch-lens-canvas";
+  zoomCanvas.width = DRAG_LENS.zoomSize;
+  zoomCanvas.height = DRAG_LENS.zoomSize;
+  zoom.appendChild(zoomCanvas);
+  shell.appendChild(zoom);
+  lens.append(shell);
+  swatchLayer.appendChild(lens);
+
+  const zoomCtx = zoomCanvas.getContext("2d", { willReadFrequently: true });
+  if (zoomCtx) {
+    zoomCtx.imageSmoothingEnabled = false;
+  }
+
+  requestAnimationFrame(() => lens.classList.add("is-visible"));
+
+  state.dragLens = { element: lens, shell, canvas: zoomCanvas, ctx: zoomCtx };
+  return state.dragLens;
+}
+
+function destroyDragLens(immediate = false) {
+  clearDragLensHideTimer();
+  if (!state.dragLens) return;
+
+  const { element } = state.dragLens;
+  state.dragLens = null;
+
+  if (immediate || !element?.isConnected) {
+    element?.remove();
+    return;
+  }
+
+  element.classList.remove("is-visible");
+  state.dragLensHideTimer = setTimeout(() => {
+    element.remove();
+    state.dragLensHideTimer = null;
+  }, 180);
+}
+
+function positionDragLens(swatch) {
+  if (!state.dragLens) return;
+
+  const pointX = swatch.x;
+  const pointY = swatch.y;
+  const availableHeight = canvasWrap.clientHeight || canvasWrap.getBoundingClientRect().height;
+  const lensSize = DRAG_LENS.size;
+  const edgePadding = DRAG_LENS.edgePadding;
+
+  let placement = "above";
+  if (pointY < (lensSize - DRAG_LENS.overlap + edgePadding)) {
+    placement = "below";
+  }
+
+  if (placement === "below" && (pointY + lensSize - DRAG_LENS.overlap > availableHeight - edgePadding)) {
+    placement = "above";
+  }
+
+  state.dragLens.element.dataset.placement = placement;
+  state.dragLens.element.style.left = `${pointX}px`;
+  state.dragLens.element.style.top = `${pointY}px`;
+}
+
+function sampleLensNeighborhood(centerX, centerY, gridSize) {
+  const half = Math.floor(gridSize / 2);
+  const pixelX = clamp(Math.round(centerX * state.dpr), 0, canvas.width - 1);
+  const pixelY = clamp(Math.round(centerY * state.dpr), 0, canvas.height - 1);
+  const minX = clamp(pixelX - half, 0, canvas.width - 1);
+  const maxX = clamp(pixelX + half, 0, canvas.width - 1);
+  const minY = clamp(pixelY - half, 0, canvas.height - 1);
+  const maxY = clamp(pixelY + half, 0, canvas.height - 1);
+  const sourceWidth = maxX - minX + 1;
+  const sourceHeight = maxY - minY + 1;
+  const source = ctx.getImageData(minX, minY, sourceWidth, sourceHeight).data;
+  const samples = new Uint8ClampedArray(gridSize * gridSize * 4);
+
+  for (let gy = 0; gy < gridSize; gy += 1) {
+    for (let gx = 0; gx < gridSize; gx += 1) {
+      const sampleX = clamp(pixelX + gx - half, 0, canvas.width - 1);
+      const sampleY = clamp(pixelY + gy - half, 0, canvas.height - 1);
+      const sourceIndex = (((sampleY - minY) * sourceWidth) + (sampleX - minX)) * 4;
+      const targetIndex = ((gy * gridSize) + gx) * 4;
+      samples[targetIndex] = source[sourceIndex];
+      samples[targetIndex + 1] = source[sourceIndex + 1];
+      samples[targetIndex + 2] = source[sourceIndex + 2];
+      samples[targetIndex + 3] = source[sourceIndex + 3];
+    }
+  }
+
+  return samples;
+}
+
+function renderDragLens(swatch) {
+  if (!state.dragLens?.ctx) return;
+
+  const { ctx: lensCtx } = state.dragLens;
+  const { gridSize, cellSize, zoomSize } = DRAG_LENS;
+  const samples = sampleLensNeighborhood(swatch.targetX, swatch.targetY, gridSize);
+  lensCtx.clearRect(0, 0, zoomSize, zoomSize);
+
+  for (let gy = 0; gy < gridSize; gy += 1) {
+    for (let gx = 0; gx < gridSize; gx += 1) {
+      const index = ((gy * gridSize) + gx) * 4;
+      const r = samples[index];
+      const g = samples[index + 1];
+      const b = samples[index + 2];
+      const a = samples[index + 3] / 255;
+      lensCtx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a.toFixed(3)})`;
+      lensCtx.fillRect(gx * cellSize, gy * cellSize, cellSize, cellSize);
+    }
+  }
+
+  const center = Math.floor(gridSize / 2);
+  const centerIndex = ((center * gridSize) + center) * 4;
+  const centerR = samples[centerIndex];
+  const centerG = samples[centerIndex + 1];
+  const centerB = samples[centerIndex + 2];
+  const reticleColor = luminance(centerR, centerG, centerB) > 0.62 ? "rgba(10, 10, 10, 0.98)" : "rgba(255, 255, 255, 0.98)";
+
+  lensCtx.save();
+  lensCtx.strokeStyle = reticleColor;
+  lensCtx.lineWidth = 2;
+  lensCtx.strokeRect((center * cellSize) + 1, (center * cellSize) + 1, cellSize - 2, cellSize - 2);
+  lensCtx.restore();
+}
+
+function refreshStageSize() {
+  if (!state.image) {
+    root.dataset.paletteHasImage = "false";
+    state.processedReferenceCanvas = null;
+    canvasStage.style.removeProperty("--image-ratio");
+    canvasStage.style.removeProperty("--frame-width");
+    canvasWrap.style.removeProperty("--image-ratio");
+    return;
+  }
+
+  root.dataset.paletteHasImage = "true";
+  const imageRatio = state.image.width / state.image.height;
+  const ratioValue = `${state.image.width} / ${state.image.height}`;
+  const frameHeight = Math.max(320, Math.round(canvasWrap.clientHeight || canvasWrap.getBoundingClientRect().height || 0));
+  const maxWidth = Math.max(280, Math.round(window.innerWidth - getPaletteFrameClearance()));
+  const frameWidth = Math.min(Math.round(frameHeight * imageRatio), maxWidth);
+
+  canvasStage.style.setProperty("--image-ratio", ratioValue);
+  canvasStage.style.setProperty("--frame-width", `${frameWidth}px`);
+  canvasWrap.style.setProperty("--image-ratio", ratioValue);
+}
+
+function renderPalettePreview() {
+  palettePreviewList.innerHTML = "";
+  if (!state.colors.length) {
+    return;
+  }
+
+  state.colors.forEach((color) => {
+    const tile = document.createElement("span");
+    tile.className = "palette-preview-tile";
+    tile.style.background = `linear-gradient(135deg, ${color.hex}, color-mix(in srgb, ${color.hex} 60%, #17191c))`;
+    tile.setAttribute("aria-hidden", "true");
+    palettePreviewList.appendChild(tile);
+  });
+}
+
 function updatePaletteLabel() {
-  paletteSizeLabel.textContent = `Palette size ${state.paletteSize}`;
+  paletteSizeLabel.textContent = `Palette: ${state.paletteSize}`;
   paletteMinus.disabled = state.paletteSize <= PALETTE_MIN;
   palettePlus.disabled = state.paletteSize >= PALETTE_MAX;
+  paletteDrawerToggle.disabled = !state.colors.length;
+  palettePreviewStatus.textContent = state.colors.length
+    ? `${state.colors.length} ${state.colors.length === 1 ? "colour" : "colours"} ready`
+    : "Upload an image to build a palette.";
+}
+
+function syncLayoutState() {
+  const effectiveMobileLayout = isEffectiveMobileLayout();
+  if (!effectiveMobileLayout || !state.colors.length) {
+    state.isPaletteDrawerOpen = false;
+  }
+
+  root.dataset.mobileLayout = effectiveMobileLayout ? "true" : "false";
+  root.dataset.mobileLayoutForced = state.forceMobileView ? "true" : "false";
+  root.dataset.paletteDrawerOpen = effectiveMobileLayout && state.isPaletteDrawerOpen ? "true" : "false";
+
+  mobileViewToggle.setAttribute("aria-pressed", String(state.forceMobileView));
+  paletteDrawerToggle.hidden = !effectiveMobileLayout;
+  paletteDrawerToggle.setAttribute("aria-expanded", effectiveMobileLayout && state.isPaletteDrawerOpen ? "true" : "false");
+  paletteDrawerClose.hidden = !effectiveMobileLayout;
+  paletteDrawerSheet.hidden = effectiveMobileLayout ? !state.isPaletteDrawerOpen : false;
+  paletteDrawerSheet.setAttribute("aria-hidden", effectiveMobileLayout ? String(!state.isPaletteDrawerOpen) : "false");
+
+  if (effectiveMobileLayout && state.isPaletteDrawerOpen) {
+    lockPageScroll(SCROLL_LOCK_PALETTE_DRAWER);
+  } else {
+    unlockPageScroll(SCROLL_LOCK_PALETTE_DRAWER);
+  }
+
+  refreshStageSize();
+}
+
+function openPaletteDrawer() {
+  if (!isEffectiveMobileLayout() || !state.colors.length || state.isPaletteDrawerOpen) {
+    return;
+  }
+
+  state.isPaletteDrawerOpen = true;
+  syncLayoutState();
+  requestAnimationFrame(() => {
+    renderPalette();
+    paletteDrawerClose.focus({ preventScroll: true });
+  });
+}
+
+function closePaletteDrawer({ restoreFocus = true } = {}) {
+  if (!state.isPaletteDrawerOpen) {
+    syncLayoutState();
+    return;
+  }
+
+  state.isPaletteDrawerOpen = false;
+  syncLayoutState();
+  if (restoreFocus) {
+    requestAnimationFrame(() => {
+      paletteDrawerToggle.focus({ preventScroll: true });
+    });
+  }
 }
 
 function showImportWarning(title, message) {
@@ -1296,21 +2109,29 @@ function extractPalette(image, paletteSize) {
 }
 function recalculatePercentages() {
   if (!state.colors.length) return;
+  const sourceCanvas = state.processedReferenceCanvas || canvas;
+  const longestEdge = Math.max(sourceCanvas.width || 0, sourceCanvas.height || 0, 1);
+  const sampleScale = Math.min(1, PERCENTAGE_SAMPLE_LONG_EDGE / longestEdge);
+  const sampleWidth = Math.max(1, Math.round((sourceCanvas.width || SAMPLE_GRID) * sampleScale));
+  const sampleHeight = Math.max(1, Math.round((sourceCanvas.height || SAMPLE_GRID) * sampleScale));
   const sampleCanvas = document.createElement("canvas");
+  sampleCanvas.width = sampleWidth;
+  sampleCanvas.height = sampleHeight;
   const sampleCtx = sampleCanvas.getContext("2d", { willReadFrequently: true });
-  sampleCanvas.width = SAMPLE_GRID;
-  sampleCanvas.height = SAMPLE_GRID;
-  sampleCtx.drawImage(canvas, 0, 0, SAMPLE_GRID, SAMPLE_GRID);
-  const { data } = sampleCtx.getImageData(0, 0, SAMPLE_GRID, SAMPLE_GRID);
+  sampleCtx.imageSmoothingEnabled = true;
+  sampleCtx.imageSmoothingQuality = "high";
+  sampleCtx.drawImage(sourceCanvas, 0, 0, sampleWidth, sampleHeight);
+  const { data } = sampleCtx.getImageData(0, 0, sampleWidth, sampleHeight);
+  const paletteLabs = state.colors.map((color) => rgbToLab(color));
   const counts = new Array(state.colors.length).fill(0);
   let total = 0;
   for (let i = 0; i < data.length; i += 4) {
     if (data[i + 3] < 180) continue;
-    const sample = { r: data[i], g: data[i + 1], b: data[i + 2] };
+    const sampleLab = rgbToLab({ r: data[i], g: data[i + 1], b: data[i + 2] });
     let bestIndex = 0;
     let bestDistance = Number.POSITIVE_INFINITY;
-    state.colors.forEach((color, index) => {
-      const distance = colorDistance(sample, color);
+    paletteLabs.forEach((paletteLab, index) => {
+      const distance = labDistanceSquared(sampleLab, paletteLab);
       if (distance < bestDistance) {
         bestDistance = distance;
         bestIndex = index;
@@ -1340,12 +2161,14 @@ function drawProcessedImage() {
   const downscaleCanvas = document.createElement("canvas");
   const downscaleCtx = downscaleCanvas.getContext("2d");
   const blurValue = Number(blurRange.value);
-  const blurReduction = Math.max(1, blurValue * 0.62);
-  const reducedWidth = Math.max(14, Math.round(displayWidth / blurReduction));
-  const reducedHeight = Math.max(20, Math.round(displayHeight / blurReduction));
+  const blurReduction = Math.max(1, blurValue * renderProfile.blurReductionFactor);
+  const reducedWidth = Math.max(renderProfile.minReducedWidth, Math.round(displayWidth / blurReduction));
+  const reducedHeight = Math.max(renderProfile.minReducedHeight, Math.round(displayHeight / blurReduction));
+  const effectiveBlurValue = blurValue * renderProfile.blurRadiusBoost;
   downscaleCanvas.width = reducedWidth;
   downscaleCanvas.height = reducedHeight;
   downscaleCtx.imageSmoothingEnabled = true;
+  downscaleCtx.imageSmoothingQuality = "high";
   const imageRatio = state.image.width / state.image.height;
   const frameRatio = displayWidth / displayHeight;
   let drawWidth;
@@ -1353,24 +2176,33 @@ function drawProcessedImage() {
   let offsetX = 0;
   let offsetY = 0;
   if (imageRatio > frameRatio) {
-    drawHeight = reducedHeight;
-    drawWidth = reducedHeight * imageRatio;
-    offsetX = (reducedWidth - drawWidth) / 2;
-  } else {
     drawWidth = reducedWidth;
     drawHeight = reducedWidth / imageRatio;
     offsetY = (reducedHeight - drawHeight) / 2;
+  } else {
+    drawHeight = reducedHeight;
+    drawWidth = reducedHeight * imageRatio;
+    offsetX = (reducedWidth - drawWidth) / 2;
   }
   downscaleCtx.drawImage(state.image, offsetX, offsetY, drawWidth, drawHeight);
+  const processedCanvas = document.createElement("canvas");
+  processedCanvas.width = displayWidth;
+  processedCanvas.height = displayHeight;
+  const processedCtx = processedCanvas.getContext("2d", { willReadFrequently: true });
+  processedCtx.imageSmoothingEnabled = true;
+  processedCtx.imageSmoothingQuality = "high";
+  processedCtx.filter = `blur(${effectiveBlurValue}px) saturate(118%) contrast(104%)`;
+  processedCtx.drawImage(downscaleCanvas, 0, 0, displayWidth, displayHeight);
+  state.processedReferenceCanvas = processedCanvas;
   ctx.clearRect(0, 0, displayWidth, displayHeight);
   ctx.save();
   ctx.imageSmoothingEnabled = true;
-  ctx.filter = `blur(${blurValue}px) saturate(118%) contrast(104%)`;
-  ctx.drawImage(downscaleCanvas, 0, 0, displayWidth, displayHeight);
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(processedCanvas, 0, 0, displayWidth, displayHeight);
   ctx.restore();
   const imageData = ctx.getImageData(0, 0, displayWidth, displayHeight);
   for (let i = 0; i < imageData.data.length; i += 4) {
-    const grain = (Math.random() - 0.5) * 18;
+    const grain = (Math.random() - 0.5) * renderProfile.grainAmount;
     imageData.data[i] = clamp(imageData.data[i] + grain, 0, 255);
     imageData.data[i + 1] = clamp(imageData.data[i + 1] + grain, 0, 255);
     imageData.data[i + 2] = clamp(imageData.data[i + 2] + grain, 0, 255);
@@ -1385,88 +2217,370 @@ function sampleCanvasColor(x, y) {
   return { r: pixel[0], g: pixel[1], b: pixel[2], hex: rgbToHex(pixel[0], pixel[1], pixel[2]) };
 }
 
-function getScaledPaletteHeights(availableHeight, gap = 3, minHeight = 52) {
-  const totalPercent = state.colors.reduce((sum, color) => sum + color.percent, 0) || 1;
-  const totalGaps = Math.max(0, state.colors.length - 1) * gap;
-  const usableHeight = Math.max(minHeight * state.colors.length, availableHeight - totalGaps);
-  const scaled = state.colors.map((color) => Math.max(minHeight, (color.percent / totalPercent) * usableHeight));
+function getScaledPaletteHeights(colors, availableHeight, gap = PALETTE_GAP, minHeight = PALETTE_SINGLE_MIN_HEIGHT) {
+  if (!colors.length) return [];
+  const totalPercent = colors.reduce((sum, color) => sum + color.percent, 0) || 1;
+  const totalGaps = Math.max(0, colors.length - 1) * gap;
+  const usableHeight = Math.max(minHeight * colors.length, availableHeight - totalGaps);
+  const scaled = colors.map((color) => Math.max(minHeight, (color.percent / totalPercent) * usableHeight));
   const heightSum = scaled.reduce((sum, value) => sum + value, 0);
   const scale = heightSum > 0 ? usableHeight / heightSum : 1;
   return scaled.map((value) => value * scale);
 }
 
-function getPaletteHeights() {
-  return getScaledPaletteHeights(paletteList.clientHeight, 3, 52);
+function getFittedPaletteHeights(colors, availableHeight, gap = PALETTE_GAP, preferredMinHeight = PALETTE_TWO_COLUMN_TARGET_MIN_HEIGHT, floorHeight = PALETTE_TWO_COLUMN_FLOOR_HEIGHT) {
+  if (!colors.length) return [];
+  const totalGaps = Math.max(0, colors.length - 1) * gap;
+  const usableHeight = Math.max(0, availableHeight - totalGaps);
+  if (!usableHeight) return colors.map(() => 0);
+
+  const totalPercent = colors.reduce((sum, color) => sum + color.percent, 0) || colors.length || 1;
+  const weightedHeights = colors.map((color) => Math.max(0.001, (color.percent / totalPercent) * usableHeight));
+  const averageHeight = usableHeight / colors.length;
+  const safeMinHeight = Math.min(preferredMinHeight, Math.max(floorHeight, averageHeight * 0.72), averageHeight);
+  const heights = new Array(colors.length).fill(0);
+  let flexible = weightedHeights.map((value, index) => ({ value, index }));
+  let remainingHeight = usableHeight;
+
+  while (flexible.length) {
+    const remainingWeight = flexible.reduce((sum, item) => sum + item.value, 0) || flexible.length;
+    const nextFlexible = [];
+    let fixedAny = false;
+
+    flexible.forEach((item) => {
+      const proposed = remainingHeight * (item.value / remainingWeight);
+      if (proposed < safeMinHeight) {
+        heights[item.index] = safeMinHeight;
+        remainingHeight -= safeMinHeight;
+        fixedAny = true;
+      } else {
+        nextFlexible.push(item);
+      }
+    });
+
+    if (!fixedAny) {
+      flexible.forEach((item) => {
+        heights[item.index] = remainingHeight * (item.value / remainingWeight);
+      });
+      break;
+    }
+
+    flexible = nextFlexible;
+  }
+
+  return heights;
 }
 
+function getPaletteHeightMap() {
+  const availableHeight = paletteList.clientHeight;
+  const heightById = new Map();
 
-function exportStudyImage() {
-  if (!state.image || !state.colors.length) return;
+  if (!isTwoColumnPalette()) {
+    const heights = getScaledPaletteHeights(state.colors, availableHeight, PALETTE_GAP, PALETTE_SINGLE_MIN_HEIGHT);
+    state.colors.forEach((color, index) => {
+      heightById.set(color.id, heights[index] || PALETTE_SINGLE_MIN_HEIGHT);
+    });
+    return heightById;
+  }
 
+  const leftCount = getPaletteLeftColumnCount();
+  const columns = [state.colors.slice(0, leftCount), state.colors.slice(leftCount)];
+  columns.forEach((columnColors) => {
+    const heights = getFittedPaletteHeights(columnColors, availableHeight, PALETTE_GAP, PALETTE_TWO_COLUMN_TARGET_MIN_HEIGHT, PALETTE_TWO_COLUMN_FLOOR_HEIGHT);
+    columnColors.forEach((color, index) => {
+      heightById.set(color.id, heights[index] || PALETTE_TWO_COLUMN_FLOOR_HEIGHT);
+    });
+  });
+
+  return heightById;
+}
+
+function getPaletteColumns(items, totalCount = items.length) {
+  if (!isTwoColumnPalette(totalCount)) {
+    return [items];
+  }
+
+  const leftCount = getPaletteLeftColumnCount(totalCount);
+  return [items.slice(0, leftCount), items.slice(leftCount)];
+}
+
+function createPaletteColumn(index) {
+  const column = document.createElement("div");
+  column.className = "palette-column";
+  column.dataset.column = `${index}`;
+  return column;
+}
+
+function createPalettePlaceholder(height) {
+  const placeholder = document.createElement("div");
+  placeholder.className = "palette-placeholder";
+  placeholder.style.height = `${height}px`;
+  return placeholder;
+}
+
+function updatePaletteLayoutMode() {
+  const layout = isTwoColumnPalette() ? "double" : "single";
+  root.dataset.paletteLayout = layout;
+  paletteList.dataset.layout = layout;
+  paletteList.classList.toggle("two-column", layout === "double");
+  paletteList.classList.toggle("single-column", layout === "single");
+}
+
+function drawExportSwatchNodes(context, imageX, imageY, imageWidth, imageHeight) {
+  state.colors.forEach((color) => {
+    const x = imageX + (color.x * imageWidth);
+    const y = imageY + (color.y * imageHeight);
+    context.beginPath();
+    context.arc(x, y, 18, 0, Math.PI * 2);
+    context.fillStyle = color.hex;
+    context.fill();
+    context.lineWidth = 2;
+    context.strokeStyle = "rgba(10, 10, 10, 0.9)";
+    context.stroke();
+    context.beginPath();
+    context.arc(x, y, 20, 0, Math.PI * 2);
+    context.lineWidth = 2;
+    context.strokeStyle = "rgba(255,255,255,0.26)";
+    context.stroke();
+  });
+}
+
+function drawExportPaletteLabel(context, options) {
+  const {
+    x,
+    y,
+    hex,
+    percent,
+    textColor = "#f2efe8",
+    labelFill = "rgba(42, 44, 48, 0.64)",
+    labelHeight = 34,
+    radius = 10,
+    paddingX = 12,
+    hexFontSize = 18,
+    percentFontSize = 17,
+  } = options;
+  context.font = `700 ${hexFontSize}px "Space Grotesk", sans-serif`;
+  const hexWidth = context.measureText(hex).width;
+  context.font = `300 ${percentFontSize}px "Space Grotesk", sans-serif`;
+  const percentLabel = formatPercent(percent);
+  const percentWidth = context.measureText(percentLabel).width;
+  const labelWidth = Math.max(72, Math.ceil(hexWidth + percentWidth + (paddingX * 2) + 10));
+  const textBaselineY = y + (labelHeight / 2) + Math.max(4, (hexFontSize * 0.24));
+  drawRoundedRect(context, x, y, labelWidth, labelHeight, radius, labelFill);
+  context.fillStyle = textColor;
+  context.font = `700 ${hexFontSize}px "Space Grotesk", sans-serif`;
+  context.fillText(hex, x + paddingX, textBaselineY);
+  context.font = `300 ${percentFontSize}px "Space Grotesk", sans-serif`;
+  context.fillText(percentLabel, x + paddingX + hexWidth + 10, textBaselineY);
+}
+
+function scaleCanvasToLongestEdge(sourceCanvas, longestEdge) {
+  const safeLongestEdge = Math.max(1, longestEdge || EXPORT_DEFAULT_LONGEST_EDGE);
+  const sourceLongestEdge = Math.max(sourceCanvas.width, sourceCanvas.height, 1);
+  if (sourceLongestEdge === safeLongestEdge) {
+    return sourceCanvas;
+  }
+  const scale = safeLongestEdge / sourceLongestEdge;
+  const scaledCanvas = document.createElement("canvas");
+  scaledCanvas.width = Math.max(1, Math.round(sourceCanvas.width * scale));
+  scaledCanvas.height = Math.max(1, Math.round(sourceCanvas.height * scale));
+  const scaledCtx = scaledCanvas.getContext("2d");
+  scaledCtx.imageSmoothingEnabled = true;
+  scaledCtx.imageSmoothingQuality = "high";
+  scaledCtx.drawImage(sourceCanvas, 0, 0, scaledCanvas.width, scaledCanvas.height);
+  return scaledCanvas;
+}
+
+function getUniformPaletteHeights(count, availableHeight, gap = PALETTE_GAP) {
+  if (!count) return [];
+  const totalGapHeight = Math.max(0, count - 1) * gap;
+  const cardHeight = Math.max(1, (availableHeight - totalGapHeight) / count);
+  return new Array(count).fill(cardHeight);
+}
+
+function buildCurrentExportBaseCanvas(options) {
+  const showNodes = Boolean(options?.stripNodes);
   const imageWidth = 1100;
   const imageHeight = Math.max(700, Math.round(imageWidth * (state.sourceHeight / Math.max(1, state.sourceWidth))));
   const paletteWidth = 320;
   const gap = 3;
+  const minCardHeight = 54;
+  const useUniformStack = state.colors.length > 15;
+  const minPaletteHeight = (state.colors.length * minCardHeight) + (Math.max(0, state.colors.length - 1) * gap);
+  const paletteAreaHeight = useUniformStack ? imageHeight : Math.max(imageHeight, minPaletteHeight);
+  const paletteHeights = useUniformStack
+    ? getUniformPaletteHeights(state.colors.length, imageHeight, gap)
+    : getScaledPaletteHeights(state.colors, paletteAreaHeight, gap, minCardHeight);
+  const exportHeight = useUniformStack
+    ? imageHeight
+    : Math.max(
+      imageHeight,
+      Math.round(paletteHeights.reduce((sum, value) => sum + value, 0) + (Math.max(0, paletteHeights.length - 1) * gap)),
+    );
   const exportCanvas = document.createElement("canvas");
   exportCanvas.width = imageWidth + paletteWidth;
-  exportCanvas.height = imageHeight;
+  exportCanvas.height = exportHeight;
   const exportCtx = exportCanvas.getContext("2d");
 
   exportCtx.fillStyle = "#111417";
   exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
   exportCtx.drawImage(canvas, 0, 0, imageWidth, imageHeight);
 
-  const paletteHeights = getScaledPaletteHeights(imageHeight, gap, 54);
   let cardY = 0;
   state.colors.forEach((color, index) => {
-    const cardHeight = paletteHeights[index] || 54;
+    const cardHeight = paletteHeights[index] || minCardHeight;
     const cardX = imageWidth;
+    const compactLabelHeight = useUniformStack ? clamp(Math.round(cardHeight - 6), 12, 26) : 34;
+    const compactHexSize = useUniformStack ? clamp(Math.round(compactLabelHeight * 0.46), 8, 13) : 18;
+    const compactPercentSize = useUniformStack ? clamp(Math.round(compactLabelHeight * 0.42), 7, 12) : 17;
     exportCtx.fillStyle = color.hex;
     exportCtx.fillRect(cardX, cardY, paletteWidth, cardHeight);
-
     exportCtx.fillStyle = "rgba(255,255,255,0.08)";
     exportCtx.fillRect(cardX, cardY, paletteWidth, 1);
-
-    const textColor = "#f2efe8";
-    exportCtx.font = '700 18px "Space Grotesk", sans-serif';
-    const hexWidth = exportCtx.measureText(color.hex).width;
-    exportCtx.font = '300 17px "Space Grotesk", sans-serif';
-    const percentLabel = `${Math.round(color.percent)}%`;
-    const percentWidth = exportCtx.measureText(percentLabel).width;
-    const labelWidth = Math.max(132, Math.ceil(hexWidth + percentWidth + 28));
-    drawRoundedRect(exportCtx, cardX + 14, cardY + 12, labelWidth, 34, 10, "rgba(42, 44, 48, 0.64)");
-    exportCtx.fillStyle = textColor;
-    exportCtx.font = '700 18px "Space Grotesk", sans-serif';
-    exportCtx.fillText(color.hex, cardX + 26, cardY + 34);
-    exportCtx.font = '300 17px "Space Grotesk", sans-serif';
-    exportCtx.fillText(percentLabel, cardX + 26 + hexWidth + 10, cardY + 34);
-
+    drawExportPaletteLabel(exportCtx, {
+      x: cardX + 14,
+      y: cardY + (useUniformStack ? 2 : 12),
+      hex: color.hex,
+      percent: color.percent,
+      labelHeight: compactLabelHeight,
+      radius: useUniformStack ? 8 : 10,
+      paddingX: useUniformStack ? 8 : 12,
+      hexFontSize: compactHexSize,
+      percentFontSize: compactPercentSize,
+    });
     cardY += cardHeight + gap;
   });
 
-  const scaleX = imageWidth / Math.max(1, state.sourceWidth);
-  const scaleY = imageHeight / Math.max(1, state.sourceHeight);
-  state.swatches.forEach((swatch) => {
-    const x = swatch.targetX * scaleX;
-    const y = swatch.targetY * scaleY;
-    exportCtx.beginPath();
-    exportCtx.arc(x, y, 18, 0, Math.PI * 2);
-    exportCtx.fillStyle = swatch.color.hex;
-    exportCtx.fill();
-    exportCtx.lineWidth = 2;
-    exportCtx.strokeStyle = "rgba(10, 10, 10, 0.9)";
-    exportCtx.stroke();
-    exportCtx.beginPath();
-    exportCtx.arc(x, y, 20, 0, Math.PI * 2);
-    exportCtx.lineWidth = 2;
-    exportCtx.strokeStyle = "rgba(255,255,255,0.26)";
-    exportCtx.stroke();
+  if (showNodes) {
+    drawExportSwatchNodes(exportCtx, 0, 0, imageWidth, imageHeight);
+  }
+  return exportCanvas;
+}
+
+function buildStripExportBaseCanvas(options) {
+  const showNodes = Boolean(options?.stripNodes);
+  const sourceRatio = state.sourceWidth / Math.max(1, state.sourceHeight);
+  const baseImageWidth = 1100;
+  const baseImageHeight = Math.round(baseImageWidth * (state.sourceHeight / Math.max(1, state.sourceWidth)));
+  const imageHeight = Math.max(1900, baseImageHeight);
+  const imageWidth = Math.round(imageHeight * sourceRatio);
+  const cardGap = 12;
+  const rowsPerColumn = Math.min(5, Math.max(1, state.colors.length));
+  const columnsCount = Math.max(1, Math.ceil(state.colors.length / 5));
+  const columnGap = 12;
+  const cardHeight = (imageHeight - (Math.max(0, rowsPerColumn - 1) * cardGap)) / rowsPerColumn;
+  const cardWidth = Math.max(1, Math.round(cardHeight * 0.72));
+  const paletteWidth = (columnsCount * cardWidth) + (Math.max(0, columnsCount - 1) * columnGap);
+  const exportWidth = imageWidth + columnGap + paletteWidth;
+  const exportHeight = imageHeight;
+  const exportCanvas = document.createElement("canvas");
+  exportCanvas.width = exportWidth;
+  exportCanvas.height = exportHeight;
+  const exportCtx = exportCanvas.getContext("2d");
+
+  exportCtx.fillStyle = "#111417";
+  exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+  exportCtx.drawImage(canvas, 0, 0, imageWidth, imageHeight);
+
+  if (showNodes) {
+    drawExportSwatchNodes(exportCtx, 0, 0, imageWidth, imageHeight);
+  }
+
+  state.colors.forEach((color, index) => {
+    const columnIndex = Math.floor(index / 5);
+    const rowIndex = index % 5;
+    const cardX = imageWidth + columnGap + (columnIndex * (cardWidth + columnGap));
+    const cardY = rowIndex * (cardHeight + cardGap);
+    drawRoundedRect(exportCtx, cardX, cardY, cardWidth, cardHeight, 14, color.hex);
+    exportCtx.fillStyle = "rgba(255,255,255,0.08)";
+    exportCtx.fillRect(cardX, cardY, cardWidth, 1);
   });
 
+  return exportCanvas;
+}
+
+function buildExportCanvas(options = state.saveExport) {
+  const exportOptions = {
+    layout: options?.layout || EXPORT_LAYOUT_CURRENT,
+    longestEdge: options?.longestEdge || EXPORT_DEFAULT_LONGEST_EDGE,
+    stripNodes: Boolean(options?.stripNodes),
+  };
+  const baseCanvas = exportOptions.layout === EXPORT_LAYOUT_STRIP
+    ? buildStripExportBaseCanvas(exportOptions)
+    : buildCurrentExportBaseCanvas(exportOptions);
+  return scaleCanvasToLongestEdge(baseCanvas, exportOptions.longestEdge);
+}
+
+function downloadCanvas(canvasToDownload, filename) {
   const link = document.createElement("a");
-  link.href = exportCanvas.toDataURL("image/png");
-  link.download = `color-study-${Date.now()}.png`;
+  link.href = canvasToDownload.toDataURL("image/png");
+  link.download = `${filename}-${Date.now()}.png`;
   link.click();
+}
+
+function syncSaveModalControls() {
+  saveStyleButtons.forEach((button) => {
+    const active = button.dataset.saveStyle === state.saveExport.layout;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+  saveSizeButtons.forEach((button) => {
+    const active = Number(button.dataset.saveSize) === state.saveExport.longestEdge;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+  saveStripNodes.checked = state.saveExport.stripNodes;
+  saveNodesRow.hidden = false;
+}
+
+function resetSaveExportState() {
+  state.saveExport.layout = EXPORT_LAYOUT_CURRENT;
+  state.saveExport.longestEdge = EXPORT_DEFAULT_LONGEST_EDGE;
+  state.saveExport.stripNodes = false;
+  syncSaveModalControls();
+}
+
+function renderSavePreview() {
+  if (!state.image || !state.colors.length) {
+    savePreviewCanvas.hidden = true;
+    savePreviewEmpty.hidden = false;
+    savePreviewEmpty.textContent = "Upload an image first to preview save options.";
+    return;
+  }
+
+  const exportCanvas = buildExportCanvas(state.saveExport);
+  const previewCanvas = scaleCanvasToLongestEdge(exportCanvas, EXPORT_PREVIEW_LONGEST_EDGE);
+  savePreviewCanvas.width = previewCanvas.width;
+  savePreviewCanvas.height = previewCanvas.height;
+  const previewCtx = savePreviewCanvas.getContext("2d");
+  previewCtx.clearRect(0, 0, savePreviewCanvas.width, savePreviewCanvas.height);
+  previewCtx.drawImage(previewCanvas, 0, 0, savePreviewCanvas.width, savePreviewCanvas.height);
+  savePreviewCanvas.hidden = false;
+  savePreviewEmpty.hidden = true;
+}
+
+function closeSaveModal() {
+  if (!saveModal) return;
+  saveModal.classList.add("hidden");
+  saveModal.setAttribute("aria-hidden", "true");
+}
+
+function openSaveModal() {
+  if (!state.image || !state.colors.length) {
+    showImportWarning("Save options", "Upload an image first to preview and save export layouts.");
+    return;
+  }
+  closeRecipeModal();
+  resetSaveExportState();
+  renderSavePreview();
+  saveModal.classList.remove("hidden");
+  saveModal.setAttribute("aria-hidden", "false");
+}
+
+function exportConfiguredImage() {
+  if (!state.image || !state.colors.length) return;
+  const exportCanvas = buildExportCanvas(state.saveExport);
+  downloadCanvas(exportCanvas, "color-study");
 }
 
 function startPaletteDrag(event, id) {
@@ -1480,25 +2594,54 @@ function startPaletteDrag(event, id) {
   state.paletteDragPointerId = event.pointerId ?? null;
   state.paletteDropIndex = state.colors.findIndex((color) => color.id === id);
   state.paletteDragTop = rect.top - listRect.top;
+  state.paletteDragLeft = rect.left - listRect.left;
+  state.paletteDragWidth = rect.width;
   state.paletteGrabOffsetY = event.clientY - rect.top;
   setHoveredColor(id);
-  lockPageScroll();
+  lockPageScroll(SCROLL_LOCK_PALETTE_DRAG);
   if (state.paletteDragPointerId !== null) {
     paletteList.setPointerCapture(state.paletteDragPointerId);
   }
   renderPalette();
 }
 
-function getPaletteDragIndex(pointerY) {
-  const cards = [...paletteList.querySelectorAll('.palette-card:not(.dragging)')];
-  let index = 0;
+function getPaletteDragPosition(pointerX, pointerY, dragHeight) {
+  const listRect = paletteList.getBoundingClientRect();
+  const columns = [...paletteList.querySelectorAll(".palette-column")];
+  if (!columns.length) {
+    return { dropIndex: 0, top: 0, left: 0, width: listRect.width };
+  }
+
+  let columnIndex = 0;
+  if (isTwoColumnPalette() && columns.length > 1) {
+    const leftRect = columns[0].getBoundingClientRect();
+    const rightRect = columns[1].getBoundingClientRect();
+    const splitX = (leftRect.right + rightRect.left) / 2;
+    columnIndex = pointerX >= splitX ? 1 : 0;
+  }
+
+  const column = columns[columnIndex];
+  const columnRect = column.getBoundingClientRect();
+  const cards = [...column.querySelectorAll(".palette-card:not(.dragging)")];
+  let localIndex = 0;
   for (const card of cards) {
     const rect = card.getBoundingClientRect();
     const midpoint = rect.top + (rect.height / 2);
-    if (pointerY < midpoint) return index;
-    index += 1;
+    if (pointerY < midpoint) {
+      break;
+    }
+    localIndex += 1;
   }
-  return cards.length;
+
+  const baseIndex = columnIndex === 0 ? 0 : getPaletteLeftColumnCount(state.colors.length);
+  const minTop = columnRect.top - listRect.top;
+  const maxTop = Math.max(minTop, (columnRect.bottom - listRect.top) - dragHeight);
+  return {
+    dropIndex: baseIndex + localIndex,
+    top: clamp(pointerY - listRect.top - state.paletteGrabOffsetY, minTop, maxTop),
+    left: columnRect.left - listRect.left,
+    width: columnRect.width,
+  };
 }
 
 function commitPaletteOrder() {
@@ -1514,7 +2657,7 @@ function createPaletteCard(color, height) {
   card.className = 'palette-card';
   if (state.hoveredColorId === color.id) card.classList.add('hovered');
   card.style.setProperty('--card-color', color.hex);
-  card.style.background = `linear-gradient(135deg, ${color.hex}, color-mix(in srgb, ${color.hex} 44%, #17191c))`;
+  card.style.background = `linear-gradient(135deg, ${color.hex}, color-mix(in srgb, ${color.hex} 58%, #17191c))`;
   card.style.height = `${height || 52}px`;
   const textColor = luminance(color.r, color.g, color.b) > 0.62 ? '#15171a' : '#f2efe8';
   card.style.color = textColor;
@@ -1532,6 +2675,16 @@ function createPaletteCard(color, height) {
     });
   }
   return card;
+}
+
+function appendPaletteItems(column, items, heightById, draggedHeight) {
+  items.forEach((item) => {
+    if (item && item.isPlaceholder) {
+      column.appendChild(createPalettePlaceholder(draggedHeight));
+      return;
+    }
+    column.appendChild(createPaletteCard(item, heightById.get(item.id)));
+  });
 }
 
 async function copyHexCode(hex) {
@@ -1559,42 +2712,48 @@ async function copyHexCode(hex) {
 }
 
 function renderPalette() {
+  updatePaletteLayoutMode();
+  renderPalettePreview();
   paletteList.innerHTML = '';
-  const heights = getPaletteHeights();
-  const heightById = new Map(state.colors.map((color, index) => [color.id, heights[index] || 52]));
+  const heightById = getPaletteHeightMap();
+  const columns = Array.from({ length: isTwoColumnPalette() ? 2 : 1 }, (_, index) => {
+    const column = createPaletteColumn(index);
+    paletteList.appendChild(column);
+    return column;
+  });
 
   if (!state.paletteDragId) {
-    state.colors.forEach((color) => {
-      paletteList.appendChild(createPaletteCard(color, heightById.get(color.id)));
+    getPaletteColumns(state.colors, state.colors.length).forEach((items, index) => {
+      appendPaletteItems(columns[index], items, heightById, 0);
     });
     return;
   }
 
   const dragId = state.paletteDragId;
   const draggedColor = state.colors.find((color) => color.id === dragId);
-  const draggedHeight = heightById.get(dragId) || 52;
-  const remainingColors = state.colors.filter((color) => color.id !== dragId);
-
-  remainingColors.forEach((color, index) => {
-    if (state.paletteDropIndex === index) {
-      const placeholder = document.createElement('div');
-      placeholder.className = 'palette-placeholder';
-      placeholder.style.height = `${draggedHeight}px`;
-      paletteList.appendChild(placeholder);
-    }
-    paletteList.appendChild(createPaletteCard(color, heightById.get(color.id)));
-  });
-
-  if (state.paletteDropIndex === remainingColors.length) {
-    const placeholder = document.createElement('div');
-    placeholder.className = 'palette-placeholder';
-    placeholder.style.height = `${draggedHeight}px`;
-    paletteList.appendChild(placeholder);
+  if (!draggedColor) {
+    state.paletteDragId = null;
+    renderPalette();
+    return;
   }
+  const draggedHeight = heightById.get(dragId) || PALETTE_SINGLE_MIN_HEIGHT;
+  const remainingColors = state.colors.filter((color) => color.id !== dragId);
+  const placeholderIndex = clamp(state.paletteDropIndex ?? remainingColors.length, 0, remainingColors.length);
+  const renderItems = [
+    ...remainingColors.slice(0, placeholderIndex),
+    { id: "__palette-placeholder__", isPlaceholder: true },
+    ...remainingColors.slice(placeholderIndex),
+  ];
+
+  getPaletteColumns(renderItems, state.colors.length).forEach((items, index) => {
+    appendPaletteItems(columns[index], items, heightById, draggedHeight);
+  });
 
   const dragCard = createPaletteCard(draggedColor, draggedHeight);
   dragCard.classList.add('dragging');
   dragCard.style.top = `${state.paletteDragTop}px`;
+  dragCard.style.left = `${state.paletteDragLeft}px`;
+  dragCard.style.width = `${state.paletteDragWidth}px`;
   paletteList.appendChild(dragCard);
 }
 
@@ -1630,6 +2789,7 @@ function createSwatch(color) {
   return { id: color.id, color, element: swatch, x: color.x * state.sourceWidth, y: color.y * state.sourceHeight, targetX: color.x * state.sourceWidth, targetY: color.y * state.sourceHeight };
 }
 function rebuildSwatches() {
+  destroyDragLens(true);
   swatchLayer.innerHTML = "";
   state.swatches = state.colors.map((color) => createSwatch(color));
   startAnimation();
@@ -1637,10 +2797,18 @@ function rebuildSwatches() {
 
 function updateSwatchPositions() {
   state.swatches.forEach((swatch) => {
-    swatch.x += (swatch.targetX - swatch.x) * 0.18;
-    swatch.y += (swatch.targetY - swatch.y) * 0.18;
+    if (state.dragId === swatch.id) {
+      swatch.x = swatch.targetX;
+      swatch.y = swatch.targetY;
+    } else {
+      swatch.x += (swatch.targetX - swatch.x) * 0.18;
+      swatch.y += (swatch.targetY - swatch.y) * 0.18;
+    }
     swatch.element.style.left = `${swatch.x}px`;
     swatch.element.style.top = `${swatch.y}px`;
+    if (state.dragLens && state.dragId === swatch.id) {
+      positionDragLens(swatch);
+    }
   });
   state.animationFrame = requestAnimationFrame(updateSwatchPositions);
 }
@@ -1650,8 +2818,18 @@ function startAnimation() {
   state.animationFrame = requestAnimationFrame(updateSwatchPositions);
 }
 
-function lockPageScroll() {
-  state.scrollLockY = window.scrollY || window.pageYOffset || 0;
+function applyScrollLockState() {
+  if (!state.scrollLocks.size) {
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.left = "";
+    document.body.style.right = "";
+    document.body.style.width = "";
+    document.body.style.overflow = "";
+    window.scrollTo(0, state.scrollLockY || 0);
+    return;
+  }
+
   document.body.style.position = "fixed";
   document.body.style.top = `-${state.scrollLockY}px`;
   document.body.style.left = "0";
@@ -1660,14 +2838,27 @@ function lockPageScroll() {
   document.body.style.overflow = "hidden";
 }
 
-function unlockPageScroll() {
-  document.body.style.position = "";
-  document.body.style.top = "";
-  document.body.style.left = "";
-  document.body.style.right = "";
-  document.body.style.width = "";
-  document.body.style.overflow = "";
-  window.scrollTo(0, state.scrollLockY || 0);
+function lockPageScroll(reason) {
+  if (!reason) {
+    return;
+  }
+
+  if (!state.scrollLocks.size) {
+    state.scrollLockY = window.scrollY || window.pageYOffset || 0;
+  }
+
+  state.scrollLocks.add(reason);
+  applyScrollLockState();
+}
+
+function unlockPageScroll(reason) {
+  if (reason) {
+    state.scrollLocks.delete(reason);
+  } else {
+    state.scrollLocks.clear();
+  }
+
+  applyScrollLockState();
 }
 
 function getPointFromEvent(event) {
@@ -1685,6 +2876,9 @@ function updateSwatchColor(swatch) {
   swatch.color.y = swatch.targetY / state.sourceHeight;
   swatch.element.style.setProperty("--swatch-color", sampled.hex);
   swatch.element.setAttribute("aria-label", `${sampled.hex} swatch`);
+  if (state.dragLens && state.dragId === swatch.id) {
+    renderDragLens(swatch);
+  }
   recalculatePercentages();
   renderPalette();
   syncSwatchTargetsFromColors();
@@ -1699,7 +2893,7 @@ function startDrag(event, id) {
   if (!swatch) return;
   swatch.element.classList.add("active");
   if (state.dragPointerType !== "touch") {
-    lockPageScroll();
+    lockPageScroll(SCROLL_LOCK_SWATCH_DRAG);
   }
   if (event.pointerId !== undefined && state.dragPointerType !== "touch") {
     swatch.element.setPointerCapture(event.pointerId);
@@ -1707,22 +2901,32 @@ function startDrag(event, id) {
   const point = getPointFromEvent(event);
   swatch.targetX = point.x;
   swatch.targetY = point.y;
+  swatch.x = point.x;
+  swatch.y = point.y;
+  swatch.element.style.left = `${swatch.x}px`;
+  swatch.element.style.top = `${swatch.y}px`;
+  createDragLens();
+  positionDragLens(swatch);
   updateSwatchColor(swatch);
 }
 
 function handleDrag(event) {
   if (state.paletteDragId) {
     event.preventDefault();
-    const listRect = paletteList.getBoundingClientRect();
     const dragCard = paletteList.querySelector(".palette-card.dragging");
-    const dragHeight = dragCard ? dragCard.getBoundingClientRect().height : 52;
-    state.paletteDragTop = clamp(event.clientY - listRect.top - state.paletteGrabOffsetY, 0, Math.max(0, paletteList.clientHeight - dragHeight));
-    const nextDropIndex = getPaletteDragIndex(event.clientY);
+    const dragHeight = dragCard ? dragCard.getBoundingClientRect().height : PALETTE_SINGLE_MIN_HEIGHT;
+    const nextPosition = getPaletteDragPosition(event.clientX, event.clientY, dragHeight);
+    const nextDropIndex = clamp(nextPosition.dropIndex, 0, state.colors.length);
+    state.paletteDragTop = nextPosition.top;
+    state.paletteDragLeft = nextPosition.left;
+    state.paletteDragWidth = nextPosition.width;
     if (nextDropIndex !== state.paletteDropIndex) {
       state.paletteDropIndex = nextDropIndex;
       renderPalette();
     } else if (dragCard) {
       dragCard.style.top = `${state.paletteDragTop}px`;
+      dragCard.style.left = `${state.paletteDragLeft}px`;
+      dragCard.style.width = `${state.paletteDragWidth}px`;
     }
     return;
   }
@@ -1733,6 +2937,11 @@ function handleDrag(event) {
   const point = getPointFromEvent(event);
   swatch.targetX = point.x;
   swatch.targetY = point.y;
+  swatch.x = point.x;
+  swatch.y = point.y;
+  swatch.element.style.left = `${swatch.x}px`;
+  swatch.element.style.top = `${swatch.y}px`;
+  positionDragLens(swatch);
   updateSwatchColor(swatch);
 }
 
@@ -1746,8 +2955,10 @@ function endDrag() {
     state.paletteDragPointerId = null;
     state.paletteDropIndex = null;
     state.paletteDragTop = 0;
+    state.paletteDragLeft = 0;
+    state.paletteDragWidth = 0;
     state.paletteGrabOffsetY = 0;
-    unlockPageScroll();
+    unlockPageScroll(SCROLL_LOCK_PALETTE_DRAG);
     setHoveredColor(null);
     renderPalette();
     rebuildSwatches();
@@ -1759,8 +2970,9 @@ function endDrag() {
     swatch.element.classList.remove("active");
     updateSwatchColor(swatch);
   }
+  destroyDragLens();
   if (state.dragPointerType !== "touch") {
-    unlockPageScroll();
+    unlockPageScroll(SCROLL_LOCK_SWATCH_DRAG);
   }
   state.dragId = null;
   state.dragPointerType = null;
@@ -1768,14 +2980,19 @@ function endDrag() {
 }
 
 function initializePalette() {
+  closeSaveModal();
   state.colors = extractPalette(state.image, state.paletteSize);
   state.recipe = [];
-  drawProcessedImage();
-  recalculatePercentages();
-  renderRecipe();
-  renderPalette();
-  rebuildSwatches();
-  updatePaletteLabel();
+  updatePaletteLayoutMode();
+  syncLayoutState();
+  requestAnimationFrame(() => {
+    drawProcessedImage();
+    recalculatePercentages();
+    renderRecipe();
+    updatePaletteLabel();
+    renderPalette();
+    rebuildSwatches();
+  });
 }
 
 function addPaletteColor() {
@@ -1785,20 +3002,30 @@ function addPaletteColor() {
   if (!nextColor) return;
   state.colors.push({ ...nextColor, id: `color-${state.colors.length + 1}` });
   state.paletteSize = state.colors.length;
-  recalculatePercentages();
-  renderPalette();
-  rebuildSwatches();
-  updatePaletteLabel();
+  updatePaletteLayoutMode();
+  syncLayoutState();
+  requestAnimationFrame(() => {
+    drawProcessedImage();
+    recalculatePercentages();
+    updatePaletteLabel();
+    renderPalette();
+    rebuildSwatches();
+  });
 }
 
 function removePaletteColor() {
   if (!state.image || state.colors.length <= PALETTE_MIN) return;
   state.colors.pop();
   state.paletteSize = state.colors.length;
-  recalculatePercentages();
-  renderPalette();
-  rebuildSwatches();
-  updatePaletteLabel();
+  updatePaletteLayoutMode();
+  syncLayoutState();
+  requestAnimationFrame(() => {
+    drawProcessedImage();
+    recalculatePercentages();
+    updatePaletteLabel();
+    renderPalette();
+    rebuildSwatches();
+  });
 }
 
 async function handleFile(file) {
@@ -1811,6 +3038,7 @@ async function handleFile(file) {
 
   try {
     state.image = await readImage(file);
+    state.paletteSize = DEFAULT_PALETTE_SIZE;
     emptyState.classList.add("hidden");
     initializePalette();
   } catch (error) {
@@ -1843,6 +3071,31 @@ blurRange.addEventListener("input", () => {
   syncSwatchTargetsFromColors();
 });
 
+mobileViewToggle.addEventListener("click", () => {
+  state.forceMobileView = !state.forceMobileView;
+  syncLayoutState();
+  if (!state.image) {
+    return;
+  }
+
+  requestAnimationFrame(() => {
+    drawProcessedImage();
+    syncSwatchTargetsFromColors();
+    recalculatePercentages();
+    renderPalette();
+    syncSwatchTargetsFromColors();
+  });
+});
+paletteDrawerToggle.addEventListener("click", () => {
+  if (state.isPaletteDrawerOpen) {
+    closePaletteDrawer();
+    return;
+  }
+  openPaletteDrawer();
+});
+paletteDrawerClose.addEventListener("click", () => {
+  closePaletteDrawer();
+});
 paletteMinus.addEventListener("click", removePaletteColor);
 palettePlus.addEventListener("click", addPaletteColor);
 canvasWrap.addEventListener("dragover", (event) => event.preventDefault());
@@ -1854,11 +3107,31 @@ canvasWrap.addEventListener("drop", async (event) => {
 window.addEventListener("pointermove", handleDrag, { passive: false });
 window.addEventListener("pointerup", endDrag);
 window.addEventListener("pointercancel", endDrag);
+window.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") {
+    return;
+  }
+
+  if (state.isPaletteDrawerOpen) {
+    event.preventDefault();
+    closePaletteDrawer();
+    return;
+  }
+
+  if (!saveModal.classList.contains("hidden")) {
+    closeSaveModal();
+    return;
+  }
+
+  if (!recipeModal.classList.contains("hidden")) {
+    closeRecipeModal();
+  }
+});
 if (recipeExport) {
   recipeExport.addEventListener("click", exportRecipeImage);
 }
 if (imageExportButton) {
-  imageExportButton.addEventListener("click", exportStudyImage);
+  imageExportButton.addEventListener("click", openSaveModal);
 }
 if (recipeClose) {
   recipeClose.addEventListener("click", closeRecipeModal);
@@ -1868,21 +3141,69 @@ if (recipeModal) {
     if (event.target === recipeModal) closeRecipeModal();
   });
 }
-window.addEventListener("resize", () => {
-  if (!state.image) return;
-  drawProcessedImage();
-  syncSwatchTargetsFromColors();
-  recalculatePercentages();
-  renderPalette();
-  syncSwatchTargetsFromColors();
+if (saveClose) {
+  saveClose.addEventListener("click", closeSaveModal);
+}
+if (saveModal) {
+  saveModal.addEventListener("click", (event) => {
+    if (event.target === saveModal) closeSaveModal();
+  });
+}
+saveStyleButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    state.saveExport.layout = button.dataset.saveStyle === EXPORT_LAYOUT_STRIP ? EXPORT_LAYOUT_STRIP : EXPORT_LAYOUT_CURRENT;
+    syncSaveModalControls();
+    renderSavePreview();
+  });
 });
+saveSizeButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const requestedSize = Number(button.dataset.saveSize);
+    if (!EXPORT_SIZE_PRESETS.includes(requestedSize)) return;
+    state.saveExport.longestEdge = requestedSize;
+    syncSaveModalControls();
+    renderSavePreview();
+  });
+});
+saveStripNodes.addEventListener("change", () => {
+  state.saveExport.stripNodes = Boolean(saveStripNodes.checked);
+  syncSaveModalControls();
+  renderSavePreview();
+});
+saveExport.addEventListener("click", exportConfiguredImage);
+window.addEventListener("resize", () => {
+  syncLayoutState();
+  if (!state.image) return;
+  requestAnimationFrame(() => {
+    drawProcessedImage();
+    syncSwatchTargetsFromColors();
+    recalculatePercentages();
+    renderPalette();
+    syncSwatchTargetsFromColors();
+    if (!saveModal.classList.contains("hidden")) {
+      renderSavePreview();
+    }
+  });
+});
+syncLayoutState();
 updatePaletteLabel();
+renderPalettePreview();
+syncSaveModalControls();
+}
+
+function boot() {
+  document.querySelectorAll("[data-webflow-palette]").forEach((root) => {
+    initPalette(root);
+  });
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot, { once: true });
+} else {
+  boot();
+}
 })();
-  </script>
-</div>
 
 
 
-
-
-
+</script>

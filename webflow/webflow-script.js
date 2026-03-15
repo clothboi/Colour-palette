@@ -6,8 +6,15 @@ function getPaletteMarkup() {
       <div class="canvas-stage">
         <div class="control-hud" aria-label="Color study controls">
           <div class="hud-bar">
-            <p class="eyebrow">Colour Palette</p>
-            <span class="hud-count">Studio blur map</span>
+            <div class="hud-bar__group hud-bar__group--title">
+              <p class="eyebrow">Colour Palette</p>
+            </div>
+            <div class="hud-bar__group hud-bar__group--center">
+              <button class="hud-mobile-toggle" type="button" data-action="toggle-mobile-view" aria-pressed="false">Mobile View</button>
+            </div>
+            <div class="hud-bar__group hud-bar__group--status">
+              <span class="hud-count">Studio blur map</span>
+            </div>
           </div>
           <div class="hud-rule" aria-hidden="true"></div>
           <div class="hud-actions">
@@ -37,16 +44,28 @@ function getPaletteMarkup() {
         </div>
       </div>
 
-      <aside class="palette-panel">
-        <div class="palette-toolbar">
-          <span class="palette-rail-label">Palette Rail</span>
-          <div class="palette-toolbar-controls">
-            <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
-            <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
-            <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
+      <aside class="palette-panel" data-role="palette-panel">
+        <button class="palette-drawer-toggle" type="button" data-action="palette-drawer-toggle" aria-expanded="false">
+          <span class="palette-drawer-toggle__copy">
+            <span class="palette-drawer-toggle__label">Palette Rail</span>
+            <span class="palette-drawer-toggle__status" data-role="palette-preview-status">Upload an image to build a palette.</span>
+          </span>
+          <span class="palette-preview-list" data-role="palette-preview-list" aria-hidden="true"></span>
+        </button>
+        <div class="palette-drawer-sheet" data-role="palette-drawer-sheet" aria-hidden="false">
+          <div class="palette-toolbar">
+            <div class="palette-toolbar-head">
+              <span class="palette-rail-label">Palette Rail</span>
+              <button class="palette-drawer-close" type="button" data-action="palette-drawer-close" aria-label="Close palette drawer">Close</button>
+            </div>
+            <div class="palette-toolbar-controls">
+              <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
+              <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
+              <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
+            </div>
           </div>
+          <div data-role="palette-list" class="palette-list"></div>
         </div>
-        <div data-role="palette-list" class="palette-list"></div>
       </aside>
     </section>
   </main>
@@ -131,9 +150,16 @@ if (!input || !blurRange || !importWarning || !canvas) {
 const ctx = canvas.getContext("2d", { willReadFrequently: true });
 const swatchLayer = root.querySelector('[data-role="swatch-layer"]');
 const paletteList = root.querySelector('[data-role="palette-list"]');
+const palettePanel = root.querySelector('[data-role="palette-panel"]');
+const paletteDrawerSheet = root.querySelector('[data-role="palette-drawer-sheet"]');
+const palettePreviewList = root.querySelector('[data-role="palette-preview-list"]');
+const palettePreviewStatus = root.querySelector('[data-role="palette-preview-status"]');
 const emptyState = root.querySelector('[data-role="empty-state"]');
 const canvasStage = root.querySelector('.canvas-stage');
 const canvasWrap = root.querySelector('[data-role="canvas-wrap"]');
+const mobileViewToggle = root.querySelector('[data-action="toggle-mobile-view"]');
+const paletteDrawerToggle = root.querySelector('[data-action="palette-drawer-toggle"]');
+const paletteDrawerClose = root.querySelector('[data-action="palette-drawer-close"]');
 const paletteMinus = root.querySelector('[data-action="palette-minus"]');
 const palettePlus = root.querySelector('[data-action="palette-plus"]');
 const paletteSizeLabel = root.querySelector('[data-role="palette-size-label"]');
@@ -153,13 +179,14 @@ const saveClose = root.querySelector('[data-action="save-close"]');
 const saveExport = root.querySelector('[data-action="save-export-image"]');
 const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
 const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-if (!ctx || !swatchLayer || !paletteList || !emptyState || !canvasStage || !canvasWrap || !paletteMinus || !palettePlus || !paletteSizeLabel || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+if (!ctx || !swatchLayer || !paletteList || !palettePanel || !paletteDrawerSheet || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !mobileViewToggle || !paletteDrawerToggle || !paletteDrawerClose || !paletteMinus || !palettePlus || !paletteSizeLabel || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
   return;
 }
 
 const PALETTE_MIN = 2;
 const PALETTE_MAX = 30;
 const DEFAULT_PALETTE_SIZE = 4;
+const MOBILE_LAYOUT_MAX_WIDTH = 980;
 const PALETTE_TWO_COLUMN_THRESHOLD = 16;
 const PALETTE_GAP = 3;
 const PALETTE_SINGLE_MIN_HEIGHT = 52;
@@ -172,9 +199,25 @@ const EXPORT_LAYOUT_STRIP = "strip";
 const EXPORT_DEFAULT_LONGEST_EDGE = 2000;
 const EXPORT_PREVIEW_LONGEST_EDGE = 1200;
 const EXPORT_SIZE_PRESETS = [1000, 2000, 3000, 4000];
+const SCROLL_LOCK_SWATCH_DRAG = "swatch-drag";
+const SCROLL_LOCK_PALETTE_DRAG = "palette-drag";
+const SCROLL_LOCK_PALETTE_DRAWER = "palette-drawer";
+const mobileLayoutQuery = window.matchMedia(`(max-width: ${MOBILE_LAYOUT_MAX_WIDTH}px)`);
+const paletteDrawerId = `palette-drawer-${Math.random().toString(36).slice(2, 10)}`;
+
+paletteDrawerSheet.id = paletteDrawerId;
+paletteDrawerToggle.setAttribute("aria-controls", paletteDrawerId);
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
+}
+
+function isRealMobileLayout() {
+  return mobileLayoutQuery.matches;
+}
+
+function isEffectiveMobileLayout() {
+  return isRealMobileLayout() || state.forceMobileView;
 }
 
 function isTwoColumnPalette(count = state.colors.length) {
@@ -186,6 +229,9 @@ function getPaletteLeftColumnCount(count = state.colors.length) {
 }
 
 function getPaletteFrameClearance() {
+  if (isEffectiveMobileLayout()) {
+    return 40;
+  }
   return isTwoColumnPalette() ? 576 : 460;
 }
 
@@ -269,7 +315,10 @@ const state = {
     stripNodes: false,
   },
   dpr: window.devicePixelRatio || 1,
+  forceMobileView: false,
+  isPaletteDrawerOpen: false,
   scrollLockY: 0,
+  scrollLocks: new Set(),
   hoveredColorId: null,
   paletteDragId: null,
   paletteDragPointerId: null,
@@ -542,10 +591,83 @@ function refreshStageSize() {
   canvasWrap.style.setProperty("--image-ratio", ratioValue);
 }
 
+function renderPalettePreview() {
+  palettePreviewList.innerHTML = "";
+  if (!state.colors.length) {
+    return;
+  }
+
+  state.colors.forEach((color) => {
+    const tile = document.createElement("span");
+    tile.className = "palette-preview-tile";
+    tile.style.background = `linear-gradient(135deg, ${color.hex}, color-mix(in srgb, ${color.hex} 60%, #17191c))`;
+    tile.setAttribute("aria-hidden", "true");
+    palettePreviewList.appendChild(tile);
+  });
+}
+
 function updatePaletteLabel() {
   paletteSizeLabel.textContent = `Palette: ${state.paletteSize}`;
   paletteMinus.disabled = state.paletteSize <= PALETTE_MIN;
   palettePlus.disabled = state.paletteSize >= PALETTE_MAX;
+  paletteDrawerToggle.disabled = !state.colors.length;
+  palettePreviewStatus.textContent = state.colors.length
+    ? `${state.colors.length} ${state.colors.length === 1 ? "colour" : "colours"} ready`
+    : "Upload an image to build a palette.";
+}
+
+function syncLayoutState() {
+  const effectiveMobileLayout = isEffectiveMobileLayout();
+  if (!effectiveMobileLayout || !state.colors.length) {
+    state.isPaletteDrawerOpen = false;
+  }
+
+  root.dataset.mobileLayout = effectiveMobileLayout ? "true" : "false";
+  root.dataset.mobileLayoutForced = state.forceMobileView ? "true" : "false";
+  root.dataset.paletteDrawerOpen = effectiveMobileLayout && state.isPaletteDrawerOpen ? "true" : "false";
+
+  mobileViewToggle.setAttribute("aria-pressed", String(state.forceMobileView));
+  paletteDrawerToggle.hidden = !effectiveMobileLayout;
+  paletteDrawerToggle.setAttribute("aria-expanded", effectiveMobileLayout && state.isPaletteDrawerOpen ? "true" : "false");
+  paletteDrawerClose.hidden = !effectiveMobileLayout;
+  paletteDrawerSheet.hidden = effectiveMobileLayout ? !state.isPaletteDrawerOpen : false;
+  paletteDrawerSheet.setAttribute("aria-hidden", effectiveMobileLayout ? String(!state.isPaletteDrawerOpen) : "false");
+
+  if (effectiveMobileLayout && state.isPaletteDrawerOpen) {
+    lockPageScroll(SCROLL_LOCK_PALETTE_DRAWER);
+  } else {
+    unlockPageScroll(SCROLL_LOCK_PALETTE_DRAWER);
+  }
+
+  refreshStageSize();
+}
+
+function openPaletteDrawer() {
+  if (!isEffectiveMobileLayout() || !state.colors.length || state.isPaletteDrawerOpen) {
+    return;
+  }
+
+  state.isPaletteDrawerOpen = true;
+  syncLayoutState();
+  requestAnimationFrame(() => {
+    renderPalette();
+    paletteDrawerClose.focus({ preventScroll: true });
+  });
+}
+
+function closePaletteDrawer({ restoreFocus = true } = {}) {
+  if (!state.isPaletteDrawerOpen) {
+    syncLayoutState();
+    return;
+  }
+
+  state.isPaletteDrawerOpen = false;
+  syncLayoutState();
+  if (restoreFocus) {
+    requestAnimationFrame(() => {
+      paletteDrawerToggle.focus({ preventScroll: true });
+    });
+  }
 }
 
 function showImportWarning(title, message) {
@@ -1264,7 +1386,7 @@ function startPaletteDrag(event, id) {
   state.paletteDragWidth = rect.width;
   state.paletteGrabOffsetY = event.clientY - rect.top;
   setHoveredColor(id);
-  lockPageScroll();
+  lockPageScroll(SCROLL_LOCK_PALETTE_DRAG);
   if (state.paletteDragPointerId !== null) {
     paletteList.setPointerCapture(state.paletteDragPointerId);
   }
@@ -1379,6 +1501,7 @@ async function copyHexCode(hex) {
 
 function renderPalette() {
   updatePaletteLayoutMode();
+  renderPalettePreview();
   paletteList.innerHTML = '';
   const heightById = getPaletteHeightMap();
   const columns = Array.from({ length: isTwoColumnPalette() ? 2 : 1 }, (_, index) => {
@@ -1483,8 +1606,18 @@ function startAnimation() {
   state.animationFrame = requestAnimationFrame(updateSwatchPositions);
 }
 
-function lockPageScroll() {
-  state.scrollLockY = window.scrollY || window.pageYOffset || 0;
+function applyScrollLockState() {
+  if (!state.scrollLocks.size) {
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.left = "";
+    document.body.style.right = "";
+    document.body.style.width = "";
+    document.body.style.overflow = "";
+    window.scrollTo(0, state.scrollLockY || 0);
+    return;
+  }
+
   document.body.style.position = "fixed";
   document.body.style.top = `-${state.scrollLockY}px`;
   document.body.style.left = "0";
@@ -1493,14 +1626,27 @@ function lockPageScroll() {
   document.body.style.overflow = "hidden";
 }
 
-function unlockPageScroll() {
-  document.body.style.position = "";
-  document.body.style.top = "";
-  document.body.style.left = "";
-  document.body.style.right = "";
-  document.body.style.width = "";
-  document.body.style.overflow = "";
-  window.scrollTo(0, state.scrollLockY || 0);
+function lockPageScroll(reason) {
+  if (!reason) {
+    return;
+  }
+
+  if (!state.scrollLocks.size) {
+    state.scrollLockY = window.scrollY || window.pageYOffset || 0;
+  }
+
+  state.scrollLocks.add(reason);
+  applyScrollLockState();
+}
+
+function unlockPageScroll(reason) {
+  if (reason) {
+    state.scrollLocks.delete(reason);
+  } else {
+    state.scrollLocks.clear();
+  }
+
+  applyScrollLockState();
 }
 
 function getPointFromEvent(event) {
@@ -1535,7 +1681,7 @@ function startDrag(event, id) {
   if (!swatch) return;
   swatch.element.classList.add("active");
   if (state.dragPointerType !== "touch") {
-    lockPageScroll();
+    lockPageScroll(SCROLL_LOCK_SWATCH_DRAG);
   }
   if (event.pointerId !== undefined && state.dragPointerType !== "touch") {
     swatch.element.setPointerCapture(event.pointerId);
@@ -1600,7 +1746,7 @@ function endDrag() {
     state.paletteDragLeft = 0;
     state.paletteDragWidth = 0;
     state.paletteGrabOffsetY = 0;
-    unlockPageScroll();
+    unlockPageScroll(SCROLL_LOCK_PALETTE_DRAG);
     setHoveredColor(null);
     renderPalette();
     rebuildSwatches();
@@ -1614,7 +1760,7 @@ function endDrag() {
   }
   destroyDragLens();
   if (state.dragPointerType !== "touch") {
-    unlockPageScroll();
+    unlockPageScroll(SCROLL_LOCK_SWATCH_DRAG);
   }
   state.dragId = null;
   state.dragPointerType = null;
@@ -1626,14 +1772,14 @@ function initializePalette() {
   state.colors = extractPalette(state.image, state.paletteSize);
   state.recipe = [];
   updatePaletteLayoutMode();
-  refreshStageSize();
+  syncLayoutState();
   requestAnimationFrame(() => {
     drawProcessedImage();
     recalculatePercentages();
     renderRecipe();
+    updatePaletteLabel();
     renderPalette();
     rebuildSwatches();
-    updatePaletteLabel();
   });
 }
 
@@ -1645,13 +1791,13 @@ function addPaletteColor() {
   state.colors.push({ ...nextColor, id: `color-${state.colors.length + 1}` });
   state.paletteSize = state.colors.length;
   updatePaletteLayoutMode();
-  refreshStageSize();
+  syncLayoutState();
   requestAnimationFrame(() => {
     drawProcessedImage();
     recalculatePercentages();
+    updatePaletteLabel();
     renderPalette();
     rebuildSwatches();
-    updatePaletteLabel();
   });
 }
 
@@ -1660,13 +1806,13 @@ function removePaletteColor() {
   state.colors.pop();
   state.paletteSize = state.colors.length;
   updatePaletteLayoutMode();
-  refreshStageSize();
+  syncLayoutState();
   requestAnimationFrame(() => {
     drawProcessedImage();
     recalculatePercentages();
+    updatePaletteLabel();
     renderPalette();
     rebuildSwatches();
-    updatePaletteLabel();
   });
 }
 
@@ -1713,6 +1859,31 @@ blurRange.addEventListener("input", () => {
   syncSwatchTargetsFromColors();
 });
 
+mobileViewToggle.addEventListener("click", () => {
+  state.forceMobileView = !state.forceMobileView;
+  syncLayoutState();
+  if (!state.image) {
+    return;
+  }
+
+  requestAnimationFrame(() => {
+    drawProcessedImage();
+    syncSwatchTargetsFromColors();
+    recalculatePercentages();
+    renderPalette();
+    syncSwatchTargetsFromColors();
+  });
+});
+paletteDrawerToggle.addEventListener("click", () => {
+  if (state.isPaletteDrawerOpen) {
+    closePaletteDrawer();
+    return;
+  }
+  openPaletteDrawer();
+});
+paletteDrawerClose.addEventListener("click", () => {
+  closePaletteDrawer();
+});
 paletteMinus.addEventListener("click", removePaletteColor);
 palettePlus.addEventListener("click", addPaletteColor);
 canvasWrap.addEventListener("dragover", (event) => event.preventDefault());
@@ -1724,6 +1895,26 @@ canvasWrap.addEventListener("drop", async (event) => {
 window.addEventListener("pointermove", handleDrag, { passive: false });
 window.addEventListener("pointerup", endDrag);
 window.addEventListener("pointercancel", endDrag);
+window.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") {
+    return;
+  }
+
+  if (state.isPaletteDrawerOpen) {
+    event.preventDefault();
+    closePaletteDrawer();
+    return;
+  }
+
+  if (!saveModal.classList.contains("hidden")) {
+    closeSaveModal();
+    return;
+  }
+
+  if (!recipeModal.classList.contains("hidden")) {
+    closeRecipeModal();
+  }
+});
 if (recipeExport) {
   recipeExport.addEventListener("click", exportRecipeImage);
 }
@@ -1769,8 +1960,8 @@ saveStripNodes.addEventListener("change", () => {
 });
 saveExport.addEventListener("click", exportConfiguredImage);
 window.addEventListener("resize", () => {
+  syncLayoutState();
   if (!state.image) return;
-  refreshStageSize();
   requestAnimationFrame(() => {
     drawProcessedImage();
     syncSwatchTargetsFromColors();
@@ -1782,7 +1973,9 @@ window.addEventListener("resize", () => {
     }
   });
 });
+syncLayoutState();
 updatePaletteLabel();
+renderPalettePreview();
 syncSaveModalControls();
 }
 

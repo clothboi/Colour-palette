@@ -13,6 +13,7 @@
   --accent: rgba(158, 188, 223, 0.92);
   --palette-panel-width: 404px;
   --frame-clearance: 460px;
+  --palette-drawer-collapsed-height: 118px;
 }
 
 .webflow-palette-embed[data-palette-layout="double"] {
@@ -27,6 +28,7 @@
 }
 
 .webflow-palette-embed {
+  position: relative;
   width: 100%;
   height: 100vh;
   height: 100dvh;
@@ -43,6 +45,7 @@
 }
 
 .webflow-palette-embed .app-shell {
+  position: relative;
   width: min(1720px, calc(100% - 16px));
   height: calc(100vh - 16px);
   height: calc(100dvh - 16px);
@@ -107,9 +110,27 @@
 
 .webflow-palette-embed .hud-bar {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   gap: 14px;
-  align-items: baseline;
+  align-items: center;
+}
+
+.webflow-palette-embed .hud-bar__group {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.webflow-palette-embed .hud-bar__group--title {
+  justify-content: flex-start;
+}
+
+.webflow-palette-embed .hud-bar__group--center {
+  justify-content: center;
+}
+
+.webflow-palette-embed .hud-bar__group--status {
+  justify-content: flex-end;
 }
 
 .webflow-palette-embed .eyebrow,
@@ -134,8 +155,8 @@
 }
 
 .webflow-palette-embed .hud-count {
-  justify-self: end;
   white-space: nowrap;
+  text-align: right;
 }
 
 .webflow-palette-embed .hud-rule {
@@ -168,6 +189,7 @@
 
 .webflow-palette-embed .hud-slider span,
 .webflow-palette-embed .palette-size-label,
+.webflow-palette-embed .palette-drawer-toggle__status,
 .webflow-palette-embed .empty-state-card p,
 .webflow-palette-embed .recipe-meta span,
 .webflow-palette-embed .recipe-note,
@@ -178,7 +200,8 @@
 }
 
 .webflow-palette-embed .hud-slider span,
-.webflow-palette-embed .palette-size-label {
+.webflow-palette-embed .palette-size-label,
+.webflow-palette-embed .palette-drawer-toggle__status {
   color: var(--muted);
 }
 
@@ -195,7 +218,9 @@
 }
 
 .webflow-palette-embed .recipe-button,
+.webflow-palette-embed .hud-mobile-toggle,
 .webflow-palette-embed .palette-button,
+.webflow-palette-embed .palette-drawer-close,
 .webflow-palette-embed .recipe-close,
 .webflow-palette-embed .recipe-export,
 .webflow-palette-embed .save-close,
@@ -222,15 +247,38 @@
   white-space: nowrap;
 }
 
+.webflow-palette-embed .hud-mobile-toggle,
+.webflow-palette-embed .palette-drawer-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+  white-space: nowrap;
+}
+
+.webflow-palette-embed .hud-mobile-toggle[aria-pressed="true"] {
+  border-color: rgba(158, 188, 223, 0.58);
+  background: linear-gradient(180deg, rgba(158, 188, 223, 0.22), rgba(158, 188, 223, 0.08));
+  color: var(--text);
+}
+
 .webflow-palette-embed .recipe-button:hover,
+.webflow-palette-embed .hud-mobile-toggle:hover,
 .webflow-palette-embed .palette-button:hover,
+.webflow-palette-embed .palette-drawer-close:hover,
 .webflow-palette-embed .recipe-close:hover,
 .webflow-palette-embed .recipe-export:hover,
 .webflow-palette-embed .save-close:hover,
 .webflow-palette-embed .save-export:hover,
 .webflow-palette-embed .save-option-button:hover,
 .webflow-palette-embed .recipe-button:focus-visible,
+.webflow-palette-embed .hud-mobile-toggle:focus-visible,
 .webflow-palette-embed .palette-button:focus-visible,
+.webflow-palette-embed .palette-drawer-close:focus-visible,
 .webflow-palette-embed .recipe-close:focus-visible,
 .webflow-palette-embed .recipe-export:focus-visible,
 .webflow-palette-embed .save-close:focus-visible,
@@ -502,6 +550,72 @@
   gap: 10px;
   padding: 14px;
   border-radius: 20px;
+  min-width: 0;
+}
+
+.webflow-palette-embed .palette-drawer-toggle {
+  display: none;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.webflow-palette-embed .palette-drawer-toggle:disabled {
+  opacity: 0.62;
+  cursor: default;
+}
+
+.webflow-palette-embed .palette-drawer-toggle:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.72);
+  outline-offset: 6px;
+}
+
+.webflow-palette-embed .palette-drawer-toggle__copy {
+  display: grid;
+  gap: 4px;
+}
+
+.webflow-palette-embed .palette-drawer-toggle__label {
+  color: var(--text);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.webflow-palette-embed .palette-preview-list {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.webflow-palette-embed .palette-preview-list::-webkit-scrollbar {
+  display: none;
+}
+
+.webflow-palette-embed .palette-preview-tile {
+  flex: 0 0 56px;
+  height: 56px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+.webflow-palette-embed .palette-drawer-sheet {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 10px;
 }
 
 .webflow-palette-embed .palette-toolbar {
@@ -509,10 +623,23 @@
   gap: 10px;
 }
 
+.webflow-palette-embed .palette-toolbar-head {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
 .webflow-palette-embed .palette-rail-label {
+  grid-column: 2;
   color: var(--text);
   font-weight: 700;
   text-align: center;
+}
+
+.webflow-palette-embed .palette-drawer-close {
+  grid-column: 3;
+  justify-self: end;
 }
 
 .webflow-palette-embed .palette-toolbar-controls {
@@ -967,73 +1094,114 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
-@media (max-width: 980px) {
-  .webflow-palette-embed {
-    overflow: auto;
-    overflow-x: hidden;
-  }
+.webflow-palette-embed[data-mobile-layout="true"] {
+  overflow: auto;
+  overflow-x: hidden;
+}
 
-  .webflow-palette-embed .app-shell {
-    width: calc(100% - 10px);
-    height: auto;
-    min-height: calc(100vh - 10px);
-    min-height: calc(100dvh - 10px);
-    margin: 5px auto;
-    padding: 5px;
-  }
+.webflow-palette-embed[data-mobile-layout="true"] .app-shell {
+  width: calc(100% - 10px);
+  height: auto;
+  min-height: calc(100vh - 10px);
+  min-height: calc(100dvh - 10px);
+  margin: 5px auto;
+  padding: 5px;
+}
 
-  .webflow-palette-embed .workspace {
-    grid-template-columns: 1fr;
-    gap: 10px;
-    min-height: auto;
-    justify-content: stretch;
-  }
+.webflow-palette-embed[data-mobile-layout="true"] .workspace {
+  grid-template-columns: 1fr;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 10px;
+  min-height: calc(100vh - 20px);
+  min-height: calc(100dvh - 20px);
+  justify-content: stretch;
+}
 
-  .webflow-palette-embed .canvas-stage {
-    width: 100%;
-    max-width: none;
-    min-width: 0;
-    height: auto;
-    --frame-height: min(62dvh, 700px);
-    --frame-height: min(62svh, 700px);
-  }
+.webflow-palette-embed[data-mobile-layout="true"] .canvas-stage {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  height: auto;
+  --frame-height: min(58dvh, 700px);
+  --frame-height: min(58svh, 700px);
+  --frame-width: min(100%, calc(100vw - 20px));
+}
 
-  .webflow-palette-embed .control-hud {
-    padding: 12px;
-  }
+.webflow-palette-embed[data-mobile-layout="true"] .control-hud {
+  width: 100%;
+  padding: 12px;
+}
 
-  .webflow-palette-embed .hud-bar {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
+.webflow-palette-embed[data-mobile-layout="true"] .hud-bar {
+  gap: 8px;
+}
 
-  .webflow-palette-embed .hud-count {
-    justify-self: start;
-    text-align: left;
-  }
+.webflow-palette-embed[data-mobile-layout="true"] .hud-count {
+  text-align: right;
+}
 
-  .webflow-palette-embed .hud-buttons {
-    grid-template-columns: 1fr;
-  }
+.webflow-palette-embed[data-mobile-layout="true"] .hud-buttons {
+  grid-template-columns: 1fr;
+}
 
-  .webflow-palette-embed .recipe-button,
-  .webflow-palette-embed .recipe-export,
-  .webflow-palette-embed .save-export {
-    width: 100%;
-    min-height: 44px;
-  }
+.webflow-palette-embed[data-mobile-layout="true"] .recipe-button,
+.webflow-palette-embed[data-mobile-layout="true"] .recipe-export,
+.webflow-palette-embed[data-mobile-layout="true"] .save-export {
+  width: 100%;
+  min-height: 44px;
+}
 
-  .webflow-palette-embed .save-option-row-sizes .save-option-button {
-    flex: 1 1 calc(50% - 4px);
-  }
+.webflow-palette-embed[data-mobile-layout="true"] .save-option-row-sizes .save-option-button {
+  flex: 1 1 calc(50% - 4px);
+}
 
-  .webflow-palette-embed .canvas-wrap {
-    border-radius: 20px;
-  }
+.webflow-palette-embed[data-mobile-layout="true"] .canvas-wrap {
+  border-radius: 20px;
+}
 
-  .webflow-palette-embed .palette-panel {
-    min-height: 40dvh;
-    min-height: 40svh;
-    border-radius: 18px;
-  }
+.webflow-palette-embed[data-mobile-layout="true"] .palette-panel {
+  grid-template-rows: auto;
+  gap: 0;
+  padding: 10px;
+  border-radius: 18px;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-toggle {
+  display: grid;
+  gap: 12px;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-toggle:not(:disabled):hover,
+.webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-toggle:not(:disabled):focus-visible {
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  padding: 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 18px;
+  background: var(--panel-solid);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    var(--shadow-soft);
+  backdrop-filter: blur(18px);
+  overflow: auto;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-sheet[hidden] {
+  display: none;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .palette-list {
+  overflow: visible;
+  align-content: start;
+  touch-action: pan-y;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .palette-card {
+  touch-action: none;
 }
