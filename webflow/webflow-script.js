@@ -1,13 +1,95 @@
 ﻿(() => {
+function getPaletteMarkup() {
+  return `
+  <main class="app-shell">
+    <section class="workspace">
+      <div class="canvas-stage">
+        <div class="control-hud" aria-label="Color study controls">
+          <div class="hud-bar">
+            <p class="eyebrow">Colour Palette</p>
+            <span class="hud-status">Drop, upload, drag, export</span>
+            <span class="hud-count">Studio blur map</span>
+          </div>
+          <div class="hud-rule" aria-hidden="true"></div>
+          <div class="hud-actions">
+            <div class="hud-buttons">
+              <label class="upload-pill">
+                <span>Choose image</span>
+                <input data-role="image-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,image/heic,image/heif">
+              </label>
+              <button class="recipe-button" type="button" data-action="recipe">Paint Recipe</button>
+              <button class="recipe-button" type="button" data-action="export-image">Save Image</button>
+            </div>
+            <label class="hud-slider">
+              <span>Blur</span>
+              <input data-role="blur-range" type="range" min="0" max="40" value="40">
+            </label>
+          </div>
+        </div>
+
+        <section data-role="import-warning" class="import-warning hidden" aria-live="polite"></section>
+
+        <div class="canvas-wrap" data-role="canvas-wrap">
+          <canvas data-role="display-canvas" width="900" height="1350"></canvas>
+          <div data-role="swatch-layer" class="swatch-layer" aria-label="Color swatches"></div>
+          <div data-role="empty-state" class="empty-state">
+            <div class="empty-state-card">
+              <p class="empty-state-label">Ready for an image</p>
+              <p>Drop in a reference to generate a blurred palette field and inspect dominant tones.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="palette-panel">
+        <div class="palette-toolbar">
+          <span class="palette-rail-label">Palette Rail</span>
+          <div class="palette-toolbar-controls">
+            <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
+            <span data-role="palette-size-label" class="palette-size-label">Palette size 4</span>
+            <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
+          </div>
+        </div>
+        <div data-role="palette-list" class="palette-list"></div>
+      </aside>
+    </section>
+  </main>
+
+  <div data-role="recipe-modal" class="recipe-modal hidden" aria-hidden="true">
+    <div class="recipe-modal-panel" role="dialog" aria-modal="true" aria-label="Paint recipes">
+      <div class="recipe-modal-head">
+        <div>
+          <p class="recipe-modal-kicker">Colour mix study</p>
+          <h2>Paint recipes</h2>
+        </div>
+        <button class="recipe-close" type="button" data-action="recipe-close" aria-label="Close paint recipes">x</button>
+      </div>
+      <div data-role="recipe-content"></div>
+    </div>
+    <button class="recipe-export" type="button" data-action="recipe-export">Save recipe</button>
+  </div>`;
+}
+
+function ensurePaletteMarkup(root) {
+  if (root.querySelector('[data-role="display-canvas"]')) {
+    return;
+  }
+  root.innerHTML = getPaletteMarkup();
+}
+
 function initPalette(root) {
 if (!root || root.dataset.webflowPaletteReady === "true") {
   return;
 }
+ensurePaletteMarkup(root);
 root.dataset.webflowPaletteReady = "true";
 const input = root.querySelector('[data-role="image-input"]');
 const blurRange = root.querySelector('[data-role="blur-range"]');
 const importWarning = root.querySelector('[data-role="import-warning"]');
 const canvas = root.querySelector('[data-role="display-canvas"]');
+if (!input || !blurRange || !importWarning || !canvas) {
+  return;
+}
 const ctx = canvas.getContext("2d", { willReadFrequently: true });
 const swatchLayer = root.querySelector('[data-role="swatch-layer"]');
 const paletteList = root.querySelector('[data-role="palette-list"]');
@@ -22,6 +104,9 @@ const recipeModal = root.querySelector('[data-role="recipe-modal"]');
 const recipeContent = root.querySelector('[data-role="recipe-content"]');
 const recipeClose = root.querySelector('[data-action="recipe-close"]');
 const recipeExport = root.querySelector('[data-action="recipe-export"]');
+if (!ctx || !swatchLayer || !paletteList || !emptyState || !canvasWrap || !paletteMinus || !palettePlus || !paletteSizeLabel || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport) {
+  return;
+}
 
 const PALETTE_MIN = 4;
 const PALETTE_MAX = 8;
@@ -1002,4 +1087,5 @@ if (document.readyState === "loading") {
   boot();
 }
 })();
+
 

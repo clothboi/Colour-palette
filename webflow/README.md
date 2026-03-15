@@ -5,7 +5,7 @@ This folder is ready to be hosted from GitHub and embedded into Webflow.
 ## Files
 
 - `webflow-html-snippet.html`
-  Paste into a Webflow Embed element where the tool should render.
+  Paste into a Webflow Embed element where the tool should render. The hosted script injects the full app markup automatically.
 - `webflow-head-snippet.html`
   Paste into Webflow page settings or site settings head code.
 - `webflow-footer-snippet.html`
@@ -29,4 +29,6 @@ This folder is ready to be hosted from GitHub and embedded into Webflow.
 
 - The app is scoped under `.webflow-palette-embed` to avoid clashing with Webflow styles.
 - The script now initializes every `[data-webflow-palette]` instance on the page, so the component can be reused.
+- The recommended embed is now just a single container div, so future UI updates can come from GitHub without manually updating the Webflow Embed block again.
+- Older embeds that already contain the full markup still continue to work.
 - The asset URLs use [jsDelivr](https://www.jsdelivr.com/github), which serves files directly from GitHub repositories.
