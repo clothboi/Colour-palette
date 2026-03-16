@@ -753,6 +753,13 @@
     0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
+.webflow-palette-embed .palette-preview-tile--placeholder {
+  background:
+    linear-gradient(135deg, rgba(112, 79, 67, 0.5), rgba(82, 42, 27, 0.72)),
+    rgba(255, 255, 255, 0.04);
+  opacity: calc(1 - (var(--placeholder-index, 0) * 0.08));
+}
+
 .webflow-palette-embed .palette-drawer-sheet {
   min-height: 0;
   display: grid;

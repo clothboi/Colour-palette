@@ -222,6 +222,7 @@ const EXPORT_SIZE_PRESETS = [1000, 2000, 3000, 4000];
 const SCROLL_LOCK_SWATCH_DRAG = "swatch-drag";
 const SCROLL_LOCK_PALETTE_DRAG = "palette-drag";
 const SCROLL_LOCK_PALETTE_DRAWER = "palette-drawer";
+const PALETTE_PREVIEW_PLACEHOLDER_COUNT = 4;
 const mobileLayoutQuery = window.matchMedia(`(max-width: ${MOBILE_LAYOUT_MAX_WIDTH}px)`);
 const paletteDrawerId = `palette-drawer-${Math.random().toString(36).slice(2, 10)}`;
 
@@ -648,6 +649,14 @@ function renderPalettePreview() {
   palettePreviewList.innerHTML = "";
   palettePreviewList.style.removeProperty("--preview-count");
   if (!state.colors.length) {
+    palettePreviewList.style.setProperty("--preview-count", `${PALETTE_PREVIEW_PLACEHOLDER_COUNT}`);
+    Array.from({ length: PALETTE_PREVIEW_PLACEHOLDER_COUNT }).forEach((_, index) => {
+      const tile = document.createElement("span");
+      tile.className = "palette-preview-tile palette-preview-tile--placeholder";
+      tile.style.setProperty("--placeholder-index", `${index}`);
+      tile.setAttribute("aria-hidden", "true");
+      palettePreviewList.appendChild(tile);
+    });
     return;
   }
 
