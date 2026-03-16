@@ -1755,15 +1755,15 @@ function saveInventoryDraft() {
 }
 
 function useStarterPalette() {
-  state.inventoryDraft = [];
-  state.ownedPaints = [];
-  persistOwnedPaints([]);
+  state.inventoryDraft = clonePaintCollection(STARTER_PALETTE);
+  state.ownedPaints = clonePaintCollection(STARTER_PALETTE);
+  persistOwnedPaints(state.ownedPaints);
   renderInventoryList();
   resetInventoryForm();
   closeInventoryModal();
   state.recipeResults = [];
   renderRecipe();
-  showImportWarning("Starter palette active", "Recipes will use the Williamsburg starter palette until you save a custom inventory.");
+  showImportWarning("Starter palette saved", "The Williamsburg starter palette has been loaded into your saved paints and will be used for recipes.");
 }
 
 function handleInventoryModalClick(event) {
