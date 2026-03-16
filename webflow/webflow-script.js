@@ -223,6 +223,7 @@ const SCROLL_LOCK_SWATCH_DRAG = "swatch-drag";
 const SCROLL_LOCK_PALETTE_DRAG = "palette-drag";
 const SCROLL_LOCK_PALETTE_DRAWER = "palette-drawer";
 const PALETTE_PREVIEW_PLACEHOLDER_COUNT = 4;
+const PALETTE_DRAWER_SETTLE_DELAY_MS = 260;
 const mobileLayoutQuery = window.matchMedia(`(max-width: ${MOBILE_LAYOUT_MAX_WIDTH}px)`);
 const paletteDrawerId = `palette-drawer-${Math.random().toString(36).slice(2, 10)}`;
 
@@ -349,6 +350,7 @@ const state = {
   paletteDragLeft: 0,
   paletteDragWidth: 0,
   paletteGrabOffsetY: 0,
+  paletteDrawerSettleTimer: null,
   recipe: [],
 };
 
@@ -715,6 +717,23 @@ function syncLayoutState() {
   refreshStageSize();
 }
 
+function clearPaletteDrawerSettleTimer() {
+  if (!state.paletteDrawerSettleTimer) return;
+  clearTimeout(state.paletteDrawerSettleTimer);
+  state.paletteDrawerSettleTimer = null;
+}
+
+function schedulePaletteDrawerSettleRender() {
+  clearPaletteDrawerSettleTimer();
+  state.paletteDrawerSettleTimer = setTimeout(() => {
+    state.paletteDrawerSettleTimer = null;
+    if (!state.isPaletteDrawerOpen || !isEffectiveMobileLayout()) {
+      return;
+    }
+    renderPalette();
+  }, PALETTE_DRAWER_SETTLE_DELAY_MS);
+}
+
 function openPaletteDrawer() {
   if (!isEffectiveMobileLayout() || !state.colors.length || state.isPaletteDrawerOpen) {
     return;
@@ -722,6 +741,7 @@ function openPaletteDrawer() {
 
   state.isPaletteDrawerOpen = true;
   syncLayoutState();
+  schedulePaletteDrawerSettleRender();
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       renderPalette();
@@ -731,6 +751,7 @@ function openPaletteDrawer() {
 }
 
 function closePaletteDrawer({ restoreFocus = true } = {}) {
+  clearPaletteDrawerSettleTimer();
   if (!state.isPaletteDrawerOpen) {
     syncLayoutState();
     return;
