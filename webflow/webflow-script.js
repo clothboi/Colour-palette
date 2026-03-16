@@ -740,7 +740,7 @@ function schedulePaletteDrawerSettleRender() {
   clearPaletteDrawerSettleTimer();
   state.paletteDrawerSettleTimer = setTimeout(() => {
     state.paletteDrawerSettleTimer = null;
-    if (!state.isPaletteDrawerOpen || !isEffectiveMobileLayout()) {
+    if (!state.isPaletteDrawerOpen || !isRealMobileLayout()) {
       return;
     }
     renderPalette();
