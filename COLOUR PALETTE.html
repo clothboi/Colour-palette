@@ -1931,13 +1931,13 @@ function buildIdealMixDisplaySummary(guidance, catalogMatches) {
   return guidance.idealRecipeEntries.map((idealEntry) => {
     const catalogMatch = catalogMatches.find((match) => match.target_pigment_codes.some((code) => idealEntry.paint.pigment_codes.includes(code)));
     if (catalogMatch) {
-      return `${catalogMatch.color_name} ${Math.round(idealEntry.massPercent)}%`;
+      return catalogMatch.color_name;
     }
     const ownedEquivalent = findOwnedEquivalent(idealEntry.paint, state.ownedPaints);
     if (ownedEquivalent) {
-      return `${getPaintLabel(ownedEquivalent)} ${Math.round(idealEntry.massPercent)}%`;
+      return getPaintLabel(ownedEquivalent);
     }
-    return `${getPaintLabel(idealEntry.paint)} ${Math.round(idealEntry.massPercent)}%`;
+    return getPaintLabel(idealEntry.paint);
   }).join(" + ");
 }
 
@@ -2313,7 +2313,7 @@ function exportRecipeImage() {
     if (entry.catalog_matches?.length) {
       lines.push(`Buy Williamsburg (${entry.display.catalogRefreshLabel || "active catalog"})`);
       entry.catalog_matches.forEach((match) => {
-        lines.push(`${match.color_name} - ${formatPaintDetailLine(match)} - ${match.reason}`);
+        lines.push(`${match.color_name} - ${formatPaintDetailLine(match)} - ${Math.round(match.recommended_mass_percent || 0)}%`);
       });
     }
     entry.recipe.components.forEach((component) => {
@@ -2417,10 +2417,10 @@ function renderRecipe() {
         <ol class="recipe-steps">${entry.recipe.mixing_steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol>
       </div>
       ${entry.quality.gamut_note ? `<p class="recipe-note">${escapeHtml(entry.quality.gamut_note)}</p>` : ""}
-      ${entry.catalog_matches?.length ? `<div class="recipe-section"><div class="recipe-section-head"><strong>Buy Williamsburg</strong><span class="recipe-section-caption">${escapeHtml(entry.display.catalogRefreshLabel || "Williamsburg active catalog")}</span></div><ul class="recipe-buy-list">${entry.catalog_matches.map((item) => `<li><span class="recipe-buy-copy"><span class="recipe-component-head"><span class="recipe-component-dot" style="background:${escapeHtml(item.swatch_hex || "#2A2F36")}"></span><strong>${escapeHtml(item.color_name)}</strong></span><small>${escapeHtml(formatPaintDetailLine(item))}</small></span><small class="recipe-buy-reason">${escapeHtml(item.reason)}</small></li>`).join("")}</ul></div>` : ""}
+      ${entry.display.idealMixLabel ? `<div class="recipe-ideal-banner"><strong>${escapeHtml(entry.display.idealMixLabel)}</strong>${entry.display.idealMixSummary ? `<span>${escapeHtml(entry.display.idealMixSummary)}</span>` : ""}</div>` : ""}
+      ${entry.catalog_matches?.length ? `<div class="recipe-section"><div class="recipe-section-head"><strong>Buy Williamsburg</strong><span class="recipe-section-caption">${escapeHtml(entry.display.catalogRefreshLabel || "Williamsburg active catalog")}</span></div><ul class="recipe-buy-list">${entry.catalog_matches.map((item) => `<li><span class="recipe-buy-copy"><span class="recipe-component-head"><span class="recipe-component-dot" style="background:${escapeHtml(item.swatch_hex || "#2A2F36")}"></span><strong>${escapeHtml(item.color_name)}</strong></span><small>${escapeHtml(formatPaintDetailLine(item))}</small></span><small class="recipe-buy-reason">${Math.round(item.recommended_mass_percent || 0)}%</small></li>`).join("")}</ul></div>` : ""}
       ${entry.substitutions.length ? `<div class="recipe-section"><strong>Substitutions</strong><ul class="recipe-inline-list">${entry.substitutions.map((item) => `<li>${escapeHtml(item.missing_paint)} -> ${escapeHtml(item.recommended_substitute.color_name)} (${escapeHtml(item.match_class.replaceAll("_", " "))})</li>`).join("")}</ul></div>` : ""}
       ${entry.warnings.length ? `<div class="recipe-section"><strong>Warnings</strong><ul class="recipe-inline-list">${entry.warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("")}</ul></div>` : ""}
-      ${entry.display.idealMixLabel ? `<div class="recipe-ideal-banner"><strong>${escapeHtml(entry.display.idealMixLabel)}</strong>${entry.display.idealMixSummary ? `<span>${escapeHtml(entry.display.idealMixSummary)}</span>` : ""}</div>` : ""}
     </section>`).join("")}</div>`;
 }
 
