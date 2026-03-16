@@ -741,6 +741,12 @@ const state = {
   animationFrame: null,
   sourceWidth: canvas.width,
   sourceHeight: canvas.height,
+  imageBounds: {
+    x: 0,
+    y: 0,
+    width: canvas.width,
+    height: canvas.height,
+  },
   processedReferenceCanvas: null,
   paletteSize: DEFAULT_PALETTE_SIZE,
   saveExport: {
@@ -1351,7 +1357,7 @@ function positionDragLens(swatch) {
 
   const pointX = swatch.x;
   const pointY = swatch.y;
-  const availableHeight = canvasWrap.clientHeight || canvasWrap.getBoundingClientRect().height;
+  const availableHeight = getImageBounds().height;
   const lensSize = DRAG_LENS.size;
   const edgePadding = DRAG_LENS.edgePadding;
 
@@ -1371,12 +1377,18 @@ function positionDragLens(swatch) {
 
 function sampleLensNeighborhood(centerX, centerY, gridSize) {
   const half = Math.floor(gridSize / 2);
-  const pixelX = clamp(Math.round(centerX * state.dpr), 0, canvas.width - 1);
-  const pixelY = clamp(Math.round(centerY * state.dpr), 0, canvas.height - 1);
-  const minX = clamp(pixelX - half, 0, canvas.width - 1);
-  const maxX = clamp(pixelX + half, 0, canvas.width - 1);
-  const minY = clamp(pixelY - half, 0, canvas.height - 1);
-  const maxY = clamp(pixelY + half, 0, canvas.height - 1);
+  const bounds = getImageBounds();
+  const point = getCanvasSamplePoint(centerX, centerY);
+  const minBoundX = clamp(Math.floor(bounds.x * state.dpr), 0, canvas.width - 1);
+  const maxBoundX = clamp(Math.ceil((bounds.x + bounds.width) * state.dpr) - 1, 0, canvas.width - 1);
+  const minBoundY = clamp(Math.floor(bounds.y * state.dpr), 0, canvas.height - 1);
+  const maxBoundY = clamp(Math.ceil((bounds.y + bounds.height) * state.dpr) - 1, 0, canvas.height - 1);
+  const pixelX = clamp(Math.round(point.x * state.dpr), minBoundX, maxBoundX);
+  const pixelY = clamp(Math.round(point.y * state.dpr), minBoundY, maxBoundY);
+  const minX = clamp(pixelX - half, minBoundX, maxBoundX);
+  const maxX = clamp(pixelX + half, minBoundX, maxBoundX);
+  const minY = clamp(pixelY - half, minBoundY, maxBoundY);
+  const maxY = clamp(pixelY + half, minBoundY, maxBoundY);
   const sourceWidth = maxX - minX + 1;
   const sourceHeight = maxY - minY + 1;
   const source = ctx.getImageData(minX, minY, sourceWidth, sourceHeight).data;
@@ -1384,8 +1396,8 @@ function sampleLensNeighborhood(centerX, centerY, gridSize) {
 
   for (let gy = 0; gy < gridSize; gy += 1) {
     for (let gx = 0; gx < gridSize; gx += 1) {
-      const sampleX = clamp(pixelX + gx - half, 0, canvas.width - 1);
-      const sampleY = clamp(pixelY + gy - half, 0, canvas.height - 1);
+      const sampleX = clamp(pixelX + gx - half, minBoundX, maxBoundX);
+      const sampleY = clamp(pixelY + gy - half, minBoundY, maxBoundY);
       const sourceIndex = (((sampleY - minY) * sourceWidth) + (sampleX - minX)) * 4;
       const targetIndex = ((gy * gridSize) + gx) * 4;
       samples[targetIndex] = source[sourceIndex];
@@ -1436,6 +1448,12 @@ function refreshStageSize() {
   if (!state.image) {
     root.dataset.paletteHasImage = "false";
     state.processedReferenceCanvas = null;
+    state.imageBounds = {
+      x: 0,
+      y: 0,
+      width: canvasWrap.clientWidth || canvas.width,
+      height: canvasWrap.clientHeight || canvas.height,
+    };
     root.style.removeProperty("--ambient-image");
     root.dataset.ambientImage = "false";
     canvasStage.style.removeProperty("--image-ratio");
@@ -1485,7 +1503,7 @@ function refreshStageSize() {
   const maxWidth = Math.max(280, Math.round(window.innerWidth - getPaletteFrameClearance()));
   const frameWidth = Math.min(Math.round(frameHeight * imageRatio), maxWidth);
   canvasStage.style.setProperty("--frame-width", `${frameWidth}px`);
-  canvasStage.style.removeProperty("--frame-height");
+  canvasStage.style.setProperty("--frame-height", `${Math.max(320, Math.round(frameWidth / imageRatio))}px`);
 }
 
 function updateAmbientBackdrop() {
@@ -2161,6 +2179,19 @@ function drawProcessedImage() {
     drawWidth = reducedHeight * imageRatio;
     offsetX = (reducedWidth - drawWidth) / 2;
   }
+  const imageDisplayWidth = imageRatio > frameRatio ? displayWidth : displayHeight * imageRatio;
+  const imageDisplayHeight = imageRatio > frameRatio ? displayWidth / imageRatio : displayHeight;
+  state.imageBounds = {
+    x: Math.max(0, (displayWidth - imageDisplayWidth) / 2),
+    y: Math.max(0, (displayHeight - imageDisplayHeight) / 2),
+    width: Math.max(1, imageDisplayWidth),
+    height: Math.max(1, imageDisplayHeight),
+  };
+  swatchLayer.style.inset = "auto";
+  swatchLayer.style.left = `${state.imageBounds.x}px`;
+  swatchLayer.style.top = `${state.imageBounds.y}px`;
+  swatchLayer.style.width = `${state.imageBounds.width}px`;
+  swatchLayer.style.height = `${state.imageBounds.height}px`;
   downscaleCtx.drawImage(state.image, offsetX, offsetY, drawWidth, drawHeight);
   const processedCanvas = document.createElement("canvas");
   processedCanvas.width = displayWidth;
@@ -2188,9 +2219,36 @@ function drawProcessedImage() {
   updateAmbientBackdrop();
 }
 
+function getImageBounds() {
+  const bounds = state.imageBounds;
+  if (bounds && bounds.width > 0 && bounds.height > 0) {
+    return bounds;
+  }
+  return {
+    x: 0,
+    y: 0,
+    width: Math.max(1, state.sourceWidth || canvasWrap.clientWidth || 1),
+    height: Math.max(1, state.sourceHeight || canvasWrap.clientHeight || 1),
+  };
+}
+
+function getCanvasSamplePoint(x, y) {
+  const bounds = getImageBounds();
+  return {
+    x: bounds.x + clamp(x, 0, bounds.width),
+    y: bounds.y + clamp(y, 0, bounds.height),
+  };
+}
+
 function sampleCanvasColor(x, y) {
-  const pixelX = clamp(Math.round(x * state.dpr), 0, canvas.width - 1);
-  const pixelY = clamp(Math.round(y * state.dpr), 0, canvas.height - 1);
+  const bounds = getImageBounds();
+  const point = getCanvasSamplePoint(x, y);
+  const minPixelX = clamp(Math.floor(bounds.x * state.dpr), 0, canvas.width - 1);
+  const maxPixelX = clamp(Math.ceil((bounds.x + bounds.width) * state.dpr) - 1, 0, canvas.width - 1);
+  const minPixelY = clamp(Math.floor(bounds.y * state.dpr), 0, canvas.height - 1);
+  const maxPixelY = clamp(Math.ceil((bounds.y + bounds.height) * state.dpr) - 1, 0, canvas.height - 1);
+  const pixelX = clamp(Math.round(point.x * state.dpr), minPixelX, maxPixelX);
+  const pixelY = clamp(Math.round(point.y * state.dpr), minPixelY, maxPixelY);
   const pixel = ctx.getImageData(pixelX, pixelY, 1, 1).data;
   return { r: pixel[0], g: pixel[1], b: pixel[2], hex: rgbToHex(pixel[0], pixel[1], pixel[2]) };
 }
@@ -2383,9 +2441,12 @@ function updatePaletteLayoutMode() {
 }
 
 function drawExportSwatchNodes(context, imageX, imageY, imageWidth, imageHeight) {
+  const bounds = getImageBounds();
+  const scaleX = imageWidth / Math.max(1, state.sourceWidth);
+  const scaleY = imageHeight / Math.max(1, state.sourceHeight);
   state.colors.forEach((color) => {
-    const x = imageX + (color.x * imageWidth);
-    const y = imageY + (color.y * imageHeight);
+    const x = imageX + ((bounds.x + (color.x * bounds.width)) * scaleX);
+    const y = imageY + ((bounds.y + (color.y * bounds.height)) * scaleY);
     context.beginPath();
     context.arc(x, y, 18, 0, Math.PI * 2);
     context.fillStyle = color.hex;
@@ -2814,11 +2875,12 @@ function renderPalette() {
 }
 
 function syncSwatchTargetsFromColors() {
+  const bounds = getImageBounds();
   state.swatches.forEach((swatch, index) => {
     const color = state.colors[index];
     swatch.color = color;
-    swatch.targetX = color.x * state.sourceWidth;
-    swatch.targetY = color.y * state.sourceHeight;
+    swatch.targetX = color.x * bounds.width;
+    swatch.targetY = color.y * bounds.height;
     swatch.element.style.setProperty("--swatch-color", color.hex);
     swatch.element.setAttribute("aria-label", `${color.hex} swatch`);
   });
@@ -2831,6 +2893,7 @@ function setHoveredColor(id) {
 }
 
 function createSwatch(color) {
+  const bounds = getImageBounds();
   const swatch = document.createElement("div");
   swatch.className = "swatch";
   swatch.style.setProperty("--swatch-color", color.hex);
@@ -2842,7 +2905,7 @@ function createSwatch(color) {
   swatch.addEventListener("pointerleave", () => setHoveredColor(null));
   swatch.addEventListener("pointerdown", (event) => startDrag(event, color.id));
   swatchLayer.appendChild(swatch);
-  return { id: color.id, color, element: swatch, x: color.x * state.sourceWidth, y: color.y * state.sourceHeight, targetX: color.x * state.sourceWidth, targetY: color.y * state.sourceHeight };
+  return { id: color.id, color, element: swatch, x: color.x * bounds.width, y: color.y * bounds.height, targetX: color.x * bounds.width, targetY: color.y * bounds.height };
 }
 function rebuildSwatches() {
   destroyDragLens(true);
@@ -2919,17 +2982,22 @@ function unlockPageScroll(reason) {
 
 function getPointFromEvent(event) {
   const rect = canvasWrap.getBoundingClientRect();
+  const bounds = getImageBounds();
   const touch = event.touches && event.touches[0] ? event.touches[0] : event.changedTouches && event.changedTouches[0] ? event.changedTouches[0] : event;
-  return { x: clamp(touch.clientX - rect.left, 0, rect.width), y: clamp(touch.clientY - rect.top, 0, rect.height) };
+  return {
+    x: clamp(touch.clientX - rect.left - bounds.x, 0, bounds.width),
+    y: clamp(touch.clientY - rect.top - bounds.y, 0, bounds.height),
+  };
 }
 function updateSwatchColor(swatch) {
+  const bounds = getImageBounds();
   const sampled = sampleCanvasColor(swatch.targetX, swatch.targetY);
   swatch.color.r = sampled.r;
   swatch.color.g = sampled.g;
   swatch.color.b = sampled.b;
   swatch.color.hex = sampled.hex;
-  swatch.color.x = swatch.targetX / state.sourceWidth;
-  swatch.color.y = swatch.targetY / state.sourceHeight;
+  swatch.color.x = swatch.targetX / Math.max(1, bounds.width);
+  swatch.color.y = swatch.targetY / Math.max(1, bounds.height);
   swatch.element.style.setProperty("--swatch-color", sampled.hex);
   swatch.element.setAttribute("aria-label", `${sampled.hex} swatch`);
   if (state.dragLens && state.dragId === swatch.id) {
