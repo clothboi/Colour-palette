@@ -637,30 +637,30 @@
 }
 
 .webflow-palette-embed .mobile-palette-rail__top {
-  display: grid;
-  grid-template-columns: max-content 40px minmax(0, 1fr) 40px;
+  display: flex;
   gap: var(--mobile-rail-gap);
-  align-items: stretch;
+  align-items: start;
 }
 
 .webflow-palette-embed .mobile-palette-rail__copy {
   display: grid;
   gap: 2px;
   align-content: start;
-  justify-self: start;
+  flex: 0 0 auto;
   min-width: 0;
 }
 
 .webflow-palette-embed .mobile-palette-rail__controls {
-  display: contents;
-}
-
-.webflow-palette-embed .mobile-palette-rail__top .palette-button,
-.webflow-palette-embed .mobile-palette-rail__top .palette-size-label {
+  flex: 1 1 0;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  align-items: stretch;
+  gap: var(--mobile-rail-gap);
+  width: 100%;
   min-width: 0;
 }
 
-.webflow-palette-embed .mobile-palette-rail__top .palette-size-label {
+.webflow-palette-embed .mobile-palette-rail__controls .palette-size-label {
   width: 100%;
 }
 
