@@ -1157,7 +1157,8 @@ function getPaletteAvailableHeight() {
   const computedHeight = Math.max(0, Math.round(panelHeight - paddingTop - paddingBottom - gaps - usedHeights.reduce((sum, value) => sum + value, 0)));
 
   if (isEffectiveMobileLayout() && state.isPaletteDrawerOpen) {
-    return Math.max(0, Math.round(computedHeight || sheetHeight || listHeight));
+    const fittedHeight = Math.max(0, Math.round(computedHeight || sheetHeight || listHeight));
+    return Math.max(0, fittedHeight - 4);
   }
 
   return Math.max(Math.round(listHeight), Math.round(sheetHeight), computedHeight);

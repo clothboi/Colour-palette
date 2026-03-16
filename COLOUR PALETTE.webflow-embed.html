@@ -1443,7 +1443,7 @@
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
-  overflow-y: visible;
+  overflow-y: hidden;
   min-height: 100%;
   height: 100%;
   align-content: start;
@@ -2622,7 +2622,8 @@ function getPaletteAvailableHeight() {
   const computedHeight = Math.max(0, Math.round(panelHeight - paddingTop - paddingBottom - gaps - usedHeights.reduce((sum, value) => sum + value, 0)));
 
   if (isEffectiveMobileLayout() && state.isPaletteDrawerOpen) {
-    return Math.max(0, Math.round(computedHeight || sheetHeight || listHeight));
+    const fittedHeight = Math.max(0, Math.round(computedHeight || sheetHeight || listHeight));
+    return Math.max(0, fittedHeight - 4);
   }
 
   return Math.max(Math.round(listHeight), Math.round(sheetHeight), computedHeight);
