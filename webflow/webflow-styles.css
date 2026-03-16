@@ -393,7 +393,6 @@
 .webflow-palette-embed .import-warning.hidden,
 .webflow-palette-embed .empty-state.hidden,
 .webflow-palette-embed .recipe-modal.hidden,
-.webflow-palette-embed .inventory-modal.hidden,
 .webflow-palette-embed .save-modal.hidden {
   display: none;
 }
@@ -1130,11 +1129,6 @@
   padding: 16px;
   background: rgba(8, 10, 12, 0.72);
   backdrop-filter: blur(16px);
-}
-
-.webflow-palette-embed .inventory-modal,
-.webflow-palette-embed .inventory-modal * {
-  pointer-events: auto;
 }
 
 .webflow-palette-embed .recipe-modal {
