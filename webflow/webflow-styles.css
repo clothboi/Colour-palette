@@ -1619,10 +1619,64 @@
   margin-top: 12px;
 }
 
+.webflow-palette-embed .recipe-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.webflow-palette-embed .recipe-section-caption {
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
 .webflow-palette-embed .recipe-section strong {
   font-size: 0.84rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.webflow-palette-embed .recipe-buy-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.webflow-palette-embed .recipe-buy-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+  padding: 7px 9px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-surface-border);
+  background: var(--glass-surface-bg-soft);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 18px rgba(0, 0, 0, 0.12);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+}
+
+.webflow-palette-embed .recipe-buy-copy {
+  display: grid;
+  gap: 3px;
+}
+
+.webflow-palette-embed .recipe-buy-copy small,
+.webflow-palette-embed .recipe-buy-reason {
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.webflow-palette-embed .recipe-buy-reason {
+  text-align: right;
+  text-transform: capitalize;
 }
 
 .webflow-palette-embed .recipe-ideal-banner {
