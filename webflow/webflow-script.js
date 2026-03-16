@@ -916,6 +916,10 @@ function hasOwnedEquivalent(paint, ownedPaints) {
   return ownedPaints.some((ownedPaint) => ownedPaint.pigment_codes.some((code) => paint.pigment_codes.includes(code)));
 }
 
+function findOwnedEquivalent(paint, ownedPaints) {
+  return ownedPaints.find((ownedPaint) => ownedPaint.pigment_codes.some((code) => paint.pigment_codes.includes(code))) || null;
+}
+
 function recipeEntriesEquivalent(leftEntries, rightEntries) {
   if (leftEntries.length !== rightEntries.length) {
     return false;
@@ -1031,6 +1035,7 @@ function buildCatalogMatches(targetLab, guidance, gamutStatus) {
         item_number: match.color.item_number,
         series: match.color.series,
         pigment_codes: [...suggestedPigmentCodes],
+        target_pigment_codes: [...entry.paint.pigment_codes],
         swatch_hex: createCatalogSwatchHex(match.color),
         swatch_sm_url: match.color.swatch_sm_url || "",
         swatch_lg_url: match.color.swatch_lg_url || "",
@@ -1046,10 +1051,24 @@ function buildCatalogMatches(targetLab, guidance, gamutStatus) {
     .slice(0, 3);
 }
 
-function applyIdealMixDisplay(entry) {
+function buildIdealMixDisplaySummary(guidance, catalogMatches) {
+  return guidance.idealRecipeEntries.map((idealEntry) => {
+    const catalogMatch = catalogMatches.find((match) => match.target_pigment_codes.some((code) => idealEntry.paint.pigment_codes.includes(code)));
+    if (catalogMatch) {
+      return `${catalogMatch.color_name} ${Math.round(idealEntry.massPercent)}%`;
+    }
+    const ownedEquivalent = findOwnedEquivalent(idealEntry.paint, state.ownedPaints);
+    if (ownedEquivalent) {
+      return `${getPaintLabel(ownedEquivalent)} ${Math.round(idealEntry.massPercent)}%`;
+    }
+    return `${getPaintLabel(idealEntry.paint)} ${Math.round(idealEntry.massPercent)}%`;
+  }).join(" + ");
+}
+
+function applyIdealMixDisplay(entry, guidance) {
   if (entry.catalog_matches?.length) {
     entry.display.idealMixLabel = "Ideal mix";
-    entry.display.idealMixSummary = entry.catalog_matches.map((match) => formatCatalogMixPart(match)).join(" + ");
+    entry.display.idealMixSummary = buildIdealMixDisplaySummary(guidance, entry.catalog_matches);
   } else {
     entry.display.idealMixLabel = "Current recipe is ideal mix";
     entry.display.idealMixSummary = "";
@@ -1086,7 +1105,7 @@ function estimatePaintRecipe(targetColor, request) {
         idealMixSummary: idealMixGuidance.summary,
         catalogRefreshLabel: getCatalogRefreshLabel(WILLIAMSBURG_CATALOG.generated_at),
       },
-    });
+    }, idealMixGuidance);
   }
 
   const massPercentages = best.recipe.map((entry) => entry.massPercent);
@@ -1152,7 +1171,7 @@ function estimatePaintRecipe(targetColor, request) {
       idealMixSummary: idealMixGuidance.summary,
       catalogRefreshLabel: getCatalogRefreshLabel(WILLIAMSBURG_CATALOG.generated_at),
     },
-  });
+  }, idealMixGuidance);
 }
 
 function buildRecipeRequest(colors) {
