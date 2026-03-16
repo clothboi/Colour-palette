@@ -24,9 +24,9 @@
   --mobile-rail-button-width: 90px;
   --mobile-rail-radius: 22px;
   --mobile-rail-tab-width: clamp(88px, 18vw, 112px);
-  --mobile-rail-tab-height: clamp(24px, 5.2vw, 34px);
-  --mobile-rail-tab-radius: clamp(14px, 3.8vw, 18px);
-  --mobile-rail-tab-lift: calc(var(--mobile-rail-tab-height) - 8px);
+  --mobile-rail-tab-height: clamp(30px, 6.4vw, 42px);
+  --mobile-rail-tab-radius: clamp(16px, 4.4vw, 20px);
+  --mobile-rail-tab-lift: calc(var(--mobile-rail-tab-height) - 10px);
 }
 
 .webflow-palette-embed[data-palette-layout="double"] {
@@ -646,8 +646,7 @@
   overflow: visible;
 }
 
-.webflow-palette-embed .mobile-palette-rail__surface::before,
-.webflow-palette-embed .mobile-palette-rail__surface::after {
+.webflow-palette-embed .mobile-palette-rail__surface::before {
   content: "";
   position: absolute;
   left: 50%;
@@ -667,16 +666,6 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.05),
     0 10px 24px rgba(0, 0, 0, 0.18);
   z-index: 1;
-}
-
-.webflow-palette-embed .mobile-palette-rail__surface::after {
-  top: -1px;
-  width: calc(var(--mobile-rail-tab-width) + 28px);
-  height: calc(var(--mobile-rail-tab-height) * 0.62);
-  transform: translateX(-50%);
-  background: rgba(12, 14, 17, 0.92);
-  border-radius: 999px;
-  z-index: 2;
 }
 
 .webflow-palette-embed .mobile-palette-rail__top {
