@@ -882,6 +882,10 @@ function formatIdealMixPart(paint, massPercent) {
   return `${getPaintLabel(paint)} (${paint.pigment_codes.join(", ")}) ${Math.round(massPercent)}%`;
 }
 
+function formatCatalogMixPart(match) {
+  return `${match.color_name} ${Math.round(match.recommended_mass_percent)}%`;
+}
+
 function buildIdealMixSummary(targetLab, candidatePaints, recipeEntries) {
   const singlePaintMatch = candidatePaints
     .filter((paint) => paint.rgb)
@@ -929,6 +933,52 @@ function recipeEntriesEquivalent(leftEntries, rightEntries) {
   return leftNormalized.every((entry, index) => entry.key === rightNormalized[index].key && entry.massPercent === rightNormalized[index].massPercent);
 }
 
+function resolveCatalogMatchForPaint(paint, targetLab) {
+  if (!Array.isArray(WILLIAMSBURG_CATALOG.colors) || !WILLIAMSBURG_CATALOG.colors.length) {
+    return null;
+  }
+
+  const normalizedName = getPaintLabel(paint).trim().toLowerCase();
+  const exactName = WILLIAMSBURG_CATALOG.colors.find((color) => color.color_name.trim().toLowerCase() === normalizedName);
+  if (exactName) {
+    return { color: exactName, reason: "same pigment" };
+  }
+
+  const pigmentMatch = WILLIAMSBURG_CATALOG.colors.find((color) => Array.isArray(color.pigment_codes) && color.pigment_codes.some((code) => paint.pigment_codes.includes(code)));
+  if (pigmentMatch) {
+    return { color: pigmentMatch, reason: "same pigment" };
+  }
+
+  const withLab = WILLIAMSBURG_CATALOG.colors
+    .filter((color) => color.lab && Number.isFinite(color.lab.L) && Number.isFinite(color.lab.a) && Number.isFinite(color.lab.b))
+    .map((color) => ({
+      color,
+      distance: deltaE(targetLab, { l: color.lab.L, a: color.lab.a, b: color.lab.b }),
+    }))
+    .sort((left, right) => left.distance - right.distance)[0];
+  if (withLab) {
+    return { color: withLab.color, reason: "nearest active tube", deltaE76: Number(withLab.distance.toFixed(2)) };
+  }
+
+  const targetHueGroup = getTargetHueGroup(targetLab);
+  const hueFallback = WILLIAMSBURG_CATALOG.colors
+    .map((color) => ({
+      color,
+      distance: getHueGroupDistance(targetHueGroup, Number(color.hue_group) || 0),
+      hueValue: Number(color.hue_value) || Number.MAX_SAFE_INTEGER,
+    }))
+    .sort((left, right) => left.distance - right.distance || left.hueValue - right.hueValue)[0];
+  if (!hueFallback) {
+    return null;
+  }
+
+  return {
+    color: hueFallback.color,
+    reason: "fallback hue match",
+    labDistanceNote: "No bundled Lab reading for this tube, so it was ranked by hue-group fallback.",
+  };
+}
+
 function resolveIdealMixGuidance(targetLab, request, fallbackRecipeEntries, fallbackCandidatePaints) {
   const starterSolve = solveBestRecipe(targetLab, STARTER_PALETTE, request.constraints.max_pigments);
   const starterCandidatePaints = starterSolve.candidatePaints || [];
@@ -945,10 +995,8 @@ function resolveIdealMixGuidance(targetLab, request, fallbackRecipeEntries, fall
   const matchesCurrentRecipe = recipeEntriesEquivalent(idealRecipeEntries, fallbackRecipeEntries);
 
   return {
-    label: "Ideal mix",
-    summary: matchesCurrentRecipe
-      ? buildIdealMixSummary(targetLab, fallbackCandidatePaints, fallbackRecipeEntries)
-      : idealSummary,
+    label: matchesCurrentRecipe ? "Current recipe is ideal mix" : "Ideal mix",
+    summary: matchesCurrentRecipe ? "" : idealSummary,
     missingEntries,
     idealRecipeEntries,
   };
@@ -960,42 +1008,53 @@ function buildCatalogMatches(targetLab, guidance, gamutStatus) {
     return [];
   }
 
-  const missingPigmentCodes = [...new Set(guidance.missingEntries.flatMap((entry) => entry.paint.pigment_codes))];
   const ownedPigmentCodes = new Set(state.ownedPaints.flatMap((paint) => paint.pigment_codes));
-  const targetHueGroup = getTargetHueGroup(targetLab);
+  const requiredEntries = guidance.missingEntries.length
+    ? guidance.missingEntries
+    : (!state.ownedPaints.length || gamutStatus === "nearest_achievable" ? guidance.idealRecipeEntries : []);
+  if (!requiredEntries.length) {
+    return [];
+  }
 
-  return WILLIAMSBURG_CATALOG.colors
-    .filter((color) => !Array.isArray(color.pigment_codes) || !color.pigment_codes.some((code) => ownedPigmentCodes.has(code)))
-    .map((color) => {
-      const hasPigmentMatch = missingPigmentCodes.length > 0 && Array.isArray(color.pigment_codes) && color.pigment_codes.some((code) => missingPigmentCodes.includes(code));
-      const hasLab = Boolean(color.lab && Number.isFinite(color.lab.L) && Number.isFinite(color.lab.a) && Number.isFinite(color.lab.b));
-      const labDistance = hasLab ? deltaE(targetLab, { l: color.lab.L, a: color.lab.a, b: color.lab.b }) : null;
-      const hueGroupDistance = getHueGroupDistance(targetHueGroup, Number(color.hue_group) || 0);
-      const hueValue = Number(color.hue_value) || Number.MAX_SAFE_INTEGER;
+  return requiredEntries
+    .map((entry) => {
+      const match = resolveCatalogMatchForPaint(entry.paint, targetLab);
+      if (!match?.color) {
+        return null;
+      }
+      const suggestedPigmentCodes = Array.isArray(match.color.pigment_codes) ? match.color.pigment_codes : [];
+      if (suggestedPigmentCodes.some((code) => ownedPigmentCodes.has(code))) {
+        return null;
+      }
       return {
-        color,
-        sortTier: hasPigmentMatch ? 0 : (hasLab ? 1 : 2),
-        sortScore: hasLab ? labDistance : ((hueGroupDistance * 1000000) + hueValue),
-        reason: hasPigmentMatch ? "same pigment" : (hasLab ? "nearest active tube" : "fallback hue match"),
-        deltaE76: hasLab ? Number(labDistance.toFixed(2)) : null,
-        labDistanceNote: hasLab ? null : "No bundled Lab reading for this tube, so it was ranked by hue-group fallback.",
+        color_name: match.color.color_name,
+        item_number: match.color.item_number,
+        series: match.color.series,
+        pigment_codes: [...suggestedPigmentCodes],
+        swatch_hex: createCatalogSwatchHex(match.color),
+        swatch_sm_url: match.color.swatch_sm_url || "",
+        swatch_lg_url: match.color.swatch_lg_url || "",
+        handpainted_card_url: match.color.handpainted_card_url || "",
+        delta_e76: match.deltaE76 ?? null,
+        lab_distance_note: match.labDistanceNote ?? null,
+        reason: match.reason,
+        recommended_mass_percent: entry.massPercent,
       };
     })
-    .sort((left, right) => left.sortTier - right.sortTier || left.sortScore - right.sortScore || left.color.color_name.localeCompare(right.color.color_name))
-    .slice(0, 3)
-    .map((entry) => ({
-      color_name: entry.color.color_name,
-      item_number: entry.color.item_number,
-      series: entry.color.series,
-      pigment_codes: [...(entry.color.pigment_codes || [])],
-      swatch_hex: createCatalogSwatchHex(entry.color),
-      swatch_sm_url: entry.color.swatch_sm_url || "",
-      swatch_lg_url: entry.color.swatch_lg_url || "",
-      handpainted_card_url: entry.color.handpainted_card_url || "",
-      delta_e76: entry.deltaE76,
-      lab_distance_note: entry.labDistanceNote,
-      reason: entry.reason,
-    }));
+    .filter(Boolean)
+    .filter((match, index, collection) => collection.findIndex((candidate) => candidate.item_number === match.item_number) === index)
+    .slice(0, 3);
+}
+
+function applyIdealMixDisplay(entry) {
+  if (entry.catalog_matches?.length) {
+    entry.display.idealMixLabel = "Ideal mix";
+    entry.display.idealMixSummary = entry.catalog_matches.map((match) => formatCatalogMixPart(match)).join(" + ");
+  } else {
+    entry.display.idealMixLabel = "Current recipe is ideal mix";
+    entry.display.idealMixSummary = "";
+  }
+  return entry;
 }
 
 function estimatePaintRecipe(targetColor, request) {
@@ -1004,7 +1063,7 @@ function estimatePaintRecipe(targetColor, request) {
 
   if (!best) {
     const idealMixGuidance = resolveIdealMixGuidance(targetLab, request, [], candidatePaints);
-    return {
+    return applyIdealMixDisplay({
       target_hex: targetColor.hex,
       target_lab: labToSchema(targetLab),
       model_used: "heuristic_proxy",
@@ -1023,11 +1082,11 @@ function estimatePaintRecipe(targetColor, request) {
       display: {
         targetRgb: `RGB ${targetColor.r}, ${targetColor.g}, ${targetColor.b}`,
         sourceLabel: describeInventorySource(),
-        idealMixSummary: idealMixGuidance.summary,
         idealMixLabel: idealMixGuidance.label,
+        idealMixSummary: idealMixGuidance.summary,
         catalogRefreshLabel: getCatalogRefreshLabel(WILLIAMSBURG_CATALOG.generated_at),
       },
-    };
+    });
   }
 
   const massPercentages = best.recipe.map((entry) => entry.massPercent);
@@ -1064,7 +1123,7 @@ function estimatePaintRecipe(targetColor, request) {
     warnings.push("At least one paint was estimated with a starter-palette proxy because no explicit swatch hex was saved for that tube.");
   }
 
-  return {
+  return applyIdealMixDisplay({
     target_hex: targetColor.hex,
     target_lab: labToSchema(targetLab),
     model_used: "heuristic_proxy",
@@ -1089,11 +1148,11 @@ function estimatePaintRecipe(targetColor, request) {
       mixedRgb: `RGB ${best.mixed.r}, ${best.mixed.g}, ${best.mixed.b}`,
       mixedHex: rgbToHex(best.mixed.r, best.mixed.g, best.mixed.b),
       swatchColor: targetColor.hex,
-      idealMixSummary: idealMixGuidance.summary,
       idealMixLabel: idealMixGuidance.label,
+      idealMixSummary: idealMixGuidance.summary,
       catalogRefreshLabel: getCatalogRefreshLabel(WILLIAMSBURG_CATALOG.generated_at),
     },
-  };
+  });
 }
 
 function buildRecipeRequest(colors) {
@@ -1712,8 +1771,8 @@ function exportRecipeImage() {
       lines.push(entry.quality.gamut_note);
     }
 
-    if (entry.display.idealMixSummary) {
-      lines.push(`${entry.display.idealMixLabel || "Ideal mix"} ${entry.display.idealMixSummary}`);
+    if (entry.display.idealMixLabel) {
+      lines.push(entry.display.idealMixSummary ? `${entry.display.idealMixLabel} ${entry.display.idealMixSummary}` : entry.display.idealMixLabel);
     }
     if (entry.catalog_matches?.length) {
       lines.push(`Buy Williamsburg (${entry.display.catalogRefreshLabel || "active catalog"})`);
@@ -1829,7 +1888,7 @@ function renderRecipe() {
       ${entry.catalog_matches?.length ? `<div class="recipe-section"><div class="recipe-section-head"><strong>Buy Williamsburg</strong><span class="recipe-section-caption">${escapeHtml(entry.display.catalogRefreshLabel || "Williamsburg active catalog")}</span></div><ul class="recipe-buy-list">${entry.catalog_matches.map((item) => `<li><span class="recipe-buy-copy"><span class="recipe-component-head"><span class="recipe-component-dot" style="background:${escapeHtml(item.swatch_hex || "#2A2F36")}"></span><strong>${escapeHtml(item.color_name)}</strong></span><small>Item ${escapeHtml(item.item_number || "n/a")} - Series ${escapeHtml(item.series || "n/a")}</small></span><small class="recipe-buy-reason">${escapeHtml(item.reason)}</small></li>`).join("")}</ul></div>` : ""}
       ${entry.substitutions.length ? `<div class="recipe-section"><strong>Substitutions</strong><ul class="recipe-inline-list">${entry.substitutions.map((item) => `<li>${escapeHtml(item.missing_paint)} -> ${escapeHtml(item.recommended_substitute.color_name)} (${escapeHtml(item.match_class.replaceAll("_", " "))})</li>`).join("")}</ul></div>` : ""}
       ${entry.warnings.length ? `<div class="recipe-section"><strong>Warnings</strong><ul class="recipe-inline-list">${entry.warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("")}</ul></div>` : ""}
-      ${entry.display.idealMixSummary ? `<div class="recipe-ideal-banner"><strong>${escapeHtml(entry.display.idealMixLabel || "Ideal mix")}</strong><span>${escapeHtml(entry.display.idealMixSummary)}</span></div>` : ""}
+      ${entry.display.idealMixLabel ? `<div class="recipe-ideal-banner"><strong>${escapeHtml(entry.display.idealMixLabel)}</strong>${entry.display.idealMixSummary ? `<span>${escapeHtml(entry.display.idealMixSummary)}</span>` : ""}</div>` : ""}
     </section>`).join("")}</div>`;
 }
 
