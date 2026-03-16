@@ -1546,6 +1546,13 @@ function getResolvedPaintSwatchHex(paint, options = {}) {
   return "";
 }
 
+function formatPaintDetailLine(paint) {
+  const brand = String(paint.brand || "Unspecified").trim() || "Unspecified";
+  const itemNumber = String(paint.item_number || "").trim() || "Item n/a";
+  const pigmentLabel = parsePigmentCodes(paint.pigment_codes).join(", ") || "Pigment n/a";
+  return `${brand} - ${itemNumber} - ${pigmentLabel}`;
+}
+
 const STARTER_PALETTE = createStarterPalette();
 
 function getCatalogRefreshLabel(value) {
@@ -1899,6 +1906,7 @@ function buildCatalogMatches(targetLab, guidance, gamutStatus) {
       const suggestedPigmentCodes = Array.isArray(match.color.pigment_codes) ? match.color.pigment_codes : [];
       if (suggestedPigmentCodes.some((code) => ownedPigmentCodes.has(code))) return null;
       return {
+        brand: "Williamsburg",
         color_name: match.color.color_name,
         item_number: match.color.item_number,
         series: match.color.series,
@@ -1979,21 +1987,25 @@ function estimatePaintRecipe(targetColor, request) {
 
   const massPercentages = best.recipe.map((entry) => entry.massPercent);
   const parts = simplifyParts(massPercentages);
-  const components = best.recipe.map((entry, index) => ({
-    brand: entry.paint.brand,
-    color_name: entry.paint.color_name,
-    pigment_codes: [...entry.paint.pigment_codes],
-    swatch_hex: getResolvedPaintSwatchHex(entry.paint) || "#2A2F36",
-    role: index === 0 ? "base" : "adjustment",
-    parts: parts[index],
-    fraction_mass: Number((entry.massPercent / 100).toFixed(3)),
-    mass_percent: entry.massPercent,
-    scaled_amount: Number(((entry.massPercent / 100) * request.batch_size.value).toFixed(2)),
-    scaled_unit: request.batch_size.unit,
-    substitution_notes: entry.paint.model_source.startsWith("proxy_")
-      ? `Estimated with ${entry.paint.substitution_proxy.paint.color_name} as a ${entry.paint.substitution_proxy.matchClass === "same_pigment_code" ? "same pigment code" : "same family"} proxy.`
-      : "",
-  }));
+  const components = best.recipe.map((entry, index) => {
+    const catalogColor = getCatalogColorForPaint(entry.paint);
+    return {
+      brand: entry.paint.brand,
+      color_name: entry.paint.color_name,
+      pigment_codes: [...entry.paint.pigment_codes],
+      item_number: catalogColor?.item_number || "",
+      swatch_hex: getResolvedPaintSwatchHex(entry.paint) || "#2A2F36",
+      role: index === 0 ? "base" : "adjustment",
+      parts: parts[index],
+      fraction_mass: Number((entry.massPercent / 100).toFixed(3)),
+      mass_percent: entry.massPercent,
+      scaled_amount: Number(((entry.massPercent / 100) * request.batch_size.value).toFixed(2)),
+      scaled_unit: request.batch_size.unit,
+      substitution_notes: entry.paint.model_source.startsWith("proxy_")
+        ? `Estimated with ${entry.paint.substitution_proxy.paint.color_name} as a ${entry.paint.substitution_proxy.matchClass === "same_pigment_code" ? "same pigment code" : "same family"} proxy.`
+        : "",
+    };
+  });
   const gamutStatus = best.distance <= 12 ? "in_gamut" : "nearest_achievable";
   const substitutions = buildSubstitutions(best.recipe);
   const idealMixGuidance = resolveIdealMixGuidance(targetLab, request, best.recipe, candidatePaints);
@@ -2301,11 +2313,11 @@ function exportRecipeImage() {
     if (entry.catalog_matches?.length) {
       lines.push(`Buy Williamsburg (${entry.display.catalogRefreshLabel || "active catalog"})`);
       entry.catalog_matches.forEach((match) => {
-        lines.push(`${match.color_name} - Item ${match.item_number} - Series ${match.series || "n/a"} - ${match.reason}`);
+        lines.push(`${match.color_name} - ${formatPaintDetailLine(match)} - ${match.reason}`);
       });
     }
     entry.recipe.components.forEach((component) => {
-      lines.push(`${getPaintLabel(component)} - ${component.mass_percent}% - ${component.pigment_codes.join(", ")}`);
+      lines.push(`${getPaintLabel(component)} - ${component.mass_percent}% - ${formatPaintDetailLine(component)}`);
     });
     entry.recipe.mixing_steps.forEach((step, index) => {
       lines.push(`${index + 1}. ${step}`);
@@ -2399,13 +2411,13 @@ function renderRecipe() {
         <span class="recipe-chip">Gamut ${escapeHtml(entry.quality.gamut_status.replaceAll("_", " "))}</span>
         <span class="recipe-chip">${entry.quality.metamerism_status === "not_computed_missing_spectra" ? "Metamerism not computed" : `Metamerism ${escapeHtml(entry.quality.metamerism_risk)}`}</span>
       </div>
-      <ul class="recipe-list">${entry.recipe.components.map((item) => `<li><span class="recipe-buy-copy"><span class="recipe-component-head"><span class="recipe-component-dot" style="background:${escapeHtml(item.swatch_hex || "#2A2F36")}"></span><strong>${escapeHtml(getPaintLabel(item))}</strong></span><small>${escapeHtml(item.brand)} - ${escapeHtml(item.pigment_codes.join(", "))}</small></span><strong class="recipe-mix-percent">${item.mass_percent}%</strong></li>`).join("")}</ul>
+      <ul class="recipe-list">${entry.recipe.components.map((item) => `<li><span class="recipe-buy-copy"><span class="recipe-component-head"><span class="recipe-component-dot" style="background:${escapeHtml(item.swatch_hex || "#2A2F36")}"></span><strong>${escapeHtml(getPaintLabel(item))}</strong></span><small>${escapeHtml(formatPaintDetailLine(item))}</small></span><strong class="recipe-mix-percent">${item.mass_percent}%</strong></li>`).join("")}</ul>
       <div class="recipe-section">
         <strong>Mixing steps</strong>
         <ol class="recipe-steps">${entry.recipe.mixing_steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol>
       </div>
       ${entry.quality.gamut_note ? `<p class="recipe-note">${escapeHtml(entry.quality.gamut_note)}</p>` : ""}
-      ${entry.catalog_matches?.length ? `<div class="recipe-section"><div class="recipe-section-head"><strong>Buy Williamsburg</strong><span class="recipe-section-caption">${escapeHtml(entry.display.catalogRefreshLabel || "Williamsburg active catalog")}</span></div><ul class="recipe-buy-list">${entry.catalog_matches.map((item) => `<li><span class="recipe-buy-copy"><span class="recipe-component-head"><span class="recipe-component-dot" style="background:${escapeHtml(item.swatch_hex || "#2A2F36")}"></span><strong>${escapeHtml(item.color_name)}</strong></span><small>Item ${escapeHtml(item.item_number || "n/a")} - Series ${escapeHtml(item.series || "n/a")}</small></span><small class="recipe-buy-reason">${escapeHtml(item.reason)}</small></li>`).join("")}</ul></div>` : ""}
+      ${entry.catalog_matches?.length ? `<div class="recipe-section"><div class="recipe-section-head"><strong>Buy Williamsburg</strong><span class="recipe-section-caption">${escapeHtml(entry.display.catalogRefreshLabel || "Williamsburg active catalog")}</span></div><ul class="recipe-buy-list">${entry.catalog_matches.map((item) => `<li><span class="recipe-buy-copy"><span class="recipe-component-head"><span class="recipe-component-dot" style="background:${escapeHtml(item.swatch_hex || "#2A2F36")}"></span><strong>${escapeHtml(item.color_name)}</strong></span><small>${escapeHtml(formatPaintDetailLine(item))}</small></span><small class="recipe-buy-reason">${escapeHtml(item.reason)}</small></li>`).join("")}</ul></div>` : ""}
       ${entry.substitutions.length ? `<div class="recipe-section"><strong>Substitutions</strong><ul class="recipe-inline-list">${entry.substitutions.map((item) => `<li>${escapeHtml(item.missing_paint)} -> ${escapeHtml(item.recommended_substitute.color_name)} (${escapeHtml(item.match_class.replaceAll("_", " "))})</li>`).join("")}</ul></div>` : ""}
       ${entry.warnings.length ? `<div class="recipe-section"><strong>Warnings</strong><ul class="recipe-inline-list">${entry.warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("")}</ul></div>` : ""}
       ${entry.display.idealMixLabel ? `<div class="recipe-ideal-banner"><strong>${escapeHtml(entry.display.idealMixLabel)}</strong>${entry.display.idealMixSummary ? `<span>${escapeHtml(entry.display.idealMixSummary)}</span>` : ""}</div>` : ""}
