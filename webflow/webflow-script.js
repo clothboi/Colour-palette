@@ -1486,12 +1486,16 @@ function refreshStageSize() {
       Math.round(stageHeight - paddingTop - paddingBottom - fixedHeight - (gap * gapCount)),
     );
     const availableWidth = Math.max(180, Math.round(stageWidth - paddingLeft - paddingRight));
+    const landscapeCover = shouldUseLandscapeCoverOnMobile();
 
     let frameWidth = availableWidth;
-    let frameHeight = Math.round(frameWidth / imageRatio);
-    if (frameHeight > availableHeight) {
-      frameHeight = availableHeight;
-      frameWidth = Math.round(frameHeight * imageRatio);
+    let frameHeight = availableHeight;
+    if (!landscapeCover) {
+      frameHeight = Math.round(frameWidth / imageRatio);
+      if (frameHeight > availableHeight) {
+        frameHeight = availableHeight;
+        frameWidth = Math.round(frameHeight * imageRatio);
+      }
     }
 
     canvasStage.style.setProperty("--frame-width", `${Math.max(180, frameWidth)}px`);
@@ -1573,6 +1577,13 @@ function shouldCollapseSettingsOnMobile() {
     return false;
   }
   return state.image.height > state.image.width;
+}
+
+function shouldUseLandscapeCoverOnMobile() {
+  if (!isRealMobileLayout() || !state.image) {
+    return false;
+  }
+  return state.image.width > state.image.height;
 }
 
 function syncLayoutState() {
@@ -2174,24 +2185,41 @@ function drawProcessedImage() {
   downscaleCtx.imageSmoothingQuality = "high";
   const imageRatio = state.image.width / state.image.height;
   const frameRatio = displayWidth / displayHeight;
+  const coverMobileLandscape = shouldUseLandscapeCoverOnMobile();
   let drawWidth;
   let drawHeight;
   let offsetX = 0;
   let offsetY = 0;
-  if (imageRatio > frameRatio) {
-    drawWidth = reducedWidth;
-    drawHeight = reducedWidth / imageRatio;
-    offsetY = (reducedHeight - drawHeight) / 2;
+  if (coverMobileLandscape) {
+    if (imageRatio > frameRatio) {
+      drawHeight = reducedHeight;
+      drawWidth = reducedHeight * imageRatio;
+      offsetX = (reducedWidth - drawWidth) / 2;
+    } else {
+      drawWidth = reducedWidth;
+      drawHeight = reducedWidth / imageRatio;
+      offsetY = (reducedHeight - drawHeight) / 2;
+    }
   } else {
-    drawHeight = reducedHeight;
-    drawWidth = reducedHeight * imageRatio;
-    offsetX = (reducedWidth - drawWidth) / 2;
+    if (imageRatio > frameRatio) {
+      drawWidth = reducedWidth;
+      drawHeight = reducedWidth / imageRatio;
+      offsetY = (reducedHeight - drawHeight) / 2;
+    } else {
+      drawHeight = reducedHeight;
+      drawWidth = reducedHeight * imageRatio;
+      offsetX = (reducedWidth - drawWidth) / 2;
+    }
   }
-  const imageDisplayWidth = imageRatio > frameRatio ? displayWidth : displayHeight * imageRatio;
-  const imageDisplayHeight = imageRatio > frameRatio ? displayWidth / imageRatio : displayHeight;
+  const imageDisplayWidth = coverMobileLandscape
+    ? displayWidth
+    : (imageRatio > frameRatio ? displayWidth : displayHeight * imageRatio);
+  const imageDisplayHeight = coverMobileLandscape
+    ? displayHeight
+    : (imageRatio > frameRatio ? displayWidth / imageRatio : displayHeight);
   state.imageBounds = {
-    x: Math.max(0, (displayWidth - imageDisplayWidth) / 2),
-    y: Math.max(0, (displayHeight - imageDisplayHeight) / 2),
+    x: coverMobileLandscape ? 0 : Math.max(0, (displayWidth - imageDisplayWidth) / 2),
+    y: coverMobileLandscape ? 0 : Math.max(0, (displayHeight - imageDisplayHeight) / 2),
     width: Math.max(1, imageDisplayWidth),
     height: Math.max(1, imageDisplayHeight),
   };
