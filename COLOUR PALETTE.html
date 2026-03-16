@@ -72,9 +72,11 @@ body {
 
 .hero-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   align-self: end;
   justify-self: end;
+  justify-content: flex-end;
   margin-bottom: 12px;
 }
 
@@ -344,7 +346,8 @@ canvas {
   background: rgba(255, 255, 255, 0.04);
 }
 
-.recipe-modal {
+.recipe-modal,
+.inventory-modal {
   position: fixed;
   inset: 0;
   z-index: 50;
@@ -358,11 +361,13 @@ canvas {
   backdrop-filter: blur(16px);
 }
 
-.recipe-modal.hidden {
+.recipe-modal.hidden,
+.inventory-modal.hidden {
   display: none;
 }
 
-.recipe-modal-panel {
+.recipe-modal-panel,
+.inventory-modal-panel {
   width: min(760px, 100%);
   max-height: min(82vh, 900px);
   overflow: auto;
@@ -373,7 +378,12 @@ canvas {
   box-shadow: var(--shadow);
 }
 
-.recipe-modal-head {
+.inventory-modal-panel {
+  width: min(820px, 100%);
+}
+
+.recipe-modal-head,
+.inventory-modal-head {
   display: flex;
   justify-content: space-between;
   align-items: start;
@@ -381,9 +391,18 @@ canvas {
   margin-bottom: 12px;
 }
 
-.recipe-modal-head h2 {
+.recipe-modal-head h2,
+.inventory-modal-head h2 {
   margin: 0;
   font-size: 1.05rem;
+}
+
+.recipe-modal-kicker {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .recipe-close {
@@ -465,6 +484,54 @@ canvas {
   background: rgba(255,255,255,0.05);
 }
 
+.recipe-list li span {
+  display: grid;
+  gap: 3px;
+}
+
+.recipe-list li small {
+  color: var(--muted);
+}
+
+.recipe-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.recipe-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.05);
+  font-size: 0.78rem;
+}
+
+.recipe-section {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.recipe-section strong {
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.recipe-steps,
+.recipe-inline-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+}
+
 .recipe-export {
   min-height: 46px;
   padding: 12px 20px;
@@ -475,6 +542,150 @@ canvas {
   font: inherit;
   cursor: pointer;
   box-shadow: var(--shadow);
+}
+
+.inventory-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: min(820px, calc(100% - 36px));
+}
+
+.inventory-modal-actions .recipe-button,
+.inventory-modal-actions .recipe-export {
+  flex: 1 1 220px;
+}
+
+.inventory-modal-body {
+  display: grid;
+  gap: 14px;
+}
+
+.inventory-note,
+.inventory-empty {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.inventory-form,
+.inventory-list-shell {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+}
+
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.inventory-field {
+  display: grid;
+  gap: 6px;
+}
+
+.inventory-field span,
+.inventory-list-head span {
+  color: var(--muted);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.inventory-field input,
+.inventory-field select {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(12,15,18,0.58);
+  color: var(--text);
+  font: inherit;
+}
+
+.inventory-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.inventory-feedback {
+  margin: 0;
+  color: #bad7c2;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.inventory-feedback[data-state="error"] {
+  color: #efc7bb;
+}
+
+.inventory-list-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.inventory-list {
+  display: grid;
+  gap: 10px;
+}
+
+.inventory-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(9,11,13,0.38);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.inventory-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+.inventory-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.inventory-copy span {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.inventory-remove {
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+}
+
+@media (max-width: 700px) {
+  .inventory-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inventory-item {
+    grid-template-columns: auto 1fr;
+  }
+
+  .inventory-remove {
+    grid-column: 1 / -1;
+  }
 }
 
 .palette-list {
@@ -856,6 +1067,7 @@ canvas {
         </p>
       </div>
       <div class="hero-actions">
+        <button id="paint-setup-button" class="recipe-button" type="button">Paint Setup</button>
         <button id="recipe-button" class="recipe-button" type="button">Paint Recipe</button>
         <button id="image-export-button" class="recipe-button" type="button">Save Image</button>
         <label class="upload-pill" for="image-input">Choose image</label>
@@ -900,6 +1112,69 @@ canvas {
     </div>
     <button id="recipe-export" class="recipe-export" type="button">Save recipe</button>
   </div>
+  <div id="inventory-modal" class="inventory-modal hidden" aria-hidden="true">
+    <div class="inventory-modal-panel" role="dialog" aria-modal="true" aria-labelledby="inventory-modal-title">
+      <div class="inventory-modal-head">
+        <div>
+          <p class="recipe-modal-kicker">Owned paint inventory</p>
+          <h2 id="inventory-modal-title">Paint setup</h2>
+        </div>
+        <button id="inventory-close" class="recipe-close" type="button" aria-label="Close paint setup">x</button>
+      </div>
+      <div class="inventory-modal-body">
+        <p class="inventory-note">Add the tubes you own. Pigment codes are required, and the app will use the Williamsburg starter palette whenever no saved inventory is available.</p>
+        <form id="inventory-form" class="inventory-form">
+          <div class="inventory-grid">
+            <label class="inventory-field">
+              <span>Brand</span>
+              <input id="inventory-brand" name="brand" type="text" maxlength="48" placeholder="Williamsburg">
+            </label>
+            <label class="inventory-field">
+              <span>Color name</span>
+              <input id="inventory-color-name" name="color_name" type="text" maxlength="64" placeholder="Phthalo Blue">
+            </label>
+            <label class="inventory-field">
+              <span>Pigment codes</span>
+              <input id="inventory-pigment-codes" name="pigment_codes" type="text" maxlength="80" placeholder="PB15:3">
+            </label>
+            <label class="inventory-field">
+              <span>Opacity</span>
+              <select id="inventory-opacity" name="opacity_label">
+                <option value="opaque">Opaque</option>
+                <option value="semi-opaque">Semi-opaque</option>
+                <option value="semi-transparent">Semi-transparent</option>
+                <option value="transparent">Transparent</option>
+                <option value="unverified">Unverified</option>
+              </select>
+            </label>
+            <label class="inventory-field">
+              <span>Lightfastness</span>
+              <input id="inventory-lightfastness" name="lightfastness_label" type="text" maxlength="32" placeholder="I or ASTM I">
+            </label>
+            <label class="inventory-field">
+              <span>Swatch hex</span>
+              <input id="inventory-hex" name="approx_srgb_hex" type="text" maxlength="7" placeholder="#114A8B">
+            </label>
+          </div>
+          <div class="inventory-actions">
+            <button class="recipe-button" type="submit">Add paint</button>
+            <p id="inventory-feedback" class="inventory-feedback" aria-live="polite"></p>
+          </div>
+        </form>
+        <div class="inventory-list-shell">
+          <div class="inventory-list-head">
+            <strong>Saved paints</strong>
+            <span id="inventory-count">0 paints saved</span>
+          </div>
+          <div id="inventory-list" class="inventory-list"></div>
+        </div>
+      </div>
+    </div>
+    <div class="inventory-modal-actions">
+      <button id="inventory-reset" class="recipe-button" type="button">Use starter palette</button>
+      <button id="inventory-save" class="recipe-export" type="button">Save inventory</button>
+    </div>
+  </div>
   <script>
 const input = document.getElementById("image-input");
 const blurRange = document.getElementById("blur-range");
@@ -914,11 +1189,26 @@ const paletteMinus = document.getElementById("palette-minus");
 const palettePlus = document.getElementById("palette-plus");
 const paletteSizeLabel = document.getElementById("palette-size-label");
 const recipeButton = document.getElementById("recipe-button");
+const paintSetupButton = document.getElementById("paint-setup-button");
 const imageExportButton = document.getElementById("image-export-button");
 const recipeModal = document.getElementById("recipe-modal");
 const recipeContent = document.getElementById("recipe-content");
 const recipeClose = document.getElementById("recipe-close");
 const recipeExport = document.getElementById("recipe-export");
+const inventoryModal = document.getElementById("inventory-modal");
+const inventoryForm = document.getElementById("inventory-form");
+const inventoryBrand = document.getElementById("inventory-brand");
+const inventoryColorName = document.getElementById("inventory-color-name");
+const inventoryPigmentCodes = document.getElementById("inventory-pigment-codes");
+const inventoryOpacity = document.getElementById("inventory-opacity");
+const inventoryLightfastness = document.getElementById("inventory-lightfastness");
+const inventoryHex = document.getElementById("inventory-hex");
+const inventoryFeedback = document.getElementById("inventory-feedback");
+const inventoryList = document.getElementById("inventory-list");
+const inventoryCount = document.getElementById("inventory-count");
+const inventoryClose = document.getElementById("inventory-close");
+const inventoryReset = document.getElementById("inventory-reset");
+const inventorySave = document.getElementById("inventory-save");
 
 const PALETTE_MIN = 4;
 const PALETTE_MAX = 8;
@@ -971,19 +1261,139 @@ function rgbToLab(rgb) {
 function deltaE(labA, labB) {
   return Math.sqrt(((labA.l - labB.l) ** 2) + ((labA.a - labB.a) ** 2) + ((labA.b - labB.b) ** 2));
 }
-const PIGMENTS = [
-  { name: "Titanium White", hex: "#F7F7F2" },
-  { name: "Ivory Black", hex: "#1F1E1B" },
-  { name: "Hansa Yellow", hex: "#F0C400" },
-  { name: "Yellow Ochre", hex: "#C89A38" },
-  { name: "Cadmium Red Hue", hex: "#CF4D34" },
-  { name: "Quinacridone Magenta", hex: "#A43768" },
-  { name: "Ultramarine Blue", hex: "#3B46A5" },
-  { name: "Phthalo Blue", hex: "#114A8B" },
-  { name: "Phthalo Green", hex: "#006B5E" },
-  { name: "Burnt Sienna", hex: "#8A4B30" },
-  { name: "Raw Umber", hex: "#6A513B" },
-].map((pigment) => ({ ...pigment, rgb: hexToRgb(pigment.hex) }));
+const INVENTORY_STORAGE_KEY = "colour-palette-owned-paints-v1";
+const DEFAULT_RECIPE_BATCH_SIZE = { value: 1, unit: "parts" };
+const DEFAULT_RECIPE_CONSTRAINTS = {
+  max_pigments: 4,
+  finish_intent: "opaque",
+  illuminants: ["D65", "A"],
+  allow_substitutions: true,
+  avoid_multi_pigment: false,
+};
+const STARTER_PAINTS = [
+  { brand: "Williamsburg", color_name: "Permanent Yellow Light", pigment_codes: ["PY3"], opacity_label: "semi-transparent", approx_srgb_hex: "#E6C62A", line: "Oil" },
+  { brand: "Williamsburg", color_name: "Permanent Yellow Deep", pigment_codes: ["PY65"], opacity_label: "semi-transparent", approx_srgb_hex: "#D59619", line: "Oil" },
+  { brand: "Williamsburg", color_name: "Pyrrole Red", pigment_codes: ["PR254"], opacity_label: "opaque", approx_srgb_hex: "#B9362E", line: "Oil" },
+  { brand: "Williamsburg", color_name: "Quinacridone Magenta", pigment_codes: ["PR122"], opacity_label: "transparent", approx_srgb_hex: "#A43768", line: "Oil" },
+  { brand: "Williamsburg", color_name: "Egyptian Violet", pigment_codes: ["PV23"], opacity_label: "transparent", approx_srgb_hex: "#5A3A7A", line: "Oil" },
+  { brand: "Williamsburg", color_name: "Phthalo Blue", pigment_codes: ["PB15:3"], opacity_label: "transparent", approx_srgb_hex: "#114A8B", line: "Oil" },
+  { brand: "Williamsburg", color_name: "Phthalo Green", pigment_codes: ["PG7"], opacity_label: "transparent", approx_srgb_hex: "#006B5E", line: "Oil" },
+  { brand: "Williamsburg", color_name: "Green Gold", pigment_codes: ["PY129"], opacity_label: "semi-transparent", approx_srgb_hex: "#768C2A", line: "Oil" },
+  { brand: "Williamsburg", color_name: "Titanium White", pigment_codes: ["PW6"], opacity_label: "opaque", approx_srgb_hex: "#F2EFE8", line: "Oil" },
+];
+
+function isValidHex(value) {
+  return /^#([0-9a-f]{6})$/i.test((value || "").trim());
+}
+
+function toHexOrEmpty(value) {
+  if (!value) return "";
+  const normalized = value.trim().toUpperCase();
+  return isValidHex(normalized) ? normalized : "";
+}
+
+function normalizePigmentCode(value) {
+  return (value || "").trim().toUpperCase().replace(/\s+/g, "");
+}
+
+function basePigmentCode(value) {
+  return normalizePigmentCode(value).split(":")[0];
+}
+
+function parsePigmentCodes(value) {
+  const raw = Array.isArray(value) ? value : String(value || "").split(",");
+  return raw.map((entry) => normalizePigmentCode(entry)).filter(Boolean);
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function getPaintLabel(paint) {
+  return paint.color_name || paint.name || "Untitled paint";
+}
+
+function getPaintProxy(pigmentCodes) {
+  const exact = STARTER_PAINTS.find((paint) => paint.pigment_codes.some((code) => pigmentCodes.includes(code)));
+  if (exact) return { paint: exact, matchClass: "same_pigment_code" };
+  const family = STARTER_PAINTS.find((paint) => paint.pigment_codes.some((code) => pigmentCodes.some((candidate) => basePigmentCode(candidate) === basePigmentCode(code))));
+  if (family) return { paint: family, matchClass: "same_family" };
+  return null;
+}
+
+function normalizePaintProduct(paint, index = 0, source = "inventory") {
+  const colorName = String(paint.color_name || paint.name || "").trim();
+  const pigmentCodes = parsePigmentCodes(paint.pigment_codes);
+  const explicitHex = toHexOrEmpty(paint.approx_srgb_hex);
+  const proxy = explicitHex ? null : getPaintProxy(pigmentCodes);
+  const proxyHex = proxy?.paint?.approx_srgb_hex || "";
+  const approxHex = explicitHex || proxyHex;
+  const modelSource = explicitHex ? (source === "starter" ? "starter_demo" : "inventory_swatch") : (proxy ? `proxy_${proxy.matchClass}` : "missing_proxy");
+  const rgb = approxHex ? hexToRgb(approxHex) : null;
+  return {
+    id: paint.id || `${source}-paint-${index + 1}`,
+    brand: String(paint.brand || "").trim() || (source === "starter" ? "Williamsburg" : "Unspecified"),
+    line: String(paint.line || "").trim(),
+    color_name: colorName,
+    name: colorName,
+    pigment_codes: pigmentCodes,
+    opacity_label: String(paint.opacity_label || "unverified").trim() || "unverified",
+    lightfastness_label: String(paint.lightfastness_label || "").trim(),
+    user_swatch_hex: explicitHex,
+    approx_srgb_hex: approxHex,
+    rgb,
+    model_source: modelSource,
+    substitution_proxy: proxy,
+    is_multi_pigment: pigmentCodes.length > 1,
+  };
+}
+
+function createStarterPalette() {
+  return STARTER_PAINTS.map((paint, index) => normalizePaintProduct(paint, index, "starter"));
+}
+
+const STARTER_PALETTE = createStarterPalette();
+
+function labToSchema(lab) {
+  return { L: Number(lab.l.toFixed(2)), a: Number(lab.a.toFixed(2)), b: Number(lab.b.toFixed(2)) };
+}
+
+function serializeOwnedPaints(paints) {
+  return paints.map((paint) => ({
+    brand: paint.brand,
+    color_name: paint.color_name,
+    pigment_codes: [...paint.pigment_codes],
+    opacity_label: paint.opacity_label,
+    lightfastness_label: paint.lightfastness_label || "",
+    approx_srgb_hex: paint.user_swatch_hex || "",
+    line: paint.line || "",
+  }));
+}
+
+function loadOwnedPaints() {
+  try {
+    const raw = window.localStorage.getItem(INVENTORY_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((paint, index) => normalizePaintProduct(paint, index, "inventory")).filter((paint) => paint.color_name && paint.pigment_codes.length);
+  } catch (error) {
+    return [];
+  }
+}
+
+function persistOwnedPaints(paints) {
+  try {
+    window.localStorage.setItem(INVENTORY_STORAGE_KEY, JSON.stringify(serializeOwnedPaints(paints)));
+  } catch (error) {
+    // Ignore storage failures so the app can continue in-memory.
+  }
+}
 
 const state = {
   image: null,
@@ -1003,24 +1413,27 @@ const state = {
   paletteDropIndex: null,
   paletteDragTop: 0,
   paletteGrabOffsetY: 0,
-  recipe: [],
+  recipeResults: [],
+  recipeRequest: null,
+  ownedPaints: loadOwnedPaints(),
+  inventoryDraft: [],
 };
 
-function mixPigments(recipe) {
+function mixPaints(recipe) {
   let r = 0;
   let g = 0;
   let b = 0;
   recipe.forEach((entry) => {
-    const weight = entry.percent / 100;
-    r += srgbToLinear(entry.pigment.rgb.r) * weight;
-    g += srgbToLinear(entry.pigment.rgb.g) * weight;
-    b += srgbToLinear(entry.pigment.rgb.b) * weight;
+    const weight = entry.massPercent / 100;
+    r += srgbToLinear(entry.paint.rgb.r) * weight;
+    g += srgbToLinear(entry.paint.rgb.g) * weight;
+    b += srgbToLinear(entry.paint.rgb.b) * weight;
   });
   return { r: linearToSrgb(r), g: linearToSrgb(g), b: linearToSrgb(b) };
 }
 
 function generateWeightSets(count, step, total = 100, prefix = []) {
-  if (count === 1) return total >= step ? [[...prefix, total]] : [];
+  if (count === 1) return total > 0 ? [[...prefix, total]] : [];
   const weights = [];
   const minRemaining = (count - 1) * step;
   for (let weight = step; weight <= total - minRemaining; weight += step) {
@@ -1029,41 +1442,190 @@ function generateWeightSets(count, step, total = 100, prefix = []) {
   return weights;
 }
 
-function getPigmentCombinations(size, start = 0, prefix = [], results = []) {
+function getPaintCombinations(paints, size, start = 0, prefix = [], results = []) {
   if (prefix.length === size) {
     results.push(prefix);
     return results;
   }
-  for (let index = start; index <= PIGMENTS.length - (size - prefix.length); index += 1) {
-    getPigmentCombinations(size, index + 1, [...prefix, PIGMENTS[index]], results);
+  for (let index = start; index <= paints.length - (size - prefix.length); index += 1) {
+    getPaintCombinations(paints, size, index + 1, [...prefix, paints[index]], results);
   }
   return results;
 }
 
-function estimatePaintRecipe(targetColor) {
+function getActivePaintInventory() {
+  return state.ownedPaints.length ? state.ownedPaints : STARTER_PALETTE;
+}
+
+function describeInventorySource() {
+  return state.ownedPaints.length ? "saved inventory" : "starter demo palette";
+}
+
+function selectCandidatePaints(targetLab, paints) {
+  const eligible = paints.filter((paint) => paint.rgb);
+  const ranked = eligible
+    .map((paint) => ({
+      paint,
+      score: deltaE(targetLab, rgbToLab(paint.rgb))
+        + (paint.is_multi_pigment ? 3.2 : 0)
+        + (paint.model_source === "missing_proxy" ? 14 : 0)
+        + (paint.model_source.startsWith("proxy_") ? 1.4 : 0),
+    }))
+    .sort((left, right) => left.score - right.score)
+    .map((entry) => entry.paint);
+  const candidates = ranked.slice(0, Math.min(8, ranked.length));
+  const whitePaint = eligible.find((paint) => paint.pigment_codes.includes("PW6"));
+  if (whitePaint && !candidates.some((paint) => paint.id === whitePaint.id)) candidates.push(whitePaint);
+  return candidates.slice(0, Math.min(9, candidates.length));
+}
+
+function simplifyParts(percentages) {
+  const parts = percentages.map((value) => Math.round(value / 10));
+  return parts.every((value) => value > 0) ? parts : percentages.map((value) => value / 10);
+}
+
+function buildMixingSteps(components, targetHex) {
+  if (!components.length) return [`Start with a swatch drawdown for ${targetHex} and compare it in daylight before committing to a larger mix.`];
+  const [base, ...rest] = components;
+  const steps = [`Start with ${base.parts} part${base.parts === 1 ? "" : "s"} ${getPaintLabel(base)} as the base.`];
+  rest.forEach((component) => {
+    steps.push(`Fold in ${component.parts} part${component.parts === 1 ? "" : "s"} ${getPaintLabel(component)} and check the mix after each addition.`);
+  });
+  steps.push("Make a small test swatch, let it settle for a moment, then adjust warmer, cooler, lighter, or duller in small increments.");
+  return steps;
+}
+
+function describeLabMiss(targetLab, mixedLab) {
+  const notes = [];
+  const targetChroma = Math.hypot(targetLab.a, targetLab.b);
+  const mixedChroma = Math.hypot(mixedLab.a, mixedLab.b);
+  const chromaDelta = targetChroma - mixedChroma;
+  const lightnessDelta = targetLab.l - mixedLab.l;
+  const warmthDelta = targetLab.a - mixedLab.a;
+  const yellowBlueDelta = targetLab.b - mixedLab.b;
+  if (chromaDelta > 8) notes.push("the target is more saturated than this paint set can comfortably reach");
+  if (Math.abs(lightnessDelta) > 6) notes.push(lightnessDelta > 0 ? "the closest mix still reads a little darker" : "the closest mix still reads a little lighter");
+  if (Math.abs(warmthDelta) > 5) notes.push(warmthDelta > 0 ? "the hue wants a slightly warmer bias" : "the hue wants a slightly cooler bias");
+  if (Math.abs(yellowBlueDelta) > 5) notes.push(yellowBlueDelta > 0 ? "it could use a touch more yellow" : "it could use a touch more blue");
+  if (!notes.length) return "The palette gets close, but the nearest mix still sits just outside the target gamut.";
+  return `Nearest achievable mix: ${notes.join("; ")}.`;
+}
+
+function buildSubstitutions(recipeEntries) {
+  return recipeEntries
+    .filter((entry) => entry.paint.substitution_proxy)
+    .map((entry) => ({
+      missing_paint: getPaintLabel(entry.paint),
+      recommended_substitute: {
+        brand: entry.paint.substitution_proxy.paint.brand,
+        color_name: entry.paint.substitution_proxy.paint.color_name,
+        pigment_codes: [...entry.paint.substitution_proxy.paint.pigment_codes],
+        reason: "Used as the optical proxy for recipe estimation.",
+      },
+      match_class: entry.paint.substitution_proxy.matchClass,
+      notes: entry.paint.substitution_proxy.matchClass === "same_pigment_code"
+        ? "Using a same-pigment-code starter paint as the swatch proxy."
+        : "Using the closest starter pigment family as the swatch proxy.",
+    }));
+}
+
+function estimatePaintRecipe(targetColor, request) {
   const targetLab = rgbToLab(targetColor);
+  const candidatePaints = selectCandidatePaints(targetLab, request.owned_paints);
   let best = null;
-  for (let pigmentCount = 2; pigmentCount <= 4; pigmentCount += 1) {
-    const combinations = getPigmentCombinations(pigmentCount);
+  for (let pigmentCount = 1; pigmentCount <= Math.min(request.constraints.max_pigments, candidatePaints.length); pigmentCount += 1) {
+    const combinations = getPaintCombinations(candidatePaints, pigmentCount);
     const weights = generateWeightSets(pigmentCount, 10);
     combinations.forEach((combo) => {
       weights.forEach((set) => {
-        const recipe = combo.map((pigment, index) => ({ pigment, percent: set[index] }));
-        const mixed = mixPigments(recipe);
-        const distance = deltaE(targetLab, rgbToLab(mixed));
-        if (!best || distance < best.distance) best = { recipe, distance };
+        const recipe = combo.map((paint, index) => ({ paint, massPercent: set[index] }));
+        const mixed = mixPaints(recipe);
+        const mixedLab = rgbToLab(mixed);
+        const distance = deltaE(targetLab, mixedLab);
+        const penalty = recipe.reduce((sum, entry) => sum + (entry.paint.is_multi_pigment ? 1.4 : 0), 0)
+          + recipe.reduce((sum, entry) => sum + (entry.paint.model_source.startsWith("proxy_") ? 0.55 : 0), 0)
+          + (recipe.length - 1) * 0.18;
+        const score = distance + penalty;
+        if (!best || score < best.score) best = { recipe, mixed, mixedLab, distance, score };
       });
     });
   }
+
+  if (!best) {
+    return {
+      target_hex: targetColor.hex,
+      target_lab: labToSchema(targetLab),
+      model_used: "heuristic_proxy",
+      recipe: { components: [], mixing_steps: [] },
+      quality: {
+        delta_e_status: "not_computed_missing_data",
+        delta_e00: null,
+        metamerism_status: "not_computed_missing_spectra",
+        metamerism_risk: "unknown",
+        gamut_status: "unknown",
+        gamut_note: "No paints with usable swatch data were available for this request.",
+      },
+      substitutions: [],
+      warnings: ["No recipe could be estimated because the paint inventory does not include any usable swatch proxies."],
+      display: { targetRgb: `RGB ${targetColor.r}, ${targetColor.g}, ${targetColor.b}`, sourceLabel: describeInventorySource() },
+    };
+  }
+
+  const massPercentages = best.recipe.map((entry) => entry.massPercent);
+  const parts = simplifyParts(massPercentages);
+  const components = best.recipe.map((entry, index) => ({
+    brand: entry.paint.brand,
+    color_name: entry.paint.color_name,
+    pigment_codes: [...entry.paint.pigment_codes],
+    role: index === 0 ? "base" : "adjustment",
+    parts: parts[index],
+    fraction_mass: Number((entry.massPercent / 100).toFixed(3)),
+    mass_percent: entry.massPercent,
+    scaled_amount: Number(((entry.massPercent / 100) * request.batch_size.value).toFixed(2)),
+    scaled_unit: request.batch_size.unit,
+    substitution_notes: entry.paint.model_source.startsWith("proxy_")
+      ? `Estimated with ${entry.paint.substitution_proxy.paint.color_name} as a ${entry.paint.substitution_proxy.matchClass === "same_pigment_code" ? "same pigment code" : "same family"} proxy.`
+      : "",
+  }));
+  const gamutStatus = best.distance <= 12 ? "in_gamut" : "nearest_achievable";
+  const substitutions = buildSubstitutions(best.recipe);
+  const warnings = [];
+  if (!state.ownedPaints.length) warnings.push("Using the Williamsburg starter demo palette because no saved inventory is active.");
+  if (best.recipe.some((entry) => entry.paint.is_multi_pigment)) warnings.push("One or more paints in this mix are multi-pigment convenience colors, so the mixture may go muddy faster.");
+  if (best.recipe.some((entry) => entry.paint.model_source.startsWith("proxy_"))) warnings.push("At least one paint was estimated with a starter-palette proxy because no explicit swatch hex was saved for that tube.");
   return {
-    targetHex: targetColor.hex,
-    rgb: `RGB ${targetColor.r}, ${targetColor.g}, ${targetColor.b}`,
-    lab: rgbToLab(targetColor),
-    confidence: clamp(Math.round(100 - (best.distance * 2.4)), 5, 99),
-    r: targetColor.r,
-    g: targetColor.g,
-    b: targetColor.b,
-    recipe: best.recipe,
+    target_hex: targetColor.hex,
+    target_lab: labToSchema(targetLab),
+    model_used: "heuristic_proxy",
+    recipe: { components, mixing_steps: buildMixingSteps(components, targetColor.hex) },
+    quality: {
+      delta_e_status: "not_computed_missing_data",
+      delta_e00: null,
+      metamerism_status: "not_computed_missing_spectra",
+      metamerism_risk: "unknown",
+      gamut_status: gamutStatus,
+      gamut_note: gamutStatus === "in_gamut" ? "This target appears achievable within the current proxy palette." : describeLabMiss(targetLab, best.mixedLab),
+    },
+    substitutions,
+    warnings,
+    display: {
+      targetRgb: `RGB ${targetColor.r}, ${targetColor.g}, ${targetColor.b}`,
+      sourceLabel: describeInventorySource(),
+      mixedRgb: `RGB ${best.mixed.r}, ${best.mixed.g}, ${best.mixed.b}`,
+      mixedHex: rgbToHex(best.mixed.r, best.mixed.g, best.mixed.b),
+      swatchColor: targetColor.hex,
+    },
+  };
+}
+
+function buildRecipeRequest(colors) {
+  return {
+    targets: colors.map((color) => color.hex),
+    medium: "oil",
+    batch_size: { ...DEFAULT_RECIPE_BATCH_SIZE },
+    owned_paints: getActivePaintInventory(),
+    constraints: { ...DEFAULT_RECIPE_CONSTRAINTS },
+    output_format: "both",
   };
 }
 
@@ -1096,6 +1658,112 @@ function isUnsupportedApplePhoto(file) {
   const unsupportedAppleMarkers = ["heic", "heif", "heics", "heifs", "heic-sequence", "heif-sequence"];
   return unsupportedAppleMarkers.some((marker) => type.includes(marker))
     || /\.(heic|heif|heics|heifs)$/i.test(name);
+}
+
+function clonePaintCollection(paints) {
+  return paints.map((paint, index) => normalizePaintProduct(serializeOwnedPaints([paint])[0], index, "inventory"));
+}
+
+function resetInventoryForm() {
+  inventoryForm.reset();
+  inventoryOpacity.value = "opaque";
+  inventoryFeedback.textContent = "";
+}
+
+function setInventoryFeedback(message, isError = false) {
+  inventoryFeedback.textContent = message;
+  inventoryFeedback.dataset.state = isError ? "error" : "success";
+}
+
+function renderInventoryList() {
+  const paints = state.inventoryDraft;
+  inventoryCount.textContent = `${paints.length} paint${paints.length === 1 ? "" : "s"} saved`;
+  if (!paints.length) {
+    inventoryList.innerHTML = `<p class="inventory-empty">No owned paints saved yet. Save a few paints or keep using the starter palette.</p>`;
+    return;
+  }
+
+  inventoryList.innerHTML = paints.map((paint, index) => {
+    const swatch = paint.approx_srgb_hex || "#2A2F36";
+    const proxyTag = paint.model_source.startsWith("proxy_") ? `<span class="recipe-chip">Proxy ${escapeHtml(paint.substitution_proxy.paint.pigment_codes[0])}</span>` : "";
+    return `
+      <article class="inventory-item">
+        <div class="inventory-swatch" style="background:${swatch}"></div>
+        <div class="inventory-copy">
+          <strong>${escapeHtml(getPaintLabel(paint))}</strong>
+          <span>${escapeHtml(paint.brand)}${paint.opacity_label ? ` - ${escapeHtml(paint.opacity_label)}` : ""}</span>
+          <span>${escapeHtml(paint.pigment_codes.join(", "))}${proxyTag ? ` - ${proxyTag}` : ""}</span>
+        </div>
+        <button class="palette-button inventory-remove" type="button" data-index="${index}" aria-label="Remove ${escapeHtml(getPaintLabel(paint))}">Remove</button>
+      </article>`;
+  }).join("");
+}
+
+function openInventoryModal() {
+  state.inventoryDraft = clonePaintCollection(state.ownedPaints);
+  renderInventoryList();
+  resetInventoryForm();
+  inventoryModal.classList.remove("hidden");
+  inventoryModal.setAttribute("aria-hidden", "false");
+}
+
+function closeInventoryModal() {
+  inventoryModal.classList.add("hidden");
+  inventoryModal.setAttribute("aria-hidden", "true");
+}
+
+function validateInventoryFormDraft() {
+  const colorName = inventoryColorName.value.trim();
+  const pigmentCodes = parsePigmentCodes(inventoryPigmentCodes.value);
+  const hex = toHexOrEmpty(inventoryHex.value);
+  if (!colorName) return { ok: false, message: "Add a color name before saving this paint." };
+  if (!pigmentCodes.length) return { ok: false, message: "Pigment codes are required. Add values like PB15:3 or PR254." };
+  if (inventoryHex.value.trim() && !hex) return { ok: false, message: "Swatch hex must use the #RRGGBB format." };
+  return { ok: true, colorName, pigmentCodes, hex };
+}
+
+function addInventoryPaint(event) {
+  event.preventDefault();
+  const validation = validateInventoryFormDraft();
+  if (!validation.ok) {
+    setInventoryFeedback(validation.message, true);
+    return;
+  }
+
+  const normalized = normalizePaintProduct({
+    brand: inventoryBrand.value.trim(),
+    color_name: validation.colorName,
+    pigment_codes: validation.pigmentCodes,
+    opacity_label: inventoryOpacity.value,
+    lightfastness_label: inventoryLightfastness.value.trim(),
+    approx_srgb_hex: validation.hex,
+  }, state.inventoryDraft.length, "inventory");
+  state.inventoryDraft.push(normalized);
+  renderInventoryList();
+  resetInventoryForm();
+  setInventoryFeedback(`${normalized.color_name} added. Save inventory to use it for recipes.`);
+  inventoryBrand.focus({ preventScroll: true });
+}
+
+function saveInventoryDraft() {
+  state.ownedPaints = clonePaintCollection(state.inventoryDraft);
+  persistOwnedPaints(state.ownedPaints);
+  closeInventoryModal();
+  state.recipeResults = [];
+  renderRecipe();
+  showImportWarning("Paint setup saved", state.ownedPaints.length ? `Recipes will now use your saved inventory (${state.ownedPaints.length} paints).` : "No paints were saved, so recipes will use the starter palette.");
+}
+
+function useStarterPalette() {
+  state.inventoryDraft = [];
+  state.ownedPaints = [];
+  persistOwnedPaints([]);
+  renderInventoryList();
+  resetInventoryForm();
+  closeInventoryModal();
+  state.recipeResults = [];
+  renderRecipe();
+  showImportWarning("Starter palette active", "Recipes will use the Williamsburg starter palette until you save a custom inventory.");
 }
 
 function showRecipeMessage(message) {
@@ -1145,7 +1813,7 @@ function drawRoundedRect(context, x, y, width, height, radius, fill) {
 }
 
 function exportRecipeImage() {
-  if (!state.recipe.length) {
+  if (!state.recipeResults.length) {
     showRecipeMessage("Upload an image first to generate paint recipes for the palette.");
     return;
   }
@@ -1155,15 +1823,33 @@ function exportRecipeImage() {
   const titleHeight = 48;
   const cardGap = 12;
   const cardWidth = width - (padding * 2);
-  const note = "Estimated artistic pigment recipe only. This is a perceptual approximation, not an exact physical paint formula.";
   const measureCanvas = document.createElement("canvas");
   const measureCtx = measureCanvas.getContext("2d");
   measureCtx.font = '500 16px "Space Grotesk", sans-serif';
-  const cardHeights = state.recipe.map((entry) => {
-    const noteLines = wrapRecipeText(measureCtx, note, cardWidth - 44);
-    return 152 + (entry.recipe.length * 40) + (Math.max(1, noteLines.length) * 20);
-  });
-  const height = padding + titleHeight + 16 + cardHeights.reduce((sum, value) => sum + value, 0) + (Math.max(0, state.recipe.length - 1) * cardGap) + padding;
+  function getCardLines(entry) {
+    const lines = [
+      entry.display.targetRgb,
+      `LAB ${entry.target_lab.L.toFixed(1)}, ${entry.target_lab.a.toFixed(1)}, ${entry.target_lab.b.toFixed(1)}`,
+      `Model ${entry.model_used.replaceAll("_", " ")}`,
+      `Using ${entry.display.sourceLabel}`,
+      `Gamut ${entry.quality.gamut_status.replaceAll("_", " ")}`,
+      `Metamerism ${entry.quality.metamerism_status === "not_computed_missing_spectra" ? "not computed" : entry.quality.metamerism_risk}`,
+    ];
+    if (entry.quality.gamut_note) lines.push(entry.quality.gamut_note);
+    entry.recipe.components.forEach((component) => {
+      lines.push(`${getPaintLabel(component)} - ${component.mass_percent}% - ${component.pigment_codes.join(", ")}`);
+    });
+    entry.recipe.mixing_steps.forEach((step, index) => {
+      lines.push(`${index + 1}. ${step}`);
+    });
+    entry.warnings.forEach((warning) => {
+      lines.push(`Warning: ${warning}`);
+    });
+    return lines.flatMap((line) => wrapRecipeText(measureCtx, line, cardWidth - 44));
+  }
+
+  const cardHeights = state.recipeResults.map((entry) => 152 + (getCardLines(entry).length * 20));
+  const height = padding + titleHeight + 16 + cardHeights.reduce((sum, value) => sum + value, 0) + (Math.max(0, state.recipeResults.length - 1) * cardGap) + padding;
   const exportCanvas = document.createElement("canvas");
   exportCanvas.width = width;
   exportCanvas.height = height;
@@ -1176,39 +1862,29 @@ function exportRecipeImage() {
   exportCtx.fillText("Paint recipes", padding, padding + 26);
 
   let y = padding + titleHeight + 16;
-  state.recipe.forEach((entry, index) => {
+  state.recipeResults.forEach((entry, index) => {
     const cardHeight = cardHeights[index];
     drawRoundedRect(exportCtx, padding, y, cardWidth, cardHeight, 14, "#191d22");
 
-    const headerTextColor = luminance(entry.r, entry.g, entry.b) > 0.62 ? "#15171a" : "#f2efe8";
-    drawRoundedRect(exportCtx, padding + 12, y + 12, cardWidth - 24, 40, 10, entry.targetHex);
+    const swatch = entry.display.swatchColor || entry.target_hex;
+    const swatchRgb = hexToRgb(swatch);
+    const headerTextColor = luminance(swatchRgb.r, swatchRgb.g, swatchRgb.b) > 0.62 ? "#15171a" : "#f2efe8";
+    drawRoundedRect(exportCtx, padding + 12, y + 12, cardWidth - 24, 40, 10, swatch);
     exportCtx.fillStyle = headerTextColor;
     exportCtx.font = '700 18px "Space Grotesk", sans-serif';
-    exportCtx.fillText(entry.targetHex, padding + 28, y + 38);
+    exportCtx.fillText(entry.target_hex, padding + 28, y + 38);
 
     exportCtx.fillStyle = "#bcc0c7";
     exportCtx.font = '600 16px "Space Grotesk", sans-serif';
-    exportCtx.fillText(entry.rgb, padding + 12, y + 76);
-    exportCtx.fillText(`LAB ${entry.lab.l.toFixed(1)}, ${entry.lab.a.toFixed(1)}, ${entry.lab.b.toFixed(1)}`, padding + 12, y + 102);
-    exportCtx.fillText(`Match quality ${entry.confidence}%`, padding + 12, y + 128);
+    exportCtx.fillText(entry.display.targetRgb, padding + 12, y + 76);
+    exportCtx.fillText(`LAB ${entry.target_lab.L.toFixed(1)}, ${entry.target_lab.a.toFixed(1)}, ${entry.target_lab.b.toFixed(1)}`, padding + 12, y + 102);
+    exportCtx.fillText(`Using ${entry.display.sourceLabel}`, padding + 12, y + 128);
 
-    let listY = y + 144;
-    entry.recipe.forEach((item) => {
-      drawRoundedRect(exportCtx, padding + 12, listY, cardWidth - 24, 34, 10, "#2a2f36");
-      exportCtx.fillStyle = "#f2efe8";
-      exportCtx.font = '600 16px "Space Grotesk", sans-serif';
-      exportCtx.fillText(item.pigment.name, padding + 24, listY + 22);
-      const percentText = `${item.percent}%`;
-      const percentWidth = exportCtx.measureText(percentText).width;
-      exportCtx.fillText(percentText, padding + cardWidth - 24 - percentWidth, listY + 22);
-      listY += 40;
-    });
-
-    const noteLines = wrapRecipeText(exportCtx, note, cardWidth - 44);
+    const lines = getCardLines(entry);
     exportCtx.fillStyle = "#91969d";
     exportCtx.font = '500 16px "Space Grotesk", sans-serif';
-    noteLines.forEach((line, lineIndex) => {
-      exportCtx.fillText(line, padding + 12, listY + 18 + (lineIndex * 20));
+    lines.forEach((line, lineIndex) => {
+      exportCtx.fillText(line, padding + 12, y + 160 + (lineIndex * 20));
     });
 
     y += cardHeight + cardGap;
@@ -1221,23 +1897,34 @@ function exportRecipeImage() {
 }
 function renderRecipe() {
   if (!recipeModal || !recipeContent) return;
-  if (!state.recipe.length) {
+  if (!state.recipeResults.length) {
     closeRecipeModal();
     recipeContent.innerHTML = "";
     return;
   }
   recipeModal.classList.remove("hidden");
   recipeModal.setAttribute("aria-hidden", "false");
-  recipeContent.innerHTML = `<div class="recipe-stack">${state.recipe.map((entry) => `
-    <section class="recipe-card" style="--recipe-color:${entry.targetHex}">
-      <div class="recipe-card-head" style="background:${entry.targetHex};color:${luminance(entry.r, entry.g, entry.b) > 0.62 ? "#15171a" : "#f2efe8"};"><strong>${entry.targetHex}</strong></div>
+  recipeContent.innerHTML = `<div class="recipe-stack">${state.recipeResults.map((entry) => `
+    <section class="recipe-card" style="--recipe-color:${escapeHtml(entry.display.swatchColor || entry.target_hex)}">
+      <div class="recipe-card-head" style="background:${escapeHtml(entry.display.swatchColor || entry.target_hex)};color:${luminance(hexToRgb(entry.display.swatchColor || entry.target_hex).r, hexToRgb(entry.display.swatchColor || entry.target_hex).g, hexToRgb(entry.display.swatchColor || entry.target_hex).b) > 0.62 ? "#15171a" : "#f2efe8"};"><strong>${escapeHtml(entry.target_hex)}</strong></div>
       <div class="recipe-meta">
-        <span>${entry.rgb}</span>
-        <span>LAB ${entry.lab.l.toFixed(1)}, ${entry.lab.a.toFixed(1)}, ${entry.lab.b.toFixed(1)}</span>
-        <span class="recipe-confidence">Match quality ${entry.confidence}%</span>
+        <span>${escapeHtml(entry.display.targetRgb)}</span>
+        <span>LAB ${entry.target_lab.L.toFixed(1)}, ${entry.target_lab.a.toFixed(1)}, ${entry.target_lab.b.toFixed(1)}</span>
+        <span class="recipe-confidence">Using ${escapeHtml(entry.display.sourceLabel)}</span>
       </div>
-      <ul class="recipe-list">${entry.recipe.map((item) => `<li><span>${item.pigment.name}</span><strong>${item.percent}%</strong></li>`).join("")}</ul>
-      <p class="recipe-note">Estimated artistic pigment recipe only. This is a perceptual approximation, not an exact physical paint formula.</p>
+      <div class="recipe-badge-row">
+        <span class="recipe-chip">Model ${escapeHtml(entry.model_used.replaceAll("_", " "))}</span>
+        <span class="recipe-chip">Gamut ${escapeHtml(entry.quality.gamut_status.replaceAll("_", " "))}</span>
+        <span class="recipe-chip">${entry.quality.metamerism_status === "not_computed_missing_spectra" ? "Metamerism not computed" : `Metamerism ${escapeHtml(entry.quality.metamerism_risk)}`}</span>
+      </div>
+      <ul class="recipe-list">${entry.recipe.components.map((item) => `<li><span><strong>${escapeHtml(getPaintLabel(item))}</strong><small>${escapeHtml(item.brand)} - ${escapeHtml(item.pigment_codes.join(", "))}</small></span><strong>${item.mass_percent}%</strong></li>`).join("")}</ul>
+      <div class="recipe-section">
+        <strong>Mixing steps</strong>
+        <ol class="recipe-steps">${entry.recipe.mixing_steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol>
+      </div>
+      ${entry.quality.gamut_note ? `<p class="recipe-note">${escapeHtml(entry.quality.gamut_note)}</p>` : ""}
+      ${entry.substitutions.length ? `<div class="recipe-section"><strong>Substitutions</strong><ul class="recipe-inline-list">${entry.substitutions.map((item) => `<li>${escapeHtml(item.missing_paint)} -> ${escapeHtml(item.recommended_substitute.color_name)} (${escapeHtml(item.match_class.replaceAll("_", " "))})</li>`).join("")}</ul></div>` : ""}
+      ${entry.warnings.length ? `<div class="recipe-section"><strong>Warnings</strong><ul class="recipe-inline-list">${entry.warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("")}</ul></div>` : ""}
     </section>`).join("")}</div>`;
 }
 
@@ -1849,7 +2536,8 @@ function endDrag() {
 
 function initializePalette() {
   state.colors = extractPalette(state.image, state.paletteSize);
-  state.recipe = [];
+  state.recipeResults = [];
+  state.recipeRequest = null;
   drawProcessedImage();
   recalculatePercentages();
   renderRecipe();
@@ -1864,8 +2552,10 @@ function addPaletteColor() {
   const nextColor = candidates.find((candidate) => !state.colors.some((color) => colorDistance(color, candidate) < 24)) || candidates[state.colors.length];
   if (!nextColor) return;
   state.colors.push({ ...nextColor, id: `color-${state.colors.length + 1}` });
+  state.recipeResults = [];
   state.paletteSize = state.colors.length;
   recalculatePercentages();
+  renderRecipe();
   renderPalette();
   rebuildSwatches();
   updatePaletteLabel();
@@ -1874,8 +2564,10 @@ function addPaletteColor() {
 function removePaletteColor() {
   if (!state.image || state.colors.length <= PALETTE_MIN) return;
   state.colors.pop();
+  state.recipeResults = [];
   state.paletteSize = state.colors.length;
   recalculatePercentages();
+  renderRecipe();
   renderPalette();
   rebuildSwatches();
   updatePaletteLabel();
@@ -1914,9 +2606,28 @@ recipeButton.addEventListener("click", () => {
     showRecipeMessage("Upload an image first to generate paint recipes for the palette.");
     return;
   }
-  state.recipe = state.colors.map((color) => estimatePaintRecipe(color));
+  state.recipeRequest = buildRecipeRequest(state.colors);
+  state.recipeResults = state.colors.map((color) => estimatePaintRecipe(color, state.recipeRequest));
   renderRecipe();
 });
+
+paintSetupButton.addEventListener("click", () => {
+  closeRecipeModal();
+  openInventoryModal();
+});
+inventoryForm.addEventListener("submit", addInventoryPaint);
+inventoryList.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-index]");
+  if (!button) return;
+  const index = Number(button.dataset.index);
+  if (!Number.isInteger(index)) return;
+  state.inventoryDraft.splice(index, 1);
+  renderInventoryList();
+  setInventoryFeedback("Paint removed. Save inventory to apply the change.");
+});
+inventorySave.addEventListener("click", saveInventoryDraft);
+inventoryReset.addEventListener("click", useStarterPalette);
+inventoryClose.addEventListener("click", closeInventoryModal);
 
 
 async function handleInputSelection(event) {
@@ -1961,6 +2672,21 @@ if (recipeModal) {
     if (event.target === recipeModal) closeRecipeModal();
   });
 }
+if (inventoryModal) {
+  inventoryModal.addEventListener("click", (event) => {
+    if (event.target === inventoryModal) closeInventoryModal();
+  });
+}
+window.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+  if (!inventoryModal.classList.contains("hidden")) {
+    closeInventoryModal();
+    return;
+  }
+  if (!recipeModal.classList.contains("hidden")) {
+    closeRecipeModal();
+  }
+});
 window.addEventListener("resize", () => {
   if (!state.image) return;
   drawProcessedImage();
@@ -1970,6 +2696,8 @@ window.addEventListener("resize", () => {
   syncSwatchTargetsFromColors();
 });
 updatePaletteLabel();
+state.inventoryDraft = clonePaintCollection(state.ownedPaints);
+renderInventoryList();
   </script>
 </body>
 </html>

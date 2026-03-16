@@ -1116,6 +1116,7 @@
 }
 
 .webflow-palette-embed .recipe-modal,
+.webflow-palette-embed .inventory-modal,
 .webflow-palette-embed .save-modal {
   position: fixed;
   inset: 0;
@@ -1134,6 +1135,10 @@
   --recipe-modal-width: min(720px, calc(100% - 32px));
 }
 
+.webflow-palette-embed .inventory-modal {
+  --inventory-modal-width: min(760px, calc(100% - 32px));
+}
+
 .webflow-palette-embed .save-modal {
   --save-modal-width: min(860px, calc(100% - 32px));
   --save-modal-footer-height: 44px;
@@ -1144,7 +1149,12 @@
   width: var(--recipe-modal-width);
 }
 
+.webflow-palette-embed .inventory-modal-panel {
+  width: var(--inventory-modal-width);
+}
+
 .webflow-palette-embed .recipe-modal-panel,
+.webflow-palette-embed .inventory-modal-panel,
 .webflow-palette-embed .save-modal-panel {
   position: relative;
   display: flex;
@@ -1161,6 +1171,7 @@
 }
 
 .webflow-palette-embed .recipe-modal-head,
+.webflow-palette-embed .inventory-modal-head,
 .webflow-palette-embed .save-modal-head {
   display: flex;
   justify-content: space-between;
@@ -1170,6 +1181,7 @@
 }
 
 .webflow-palette-embed .recipe-modal-head h2,
+.webflow-palette-embed .inventory-modal-head h2,
 .webflow-palette-embed .save-modal-head h2 {
   margin: 4px 0 0;
   font-size: 1.08rem;
@@ -1199,6 +1211,23 @@
   align-self: center;
 }
 
+.webflow-palette-embed .inventory-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: calc(100% - 32px);
+  max-width: var(--inventory-modal-width);
+  margin: 0 auto;
+  align-self: center;
+}
+
+.webflow-palette-embed .inventory-modal-actions .recipe-button,
+.webflow-palette-embed .inventory-modal-actions .recipe-export {
+  flex: 1 1 220px;
+  width: auto;
+  max-width: none;
+}
+
 .webflow-palette-embed .save-export {
   width: calc(100% - 32px);
   max-width: var(--save-modal-width);
@@ -1211,6 +1240,141 @@
   min-height: 0;
   overflow: auto;
   padding-right: 6px;
+}
+
+.webflow-palette-embed .inventory-modal-body {
+  display: grid;
+  gap: 14px;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+.webflow-palette-embed .inventory-note,
+.webflow-palette-embed .inventory-empty {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.webflow-palette-embed .inventory-form,
+.webflow-palette-embed .inventory-list-shell {
+  border: 1px solid var(--glass-surface-border);
+  background: var(--glass-surface-bg-soft);
+  border-radius: 14px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 18px rgba(0, 0, 0, 0.12);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+  backdrop-filter: blur(18px) saturate(145%);
+}
+
+.webflow-palette-embed .inventory-form {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.webflow-palette-embed .inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.webflow-palette-embed .inventory-field {
+  display: grid;
+  gap: 6px;
+}
+
+.webflow-palette-embed .inventory-field span,
+.webflow-palette-embed .inventory-list-head span {
+  color: var(--muted);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.webflow-palette-embed .inventory-field input,
+.webflow-palette-embed .inventory-field select {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(12, 15, 18, 0.58);
+  color: var(--text);
+  font: inherit;
+}
+
+.webflow-palette-embed .inventory-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.webflow-palette-embed .inventory-feedback {
+  margin: 0;
+  color: #bad7c2;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.webflow-palette-embed .inventory-feedback[data-state="error"] {
+  color: #efc7bb;
+}
+
+.webflow-palette-embed .inventory-list-shell {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.webflow-palette-embed .inventory-list-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.webflow-palette-embed .inventory-list {
+  display: grid;
+  gap: 10px;
+}
+
+.webflow-palette-embed .inventory-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(9, 11, 13, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.webflow-palette-embed .inventory-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.webflow-palette-embed .inventory-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.webflow-palette-embed .inventory-copy span {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.webflow-palette-embed .inventory-remove {
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
 }
 
 .webflow-palette-embed .save-modal-content {
@@ -1399,6 +1563,55 @@
   backdrop-filter: blur(16px) saturate(140%);
 }
 
+.webflow-palette-embed .recipe-list li span {
+  display: grid;
+  gap: 3px;
+}
+
+.webflow-palette-embed .recipe-list li small {
+  color: var(--muted);
+}
+
+.webflow-palette-embed .recipe-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.webflow-palette-embed .recipe-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font-size: 0.78rem;
+}
+
+.webflow-palette-embed .recipe-section {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.webflow-palette-embed .recipe-section strong {
+  font-size: 0.84rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.webflow-palette-embed .recipe-steps,
+.webflow-palette-embed .recipe-inline-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+}
+
 .webflow-palette-embed[data-mobile-layout="true"] {
   overflow: hidden;
 }
@@ -1457,12 +1670,26 @@
   grid-template-columns: 1fr;
 }
 
+.webflow-palette-embed[data-mobile-layout="true"] .inventory-grid {
+  grid-template-columns: 1fr;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .inventory-item {
+  grid-template-columns: auto 1fr;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .inventory-remove {
+  grid-column: 1 / -1;
+}
+
 .webflow-palette-embed[data-mobile-layout="true"][data-settings-open="false"] .control-hud {
   gap: 0;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .recipe-button,
+.webflow-palette-embed[data-mobile-layout="true"] .inventory-modal-actions .recipe-button,
 .webflow-palette-embed[data-mobile-layout="true"] .recipe-export,
+.webflow-palette-embed[data-mobile-layout="true"] .inventory-modal-actions .recipe-export,
 .webflow-palette-embed[data-mobile-layout="true"] .save-export {
   min-height: 44px;
 }
