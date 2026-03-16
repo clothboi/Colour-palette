@@ -99,21 +99,21 @@
   background-repeat: no-repeat;
   opacity: 0;
   transform: scale(1.16);
-  filter: blur(72px) saturate(126%) brightness(0.34);
+  filter: blur(56px) saturate(120%) brightness(0.56);
   transition: opacity 220ms ease;
 }
 
 .webflow-palette-embed[data-ambient-image="true"]::before {
-  opacity: 1;
+  opacity: 0.62;
 }
 
 .webflow-palette-embed::after {
   z-index: 0;
   background:
-    radial-gradient(circle at top left, rgba(122, 160, 208, 0.14), transparent 28%),
+    radial-gradient(circle at top left, rgba(122, 160, 208, 0.16), transparent 28%),
     radial-gradient(circle at 82% 12%, rgba(145, 110, 157, 0.12), transparent 22%),
-    linear-gradient(180deg, rgba(7, 9, 12, 0.5), rgba(7, 9, 12, 0.72)),
-    linear-gradient(160deg, rgba(11, 13, 15, 0.42) 0%, rgba(18, 20, 23, 0.56) 58%, rgba(10, 12, 14, 0.68) 100%);
+    linear-gradient(180deg, rgba(7, 9, 12, 0.2), rgba(7, 9, 12, 0.34)),
+    linear-gradient(160deg, rgba(11, 13, 15, 0.18) 0%, rgba(18, 20, 23, 0.28) 58%, rgba(10, 12, 14, 0.38) 100%);
 }
 
 .webflow-palette-embed .app-shell {
