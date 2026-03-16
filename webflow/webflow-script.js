@@ -781,16 +781,24 @@ const DRAG_LENS = {
 };
 
 function mixPaints(recipe) {
-  let r = 0;
-  let g = 0;
-  let b = 0;
+  const minimumReflectance = 0.003;
+  let rAbsorbance = 0;
+  let gAbsorbance = 0;
+  let bAbsorbance = 0;
   recipe.forEach((entry) => {
     const weight = entry.massPercent / 100;
-    r += srgbToLinear(entry.paint.rgb.r) * weight;
-    g += srgbToLinear(entry.paint.rgb.g) * weight;
-    b += srgbToLinear(entry.paint.rgb.b) * weight;
+    const rReflectance = Math.max(minimumReflectance, srgbToLinear(entry.paint.rgb.r));
+    const gReflectance = Math.max(minimumReflectance, srgbToLinear(entry.paint.rgb.g));
+    const bReflectance = Math.max(minimumReflectance, srgbToLinear(entry.paint.rgb.b));
+    rAbsorbance += -Math.log(rReflectance) * weight;
+    gAbsorbance += -Math.log(gReflectance) * weight;
+    bAbsorbance += -Math.log(bReflectance) * weight;
   });
-  return { r: linearToSrgb(r), g: linearToSrgb(g), b: linearToSrgb(b) };
+  return {
+    r: linearToSrgb(Math.exp(-rAbsorbance)),
+    g: linearToSrgb(Math.exp(-gAbsorbance)),
+    b: linearToSrgb(Math.exp(-bAbsorbance)),
+  };
 }
 
 function generateWeightSets(count, step, total = 100, prefix = []) {
