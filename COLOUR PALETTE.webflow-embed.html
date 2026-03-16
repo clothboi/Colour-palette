@@ -2554,6 +2554,38 @@ function getScaledPaletteHeights(colors, availableHeight, gap = PALETTE_GAP, min
   return scaled.map((value) => value * scale);
 }
 
+function normalizePaletteHeights(heights, availableHeight, gap = PALETTE_GAP, minimumHeight = 0) {
+  if (!heights.length) return [];
+  const totalGaps = Math.max(0, heights.length - 1) * gap;
+  const usableHeight = Math.max(0, Math.round(availableHeight - totalGaps));
+  const clamped = heights.map((height) => Math.max(minimumHeight, height));
+  const base = clamped.map((height) => Math.max(minimumHeight, Math.floor(height)));
+  let remaining = usableHeight - base.reduce((sum, height) => sum + height, 0);
+
+  if (remaining > 0) {
+    const order = clamped
+      .map((height, index) => ({ index, remainder: height - Math.floor(height) }))
+      .sort((a, b) => b.remainder - a.remainder);
+    for (let i = 0; i < order.length && remaining > 0; i += 1, remaining -= 1) {
+      base[order[i].index] += 1;
+    }
+  } else if (remaining < 0) {
+    const order = clamped
+      .map((height, index) => ({ index, height }))
+      .sort((a, b) => b.height - a.height);
+    for (let i = 0; i < order.length && remaining < 0; i += 1) {
+      const index = order[i].index;
+      const reducible = Math.max(0, base[index] - minimumHeight);
+      if (!reducible) continue;
+      const delta = Math.min(reducible, -remaining);
+      base[index] -= delta;
+      remaining += delta;
+    }
+  }
+
+  return base;
+}
+
 function getFittedPaletteHeights(colors, availableHeight, gap = PALETTE_GAP, preferredMinHeight = PALETTE_TWO_COLUMN_TARGET_MIN_HEIGHT, floorHeight = PALETTE_TWO_COLUMN_FLOOR_HEIGHT) {
   if (!colors.length) return [];
   const totalGaps = Math.max(0, colors.length - 1) * gap;
@@ -2638,7 +2670,12 @@ function getPaletteHeightMap() {
   const heightById = new Map();
 
   if (!isTwoColumnPalette()) {
-    const heights = getScaledPaletteHeights(state.colors, availableHeight, PALETTE_GAP, PALETTE_SINGLE_MIN_HEIGHT);
+    const heights = normalizePaletteHeights(
+      getScaledPaletteHeights(state.colors, availableHeight, PALETTE_GAP, PALETTE_SINGLE_MIN_HEIGHT),
+      availableHeight,
+      PALETTE_GAP,
+      PALETTE_SINGLE_MIN_HEIGHT,
+    );
     state.colors.forEach((color, index) => {
       heightById.set(color.id, heights[index] || PALETTE_SINGLE_MIN_HEIGHT);
     });
@@ -2648,7 +2685,12 @@ function getPaletteHeightMap() {
   const leftCount = getPaletteLeftColumnCount();
   const columns = [state.colors.slice(0, leftCount), state.colors.slice(leftCount)];
   columns.forEach((columnColors) => {
-    const heights = getFittedPaletteHeights(columnColors, availableHeight, PALETTE_GAP, PALETTE_TWO_COLUMN_TARGET_MIN_HEIGHT, PALETTE_TWO_COLUMN_FLOOR_HEIGHT);
+    const heights = normalizePaletteHeights(
+      getFittedPaletteHeights(columnColors, availableHeight, PALETTE_GAP, PALETTE_TWO_COLUMN_TARGET_MIN_HEIGHT, PALETTE_TWO_COLUMN_FLOOR_HEIGHT),
+      availableHeight,
+      PALETTE_GAP,
+      PALETTE_TWO_COLUMN_FLOOR_HEIGHT,
+    );
     columnColors.forEach((color, index) => {
       heightById.set(color.id, heights[index] || PALETTE_TWO_COLUMN_FLOOR_HEIGHT);
     });
