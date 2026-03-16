@@ -875,6 +875,7 @@ function estimatePaintRecipe(targetColor, request) {
     brand: entry.paint.brand,
     color_name: entry.paint.color_name,
     pigment_codes: [...entry.paint.pigment_codes],
+    swatch_hex: entry.paint.approx_srgb_hex || "#2A2F36",
     role: index === 0 ? "base" : "adjustment",
     parts: parts[index],
     fraction_mass: Number((entry.massPercent / 100).toFixed(3)),
@@ -1648,7 +1649,7 @@ function renderRecipe() {
         <span class="recipe-chip">Gamut ${escapeHtml(entry.quality.gamut_status.replaceAll("_", " "))}</span>
         <span class="recipe-chip">${entry.quality.metamerism_status === "not_computed_missing_spectra" ? "Metamerism not computed" : `Metamerism ${escapeHtml(entry.quality.metamerism_risk)}`}</span>
       </div>
-      <ul class="recipe-list">${entry.recipe.components.map((item) => `<li><span><strong>${escapeHtml(getPaintLabel(item))}</strong><small>${escapeHtml(item.brand)} - ${escapeHtml(item.pigment_codes.join(", "))}</small></span><strong>${item.mass_percent}%</strong></li>`).join("")}</ul>
+      <ul class="recipe-list">${entry.recipe.components.map((item) => `<li><span><span class="recipe-component-head"><span class="recipe-component-dot" style="background:${escapeHtml(item.swatch_hex || "#2A2F36")}"></span><strong>${escapeHtml(getPaintLabel(item))}</strong></span><small>${escapeHtml(item.brand)} - ${escapeHtml(item.pigment_codes.join(", "))}</small></span><strong>${item.mass_percent}%</strong></li>`).join("")}</ul>
       <div class="recipe-section">
         <strong>Mixing steps</strong>
         <ol class="recipe-steps">${entry.recipe.mixing_steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol>
