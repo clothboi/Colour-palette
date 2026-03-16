@@ -1387,7 +1387,7 @@
 .webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-sheet {
   flex: 1 1 auto;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: hidden;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-sheet[hidden] {
@@ -1442,8 +1442,15 @@
   max-width: 100%;
   overflow-x: hidden;
   overflow-y: visible;
+  min-height: 100%;
+  height: 100%;
   align-content: start;
   touch-action: pan-y;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .palette-column {
+  min-height: 100%;
+  height: 100%;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-card {
