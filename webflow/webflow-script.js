@@ -1333,7 +1333,7 @@ function renderInventoryList() {
           <span>${escapeHtml(paint.brand)}${paint.opacity_label ? ` - ${escapeHtml(paint.opacity_label)}` : ""}</span>
           <span>${escapeHtml(paint.pigment_codes.join(", "))}${proxyTag ? ` - ${proxyTag}` : ""}</span>
         </div>
-        <button class="palette-button inventory-remove" type="button" data-index="${index}" aria-label="Remove ${escapeHtml(getPaintLabel(paint))}">Remove</button>
+        <button class="inventory-remove" type="button" data-index="${index}" aria-label="Remove ${escapeHtml(getPaintLabel(paint))}">Remove</button>
       </article>`;
   }).join("");
 }

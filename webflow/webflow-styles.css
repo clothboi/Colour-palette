@@ -299,6 +299,7 @@
 .webflow-palette-embed .recipe-button,
 .webflow-palette-embed .hud-settings-toggle,
 .webflow-palette-embed .palette-button,
+.webflow-palette-embed .inventory-remove,
 .webflow-palette-embed .palette-drawer-close,
 .webflow-palette-embed .recipe-close,
 .webflow-palette-embed .recipe-export,
@@ -1373,9 +1374,14 @@
 }
 
 .webflow-palette-embed .inventory-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
   min-height: 36px;
-  padding: 0 12px;
+  padding: 0 14px;
   border-radius: 999px;
+  justify-self: start;
 }
 
 .webflow-palette-embed .save-modal-content {
