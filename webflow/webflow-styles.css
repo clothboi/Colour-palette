@@ -639,7 +639,7 @@
 .webflow-palette-embed .mobile-palette-rail__top {
   display: flex;
   flex-direction: row;
-  align-items: start;
+  align-items: center;
   margin: 0;
   min-width: 0;
 }
