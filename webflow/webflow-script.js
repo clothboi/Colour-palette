@@ -295,6 +295,7 @@ const PALETTE_MAX = 30;
 const DEFAULT_PALETTE_SIZE = 4;
 let importWarningTimer = null;
 const MOBILE_LAYOUT_MAX_WIDTH = 980;
+const TABLET_PORTRAIT_MAX_WIDTH = 1180;
 const PALETTE_TWO_COLUMN_THRESHOLD = 16;
 const PALETTE_GAP = 3;
 const PALETTE_SINGLE_MIN_HEIGHT = 52;
@@ -313,6 +314,7 @@ const SCROLL_LOCK_PALETTE_DRAWER = "palette-drawer";
 const PALETTE_PREVIEW_PLACEHOLDER_COUNT = 4;
 const PALETTE_DRAWER_SETTLE_DELAY_MS = 260;
 const mobileLayoutQuery = window.matchMedia(`(max-width: ${MOBILE_LAYOUT_MAX_WIDTH}px)`);
+const tabletPortraitLayoutQuery = window.matchMedia(`(max-width: ${TABLET_PORTRAIT_MAX_WIDTH}px) and (orientation: portrait) and (pointer: coarse)`);
 const paletteDrawerId = `palette-drawer-${Math.random().toString(36).slice(2, 10)}`;
 
 paletteDrawerSheet.id = paletteDrawerId;
@@ -324,7 +326,11 @@ function clamp(value, min, max) {
 }
 
 function isRealMobileLayout() {
-  return mobileLayoutQuery.matches;
+  const viewportWidth = Math.min(window.innerWidth || Number.MAX_SAFE_INTEGER, window.visualViewport?.width || Number.MAX_SAFE_INTEGER);
+  if (mobileLayoutQuery.matches || viewportWidth <= MOBILE_LAYOUT_MAX_WIDTH) {
+    return true;
+  }
+  return tabletPortraitLayoutQuery.matches || (viewportWidth <= TABLET_PORTRAIT_MAX_WIDTH && window.innerHeight > window.innerWidth && navigator.maxTouchPoints > 0);
 }
 
 function isTwoColumnPalette(count = state.colors.length) {
