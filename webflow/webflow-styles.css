@@ -1111,6 +1111,8 @@
 
 .webflow-palette-embed .save-modal {
   --save-modal-width: min(860px, calc(100% - 32px));
+  --save-modal-footer-height: 44px;
+  --save-modal-stack-gap: 12px;
 }
 
 .webflow-palette-embed .recipe-modal-panel {
@@ -1130,6 +1132,7 @@
 
 .webflow-palette-embed .save-modal-panel {
   width: var(--save-modal-width);
+  max-height: calc(min(82vh, 960px) - var(--save-modal-footer-height) - var(--save-modal-stack-gap));
 }
 
 .webflow-palette-embed .recipe-modal-head,
@@ -1169,7 +1172,8 @@
 }
 
 .webflow-palette-embed .save-export {
-  width: calc(var(--save-modal-width) - 32px);
+  width: var(--save-modal-width);
+  min-height: var(--save-modal-footer-height);
 }
 
 .webflow-palette-embed [data-role="recipe-content"] {
@@ -1180,10 +1184,10 @@
 
 .webflow-palette-embed .save-modal-content {
   display: grid;
-  gap: 16px;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 14px;
   min-height: 0;
-  overflow: auto;
-  padding-right: 6px;
+  overflow: hidden;
 }
 
 .webflow-palette-embed .save-controls {
@@ -1266,8 +1270,8 @@
   position: relative;
   display: grid;
   place-items: center;
-  min-height: 260px;
-  height: clamp(260px, 42vh, 420px);
+  min-height: 180px;
+  height: auto;
   padding: 12px;
   overflow: hidden;
 }
