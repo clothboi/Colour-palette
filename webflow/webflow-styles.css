@@ -171,6 +171,16 @@
   text-align: right;
 }
 
+.webflow-palette-embed .hud-settings-panel[hidden] {
+  display: none;
+}
+
+.webflow-palette-embed .hud-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
 .webflow-palette-embed .hud-buttons {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -218,7 +228,7 @@
 }
 
 .webflow-palette-embed .recipe-button,
-.webflow-palette-embed .hud-mobile-toggle,
+.webflow-palette-embed .hud-settings-toggle,
 .webflow-palette-embed .palette-button,
 .webflow-palette-embed .palette-drawer-close,
 .webflow-palette-embed .recipe-close,
@@ -247,8 +257,8 @@
   white-space: nowrap;
 }
 
-.webflow-palette-embed .hud-mobile-toggle {
-  display: inline-flex;
+.webflow-palette-embed .hud-settings-toggle {
+  display: none;
   align-items: center;
   justify-content: center;
   min-height: 38px;
@@ -259,14 +269,14 @@
   white-space: nowrap;
 }
 
-.webflow-palette-embed .hud-mobile-toggle[aria-pressed="true"] {
+.webflow-palette-embed .hud-settings-toggle[aria-expanded="true"] {
   border-color: rgba(158, 188, 223, 0.58);
   background: linear-gradient(180deg, rgba(158, 188, 223, 0.22), rgba(158, 188, 223, 0.08));
   color: var(--text);
 }
 
 .webflow-palette-embed .recipe-button:hover,
-.webflow-palette-embed .hud-mobile-toggle:hover,
+.webflow-palette-embed .hud-settings-toggle:hover,
 .webflow-palette-embed .palette-button:hover,
 .webflow-palette-embed .palette-drawer-open:hover,
 .webflow-palette-embed .palette-drawer-close:hover,
@@ -276,7 +286,7 @@
 .webflow-palette-embed .save-export:hover,
 .webflow-palette-embed .save-option-button:hover,
 .webflow-palette-embed .recipe-button:focus-visible,
-.webflow-palette-embed .hud-mobile-toggle:focus-visible,
+.webflow-palette-embed .hud-settings-toggle:focus-visible,
 .webflow-palette-embed .palette-button:focus-visible,
 .webflow-palette-embed .palette-drawer-open:focus-visible,
 .webflow-palette-embed .palette-drawer-close:focus-visible,
@@ -1290,6 +1300,10 @@
   padding: 12px;
 }
 
+.webflow-palette-embed[data-mobile-layout="true"] .hud-settings-toggle {
+  display: inline-flex;
+}
+
 .webflow-palette-embed[data-mobile-layout="true"] .hud-bar {
   gap: 8px;
 }
@@ -1300,6 +1314,10 @@
 
 .webflow-palette-embed[data-mobile-layout="true"] .hud-buttons {
   grid-template-columns: 1fr;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"][data-settings-open="false"] .control-hud {
+  gap: 0;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .recipe-button,

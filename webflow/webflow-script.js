@@ -21,22 +21,24 @@ function getPaletteMarkup() {
                 <p class="eyebrow">Colour Palette</p>
               </div>
               <div class="hud-bar__group hud-bar__group--center">
-                <button class="hud-mobile-toggle" type="button" data-action="toggle-mobile-view" aria-pressed="false">Mobile View</button>
+                <button class="hud-settings-toggle" type="button" data-action="toggle-settings" aria-expanded="false" hidden>Settings</button>
               </div>
               <div class="hud-bar__group hud-bar__group--status">
                 <span class="hud-count">Studio blur map</span>
               </div>
             </div>
           </div>
-          <div class="control-hud__panel control-hud__panel--actions">
-            <div class="hud-buttons">
-              <button class="recipe-button" type="button" data-action="recipe">Paint Recipe</button>
-              <button class="recipe-button" type="button" data-action="export-image">Save Image</button>
+          <div class="control-hud__panel control-hud__panel--actions hud-settings-panel" data-role="hud-settings-panel">
+            <div class="hud-actions">
+              <div class="hud-buttons">
+                <button class="recipe-button" type="button" data-action="recipe">Paint Recipe</button>
+                <button class="recipe-button" type="button" data-action="export-image">Save Image</button>
+              </div>
+              <label class="hud-slider">
+                <span>Blur</span>
+                <input data-role="blur-range" type="range" min="0" max="40" value="40">
+              </label>
             </div>
-            <label class="hud-slider">
-              <span>Blur</span>
-              <input data-role="blur-range" type="range" min="0" max="40" value="40">
-            </label>
           </div>
         </div>
 
@@ -178,7 +180,8 @@ const emptyState = root.querySelector('[data-role="empty-state"]');
 const canvasStage = root.querySelector('.canvas-stage');
 const canvasWrap = root.querySelector('[data-role="canvas-wrap"]');
 const controlHud = root.querySelector('.control-hud');
-const mobileViewToggle = root.querySelector('[data-action="toggle-mobile-view"]');
+const hudSettingsPanel = root.querySelector('[data-role="hud-settings-panel"]');
+const settingsToggle = root.querySelector('[data-action="toggle-settings"]');
 const paletteDrawerOpen = root.querySelector('[data-action="palette-drawer-open"]');
 const paletteDrawerClose = root.querySelector('[data-action="palette-drawer-close"]');
 const paletteMinusButtons = [...root.querySelectorAll('[data-action="palette-minus"]')];
@@ -200,7 +203,7 @@ const saveClose = root.querySelector('[data-action="save-close"]');
 const saveExport = root.querySelector('[data-action="save-export-image"]');
 const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
 const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !mobileViewToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !paletteSizeLabels.length || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !paletteSizeLabels.length || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
   return;
 }
 
@@ -240,10 +243,6 @@ function isRealMobileLayout() {
   return mobileLayoutQuery.matches;
 }
 
-function isEffectiveMobileLayout() {
-  return isRealMobileLayout() || state.forceMobileView;
-}
-
 function isTwoColumnPalette(count = state.colors.length) {
   return count >= PALETTE_TWO_COLUMN_THRESHOLD;
 }
@@ -253,7 +252,7 @@ function getPaletteLeftColumnCount(count = state.colors.length) {
 }
 
 function getPaletteFrameClearance() {
-  if (isEffectiveMobileLayout()) {
+  if (isRealMobileLayout()) {
     return 24;
   }
   return isTwoColumnPalette() ? 576 : 460;
@@ -339,7 +338,8 @@ const state = {
     stripNodes: false,
   },
   dpr: window.devicePixelRatio || 1,
-  forceMobileView: false,
+  isSettingsOpen: false,
+  wasMobileLayout: isRealMobileLayout(),
   isPaletteDrawerOpen: false,
   scrollLockY: 0,
   scrollLocks: new Set(),
@@ -611,7 +611,7 @@ function refreshStageSize() {
   canvasStage.style.setProperty("--image-ratio", ratioValue);
   canvasWrap.style.setProperty("--image-ratio", ratioValue);
 
-  if (isEffectiveMobileLayout()) {
+  if (isRealMobileLayout()) {
     const stageStyles = window.getComputedStyle(canvasStage);
     const gap = parseFloat(stageStyles.rowGap || stageStyles.gap || "0") || 0;
     const paddingTop = parseFloat(stageStyles.paddingTop || "0") || 0;
@@ -690,26 +690,38 @@ function updatePaletteLabel() {
 }
 
 function syncLayoutState() {
-  const effectiveMobileLayout = isEffectiveMobileLayout();
-  if (!effectiveMobileLayout || !state.colors.length) {
+  const mobileLayout = isRealMobileLayout();
+  if (mobileLayout !== state.wasMobileLayout) {
+    state.wasMobileLayout = mobileLayout;
+    state.isSettingsOpen = false;
+  }
+
+  if (!mobileLayout) {
+    state.isSettingsOpen = false;
+  }
+
+  if (!mobileLayout || !state.colors.length) {
     state.isPaletteDrawerOpen = false;
   }
 
-  root.dataset.mobileLayout = effectiveMobileLayout ? "true" : "false";
-  root.dataset.mobileLayoutForced = state.forceMobileView ? "true" : "false";
-  root.dataset.paletteDrawerOpen = effectiveMobileLayout && state.isPaletteDrawerOpen ? "true" : "false";
+  root.dataset.mobileLayout = mobileLayout ? "true" : "false";
+  root.dataset.settingsOpen = mobileLayout && state.isSettingsOpen ? "true" : "false";
+  root.dataset.paletteDrawerOpen = mobileLayout && state.isPaletteDrawerOpen ? "true" : "false";
 
-  mobileViewToggle.setAttribute("aria-pressed", String(state.forceMobileView));
-  mobilePaletteRail.hidden = !effectiveMobileLayout || state.isPaletteDrawerOpen;
-  paletteDrawerOpen.hidden = !effectiveMobileLayout || state.isPaletteDrawerOpen;
-  paletteDrawerOpen.setAttribute("aria-expanded", effectiveMobileLayout && state.isPaletteDrawerOpen ? "true" : "false");
-  paletteDrawerSummary.hidden = !effectiveMobileLayout || state.isPaletteDrawerOpen;
-  paletteDrawerSummary.setAttribute("aria-hidden", String(!effectiveMobileLayout || state.isPaletteDrawerOpen));
-  paletteDrawerClose.hidden = !effectiveMobileLayout || !state.isPaletteDrawerOpen;
-  paletteDrawerSheet.hidden = effectiveMobileLayout ? !state.isPaletteDrawerOpen : false;
-  paletteDrawerSheet.setAttribute("aria-hidden", effectiveMobileLayout ? String(!state.isPaletteDrawerOpen) : "false");
+  settingsToggle.hidden = !mobileLayout;
+  settingsToggle.setAttribute("aria-expanded", String(mobileLayout && state.isSettingsOpen));
+  hudSettingsPanel.hidden = mobileLayout ? !state.isSettingsOpen : false;
+  hudSettingsPanel.setAttribute("aria-hidden", String(mobileLayout ? !state.isSettingsOpen : false));
+  mobilePaletteRail.hidden = !mobileLayout || state.isPaletteDrawerOpen;
+  paletteDrawerOpen.hidden = !mobileLayout || state.isPaletteDrawerOpen;
+  paletteDrawerOpen.setAttribute("aria-expanded", mobileLayout && state.isPaletteDrawerOpen ? "true" : "false");
+  paletteDrawerSummary.hidden = !mobileLayout || state.isPaletteDrawerOpen;
+  paletteDrawerSummary.setAttribute("aria-hidden", String(!mobileLayout || state.isPaletteDrawerOpen));
+  paletteDrawerClose.hidden = !mobileLayout || !state.isPaletteDrawerOpen;
+  paletteDrawerSheet.hidden = mobileLayout ? !state.isPaletteDrawerOpen : false;
+  paletteDrawerSheet.setAttribute("aria-hidden", mobileLayout ? String(!state.isPaletteDrawerOpen) : "false");
 
-  if (effectiveMobileLayout && state.isPaletteDrawerOpen) {
+  if (mobileLayout && state.isPaletteDrawerOpen) {
     lockPageScroll(SCROLL_LOCK_PALETTE_DRAWER);
   } else {
     unlockPageScroll(SCROLL_LOCK_PALETTE_DRAWER);
@@ -736,7 +748,7 @@ function schedulePaletteDrawerSettleRender() {
 }
 
 function openPaletteDrawer() {
-  if (!isEffectiveMobileLayout() || !state.colors.length || state.isPaletteDrawerOpen) {
+  if (!isRealMobileLayout() || !state.colors.length || state.isPaletteDrawerOpen) {
     return;
   }
 
@@ -1212,7 +1224,7 @@ function getPaletteAvailableHeight() {
   const gaps = Math.max(0, visibleItems - 1) * gap;
   const computedHeight = Math.max(0, Math.round(panelHeight - paddingTop - paddingBottom - gaps - usedHeights.reduce((sum, value) => sum + value, 0)));
 
-  if (isEffectiveMobileLayout() && state.isPaletteDrawerOpen) {
+  if (isRealMobileLayout() && state.isPaletteDrawerOpen) {
     const fittedHeight = Math.max(0, Math.round(computedHeight || sheetHeight || listHeight));
     return Math.max(0, fittedHeight - 4);
   }
@@ -2034,8 +2046,12 @@ blurRange.addEventListener("input", () => {
   syncSwatchTargetsFromColors();
 });
 
-mobileViewToggle.addEventListener("click", () => {
-  state.forceMobileView = !state.forceMobileView;
+settingsToggle.addEventListener("click", () => {
+  if (!isRealMobileLayout()) {
+    return;
+  }
+
+  state.isSettingsOpen = !state.isSettingsOpen;
   syncLayoutState();
   if (!state.image) {
     return;
@@ -2076,6 +2092,22 @@ window.addEventListener("keydown", (event) => {
   if (state.isPaletteDrawerOpen) {
     event.preventDefault();
     closePaletteDrawer();
+    return;
+  }
+
+  if (isRealMobileLayout() && state.isSettingsOpen) {
+    event.preventDefault();
+    state.isSettingsOpen = false;
+    syncLayoutState();
+    if (state.image) {
+      requestAnimationFrame(() => {
+        drawProcessedImage();
+        syncSwatchTargetsFromColors();
+        recalculatePercentages();
+        renderPalette();
+        syncSwatchTargetsFromColors();
+      });
+    }
     return;
   }
 
