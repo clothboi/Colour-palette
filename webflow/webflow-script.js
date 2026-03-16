@@ -1161,7 +1161,8 @@ function getPaletteAvailableHeight() {
     return Math.max(0, fittedHeight - 4);
   }
 
-  return Math.max(Math.round(listHeight), Math.round(sheetHeight), computedHeight);
+  const fittedHeight = Math.max(0, Math.round(computedHeight || sheetHeight || listHeight));
+  return Math.max(0, fittedHeight - 2);
 }
 
 function getPaletteHeightMap() {
