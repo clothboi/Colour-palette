@@ -11,6 +11,27 @@
   --shadow: 0 18px 36px rgba(0, 0, 0, 0.24);
   --shadow-soft: 0 10px 28px rgba(0, 0, 0, 0.2);
   --accent: rgba(158, 188, 223, 0.92);
+  --glass-surface-bg:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03) 36%, rgba(13, 15, 19, 0.2)),
+    rgba(16, 18, 22, 0.72);
+  --glass-surface-bg-soft:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.025) 36%, rgba(13, 15, 19, 0.16)),
+    rgba(19, 21, 25, 0.52);
+  --glass-surface-border: rgba(255, 255, 255, 0.12);
+  --glass-surface-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 14px 30px rgba(0, 0, 0, 0.22);
+  --glass-button-border: rgba(255, 255, 255, 0.18);
+  --glass-button-bg:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04) 42%, rgba(24, 26, 31, 0.08)),
+    rgba(34, 36, 41, 0.22);
+  --glass-button-bg-strong:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06) 42%, rgba(24, 26, 31, 0.1)),
+    rgba(40, 42, 48, 0.28);
+  --glass-button-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -10px 18px rgba(8, 10, 14, 0.16);
   --palette-panel-width: 404px;
   --frame-clearance: 460px;
   --mobile-rail-margin: 10px;
@@ -99,12 +120,11 @@
 .webflow-palette-embed .save-export,
 .webflow-palette-embed .import-warning,
 .webflow-palette-embed .empty-state-card {
-  border: 1px solid var(--border);
-  background: var(--panel-strong);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    var(--shadow-soft);
-  backdrop-filter: blur(18px);
+  border: 1px solid var(--glass-surface-border);
+  background: var(--glass-surface-bg);
+  box-shadow: var(--glass-surface-shadow);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  backdrop-filter: blur(22px) saturate(150%);
 }
 
 .webflow-palette-embed .control-hud {
@@ -196,9 +216,14 @@
   gap: 6px;
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--glass-surface-border);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--glass-surface-bg-soft);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 18px rgba(0, 0, 0, 0.14);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+  backdrop-filter: blur(18px) saturate(145%);
 }
 
 .webflow-palette-embed .hud-slider span,
@@ -231,10 +256,6 @@
   border: 0;
 }
 
-.webflow-palette-embed .recipe-button,
-.webflow-palette-embed .hud-settings-toggle,
-.webflow-palette-embed .palette-button,
-.webflow-palette-embed .palette-drawer-close,
 .webflow-palette-embed .recipe-close,
 .webflow-palette-embed .recipe-export,
 .webflow-palette-embed .save-close,
@@ -244,6 +265,19 @@
   background: rgba(255, 255, 255, 0.04);
   color: var(--text);
   font: inherit;
+}
+
+.webflow-palette-embed .recipe-button,
+.webflow-palette-embed .hud-settings-toggle,
+.webflow-palette-embed .palette-button,
+.webflow-palette-embed .palette-drawer-close {
+  border: 1px solid var(--glass-button-border);
+  background: var(--glass-button-bg);
+  color: var(--text);
+  font: inherit;
+  box-shadow: var(--glass-button-shadow);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
 }
 
 .webflow-palette-embed .recipe-button,
@@ -274,8 +308,8 @@
 }
 
 .webflow-palette-embed .hud-settings-toggle[aria-expanded="true"] {
-  border-color: rgba(158, 188, 223, 0.58);
-  background: linear-gradient(180deg, rgba(158, 188, 223, 0.22), rgba(158, 188, 223, 0.08));
+  border-color: rgba(255, 255, 255, 0.24);
+  background: var(--glass-button-bg-strong);
   color: var(--text);
 }
 
@@ -301,7 +335,7 @@
 .webflow-palette-embed .save-option-button:focus-visible {
   transform: translateY(-1px);
   border-color: rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--glass-button-bg-strong);
   outline: none;
 }
 
@@ -593,18 +627,13 @@
   min-width: var(--mobile-rail-button-width);
   height: var(--mobile-rail-button-height);
   padding: 0 14px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid var(--glass-button-border);
   border-radius: 999px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04) 42%, rgba(24, 26, 31, 0.08)),
-    rgba(34, 36, 41, 0.22);
+  background: var(--glass-button-bg);
   color: inherit;
   cursor: pointer;
   font: inherit;
-  box-shadow:
-    0 10px 24px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.16),
-    inset 0 -10px 18px rgba(8, 10, 14, 0.16);
+  box-shadow: var(--glass-button-shadow);
   -webkit-backdrop-filter: blur(28px) saturate(180%);
   backdrop-filter: blur(28px) saturate(180%);
   transform: translateX(-50%);
@@ -636,13 +665,11 @@
   width: var(--mobile-rail-tab-width);
   height: var(--mobile-rail-tab-height);
   transform: translateX(-50%);
-  border: 1px solid var(--border);
+  border: 1px solid var(--glass-surface-border);
   border-bottom: 0;
   border-radius: var(--mobile-rail-tab-radius) var(--mobile-rail-tab-radius) 0 0;
-  background: rgba(12, 14, 17, 0.92);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    0 10px 24px rgba(0, 0, 0, 0.18);
+  background: var(--glass-surface-bg);
+  box-shadow: var(--glass-surface-shadow);
   pointer-events: none;
   z-index: 1;
 }
@@ -655,7 +682,7 @@
   width: calc(var(--mobile-rail-tab-width) + 6px);
   height: 20px;
   transform: translateX(-50%);
-  background: rgba(12, 14, 17, 0.92);
+  background: rgba(16, 18, 22, 0.78);
   border-radius: 999px;
   pointer-events: none;
   z-index: 1;
@@ -669,13 +696,12 @@
   width: 100%;
   min-width: 0;
   padding: var(--mobile-rail-padding);
-  border: 1px solid var(--border);
+  border: 1px solid var(--glass-surface-border);
   border-radius: var(--mobile-rail-radius);
-  background: rgba(12, 14, 17, 0.92);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    var(--shadow-soft);
-  backdrop-filter: blur(18px);
+  background: var(--glass-surface-bg);
+  box-shadow: var(--glass-surface-shadow);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  backdrop-filter: blur(22px) saturate(150%);
   overflow: visible;
 }
 
@@ -874,8 +900,13 @@
   min-height: 38px;
   padding: 0 10px;
   border-radius: 11px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-surface-border);
+  background: var(--glass-surface-bg-soft);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 18px rgba(0, 0, 0, 0.12);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
   white-space: nowrap;
 }
 
@@ -1337,7 +1368,7 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .control-hud__panel {
-  padding: 12px;
+  padding: 12px 14px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .hud-settings-toggle {
@@ -1345,7 +1376,7 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .hud-bar {
-  gap: 8px;
+  gap: 10px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .hud-count {
