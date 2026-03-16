@@ -640,30 +640,41 @@
 
 .webflow-palette-embed .mobile-palette-rail__top {
   display: flex;
-  gap: var(--mobile-rail-gap);
+  flex-direction: row;
   align-items: start;
+  margin: 0;
+  min-width: 0;
 }
 
 .webflow-palette-embed .mobile-palette-rail__copy {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 2px;
   align-content: start;
   flex: 0 0 auto;
+  margin: 0 6px 0 0;
   min-width: 0;
 }
 
 .webflow-palette-embed .mobile-palette-rail__controls {
   flex: 1 1 0;
-  display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  display: flex;
+  flex-direction: row;
   align-items: stretch;
-  gap: var(--mobile-rail-gap);
   width: 100%;
+  margin: 0;
   min-width: 0;
 }
 
+.webflow-palette-embed .mobile-palette-rail__controls .palette-button {
+  flex: 0 0 40px;
+}
+
 .webflow-palette-embed .mobile-palette-rail__controls .palette-size-label {
-  width: 100%;
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  margin: 0 6px;
 }
 
 .webflow-palette-embed .mobile-palette-rail__preview {
@@ -1483,10 +1494,10 @@ function getPaletteMarkup() {
           </button>
           <div class="mobile-palette-rail__surface palette-drawer-summary" data-role="palette-drawer-summary">
             <div class="mobile-palette-rail__top">
-              <span class="mobile-palette-rail__copy palette-drawer-toggle__copy">
+              <div class="mobile-palette-rail__copy palette-drawer-toggle__copy">
                 <span class="palette-drawer-toggle__label">Palette Rail</span>
                 <span class="palette-drawer-toggle__status" data-role="palette-preview-status">Upload an image to build a palette.</span>
-              </span>
+              </div>
               <div class="mobile-palette-rail__controls palette-toolbar-controls palette-toolbar-controls--summary">
                 <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
                 <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>

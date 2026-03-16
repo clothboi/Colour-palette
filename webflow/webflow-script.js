@@ -51,10 +51,10 @@ function getPaletteMarkup() {
           </button>
           <div class="mobile-palette-rail__surface palette-drawer-summary" data-role="palette-drawer-summary">
             <div class="mobile-palette-rail__top">
-              <span class="mobile-palette-rail__copy palette-drawer-toggle__copy">
+              <div class="mobile-palette-rail__copy palette-drawer-toggle__copy">
                 <span class="palette-drawer-toggle__label">Palette Rail</span>
                 <span class="palette-drawer-toggle__status" data-role="palette-preview-status">Upload an image to build a palette.</span>
-              </span>
+              </div>
               <div class="mobile-palette-rail__controls palette-toolbar-controls palette-toolbar-controls--summary">
                 <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
                 <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
