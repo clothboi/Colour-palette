@@ -177,6 +177,7 @@ const paletteDrawerSummary = root.querySelector('[data-role="palette-drawer-summ
 const palettePreviewList = root.querySelector('[data-role="palette-preview-list"]');
 const palettePreviewStatus = root.querySelector('[data-role="palette-preview-status"]');
 const emptyState = root.querySelector('[data-role="empty-state"]');
+const appShell = root.querySelector('.app-shell');
 const canvasStage = root.querySelector('.canvas-stage');
 const canvasWrap = root.querySelector('[data-role="canvas-wrap"]');
 const controlHud = root.querySelector('.control-hud');
@@ -203,7 +204,7 @@ const saveClose = root.querySelector('[data-action="save-close"]');
 const saveExport = root.querySelector('[data-action="save-export-image"]');
 const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
 const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !paletteSizeLabels.length || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !appShell || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !paletteSizeLabels.length || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
   return;
 }
 
@@ -598,6 +599,8 @@ function refreshStageSize() {
   if (!state.image) {
     root.dataset.paletteHasImage = "false";
     state.processedReferenceCanvas = null;
+    appShell.style.removeProperty("--ambient-image");
+    root.dataset.ambientImage = "false";
     canvasStage.style.removeProperty("--image-ratio");
     canvasStage.style.removeProperty("--frame-width");
     canvasStage.style.removeProperty("--frame-height");
@@ -646,6 +649,27 @@ function refreshStageSize() {
   const frameWidth = Math.min(Math.round(frameHeight * imageRatio), maxWidth);
   canvasStage.style.setProperty("--frame-width", `${frameWidth}px`);
   canvasStage.style.removeProperty("--frame-height");
+}
+
+function updateAmbientBackdrop() {
+  if (!state.image || !state.processedReferenceCanvas) {
+    appShell.style.removeProperty("--ambient-image");
+    root.dataset.ambientImage = "false";
+    return;
+  }
+
+  const sourceCanvas = state.processedReferenceCanvas;
+  const longestEdge = Math.max(sourceCanvas.width, sourceCanvas.height, 1);
+  const scale = Math.min(1, 120 / longestEdge);
+  const backdropCanvas = document.createElement("canvas");
+  backdropCanvas.width = Math.max(24, Math.round(sourceCanvas.width * scale));
+  backdropCanvas.height = Math.max(24, Math.round(sourceCanvas.height * scale));
+  const backdropCtx = backdropCanvas.getContext("2d");
+  backdropCtx.imageSmoothingEnabled = true;
+  backdropCtx.imageSmoothingQuality = "high";
+  backdropCtx.drawImage(sourceCanvas, 0, 0, backdropCanvas.width, backdropCanvas.height);
+  appShell.style.setProperty("--ambient-image", `url("${backdropCanvas.toDataURL("image/jpeg", 0.68)}")`);
+  root.dataset.ambientImage = "true";
 }
 
 function renderPalettePreview() {
@@ -1105,6 +1129,7 @@ function drawProcessedImage() {
     imageData.data[i + 2] = clamp(imageData.data[i + 2] + grain, 0, 255);
   }
   ctx.putImageData(imageData, 0, 0);
+  updateAmbientBackdrop();
 }
 
 function sampleCanvasColor(x, y) {
