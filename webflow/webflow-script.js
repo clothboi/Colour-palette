@@ -293,6 +293,7 @@ function initPalette(root) {
 const PALETTE_MIN = 2;
 const PALETTE_MAX = 30;
 const DEFAULT_PALETTE_SIZE = 4;
+let importWarningTimer = null;
 const MOBILE_LAYOUT_MAX_WIDTH = 980;
 const PALETTE_TWO_COLUMN_THRESHOLD = 16;
 const PALETTE_GAP = 3;
@@ -1549,12 +1550,23 @@ function closePaletteDrawer({ restoreFocus = true } = {}) {
 
 function showImportWarning(title, message) {
   if (!importWarning) return;
-  importWarning.innerHTML = `<strong>${title}</strong><p>${message}</p>`;
+  if (importWarningTimer) {
+    window.clearTimeout(importWarningTimer);
+    importWarningTimer = null;
+  }
+  importWarning.innerHTML = `<button class="import-warning__dismiss" type="button" data-action="import-warning-close" aria-label="Dismiss notice">x</button><strong>${title}</strong><p>${message}</p>`;
   importWarning.classList.remove("hidden");
+  importWarningTimer = window.setTimeout(() => {
+    clearImportWarning();
+  }, 5000);
 }
 
 function clearImportWarning() {
   if (!importWarning) return;
+  if (importWarningTimer) {
+    window.clearTimeout(importWarningTimer);
+    importWarningTimer = null;
+  }
   importWarning.innerHTML = "";
   importWarning.classList.add("hidden");
 }
@@ -1710,6 +1722,12 @@ function handleInventoryModalClick(event) {
 
   if (event.target === inventoryModal) {
     closeInventoryModal();
+  }
+}
+
+function handleImportWarningClick(event) {
+  if (event.target.closest('[data-action="import-warning-close"]')) {
+    clearImportWarning();
   }
 }
 
@@ -3015,6 +3033,7 @@ paintSetupButton.addEventListener("click", () => {
 
 inventoryForm.addEventListener("submit", addInventoryPaint);
 inventoryModal.addEventListener("click", handleInventoryModalClick);
+importWarning.addEventListener("click", handleImportWarningClick);
 
 
 input.addEventListener("change", async (event) => {

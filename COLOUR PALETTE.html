@@ -225,8 +225,9 @@ canvas {
 }
 
 .import-warning {
+  position: relative;
   margin: 0 0 10px;
-  padding: 12px 14px;
+  padding: 12px 48px 12px 14px;
   border: 1px solid rgba(236, 193, 121, 0.28);
   border-radius: 16px;
   background: linear-gradient(180deg, rgba(236, 193, 121, 0.16), rgba(236, 193, 121, 0.06));
@@ -251,6 +252,21 @@ canvas {
   font-size: 0.88rem;
   line-height: 1.45;
   color: rgba(239, 228, 206, 0.9);
+}
+
+.import-warning__dismiss {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(239, 228, 206, 0.18);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  color: inherit;
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
 }
 
 .swatch-layer {
@@ -1304,6 +1320,7 @@ const inventoryCount = document.getElementById("inventory-count");
 const inventoryClose = document.getElementById("inventory-close");
 const inventoryReset = document.getElementById("inventory-reset");
 const inventorySave = document.getElementById("inventory-save");
+let importWarningTimer = null;
 
 const PALETTE_MIN = 4;
 const PALETTE_MAX = 8;
@@ -1988,12 +2005,23 @@ function updatePaletteLabel() {
 
 function showImportWarning(title, message) {
   if (!importWarning) return;
-  importWarning.innerHTML = `<strong>${title}</strong><p>${message}</p>`;
+  if (importWarningTimer) {
+    window.clearTimeout(importWarningTimer);
+    importWarningTimer = null;
+  }
+  importWarning.innerHTML = `<button class="import-warning__dismiss" type="button" data-action="import-warning-close" aria-label="Dismiss notice">x</button><strong>${title}</strong><p>${message}</p>`;
   importWarning.classList.remove("hidden");
+  importWarningTimer = window.setTimeout(() => {
+    clearImportWarning();
+  }, 5000);
 }
 
 function clearImportWarning() {
   if (!importWarning) return;
+  if (importWarningTimer) {
+    window.clearTimeout(importWarningTimer);
+    importWarningTimer = null;
+  }
   importWarning.innerHTML = "";
   importWarning.classList.add("hidden");
 }
@@ -3066,6 +3094,13 @@ if (recipeClose) {
 if (recipeModal) {
   recipeModal.addEventListener("click", (event) => {
     if (event.target === recipeModal) closeRecipeModal();
+  });
+}
+if (importWarning) {
+  importWarning.addEventListener("click", (event) => {
+    if (event.target.closest('[data-action="import-warning-close"]')) {
+      clearImportWarning();
+    }
   });
 }
 window.addEventListener("keydown", (event) => {
