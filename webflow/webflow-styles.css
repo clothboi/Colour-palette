@@ -13,7 +13,7 @@
   --accent: rgba(158, 188, 223, 0.92);
   --palette-panel-width: 404px;
   --frame-clearance: 460px;
-  --palette-drawer-collapsed-height: 146px;
+  --palette-drawer-collapsed-height: 134px;
 }
 
 .webflow-palette-embed[data-palette-layout="double"] {
@@ -571,11 +571,11 @@
   min-width: 88px;
   height: 34px;
   padding: 0 18px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 999px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
-    rgba(255, 255, 255, 0.04);
+    linear-gradient(180deg, rgba(101, 105, 112, 0.24), rgba(59, 62, 68, 0.18)),
+    rgba(42, 44, 49, 0.82);
   color: inherit;
   cursor: pointer;
   font: inherit;
@@ -666,8 +666,8 @@
   transform: translate(-50%, -1px);
   border-color: rgba(255, 255, 255, 0.22);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04)),
-    rgba(255, 255, 255, 0.08);
+    linear-gradient(180deg, rgba(118, 122, 130, 0.28), rgba(67, 70, 77, 0.2)),
+    rgba(50, 53, 58, 0.86);
 }
 
 .webflow-palette-embed .palette-drawer-open:active:not(:disabled) {
@@ -694,7 +694,7 @@
 
 .webflow-palette-embed .palette-preview-tile {
   min-width: 0;
-  height: 52px;
+  height: 48px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
@@ -1260,7 +1260,7 @@
   z-index: 20;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   height: var(--palette-drawer-collapsed-height);
   min-height: var(--palette-drawer-collapsed-height);
   max-height: var(--palette-drawer-collapsed-height);
@@ -1280,7 +1280,7 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-summary {
-  gap: 10px;
+  gap: 6px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-summary__header {
