@@ -755,8 +755,14 @@
 
 .webflow-palette-embed .palette-preview-tile--placeholder {
   background:
-    linear-gradient(135deg, rgba(112, 79, 67, 0.5), rgba(82, 42, 27, 0.72)),
-    rgba(255, 255, 255, 0.04);
+    repeating-linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.075) 0,
+      rgba(255, 255, 255, 0.075) 2px,
+      transparent 2px,
+      transparent 14px
+    ),
+    linear-gradient(180deg, rgba(23, 25, 28, 0.92), rgba(12, 14, 17, 0.98));
   opacity: calc(1 - (var(--placeholder-index, 0) * 0.08));
 }
 
