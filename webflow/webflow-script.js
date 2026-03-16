@@ -1,4 +1,14 @@
 ﻿(() => {
+function getPaletteControlsMarkup(extraClass = "") {
+  const className = extraClass ? `palette-toolbar-controls ${extraClass}` : "palette-toolbar-controls";
+  return `
+                <div class="${className}">
+                  <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
+                  <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
+                  <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
+                </div>`;
+}
+
 function getPaletteMarkup() {
   return `
   <main class="app-shell">
@@ -56,11 +66,7 @@ function getPaletteMarkup() {
                 <span class="palette-drawer-toggle__status" data-role="palette-preview-status">Upload an image to build a palette.</span>
               </div>
               <div class="mobile-palette-rail__toolbar palette-toolbar">
-                <div class="palette-toolbar-controls palette-toolbar-controls--summary">
-                  <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
-                  <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
-                  <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
-                </div>
+${getPaletteControlsMarkup("mobile-palette-rail__toolbar-controls")}
               </div>
             </div>
             <span class="mobile-palette-rail__preview palette-preview-list" data-role="palette-preview-list" aria-hidden="true"></span>
@@ -71,11 +77,7 @@ function getPaletteMarkup() {
             <span class="palette-rail-label">Palette Rail</span>
             <button class="palette-drawer-close" type="button" data-action="palette-drawer-close" aria-label="Close palette drawer">Close</button>
           </div>
-          <div class="palette-toolbar-controls">
-            <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
-            <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
-            <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
-          </div>
+${getPaletteControlsMarkup()}
         </div>
         <div class="palette-drawer-sheet" data-role="palette-drawer-sheet" aria-hidden="false">
           <div data-role="palette-list" class="palette-list"></div>
@@ -166,7 +168,7 @@ const swatchLayer = root.querySelector('[data-role="swatch-layer"]');
 const paletteList = root.querySelector('[data-role="palette-list"]');
 const palettePanel = root.querySelector('[data-role="palette-panel"]');
 const mobilePaletteRail = root.querySelector('[data-role="mobile-palette-rail"]');
-const paletteToolbar = root.querySelector('[data-role="desktop-palette-toolbar"]');
+const desktopPaletteToolbar = root.querySelector('[data-role="desktop-palette-toolbar"]');
 const paletteDrawerSheet = root.querySelector('[data-role="palette-drawer-sheet"]');
 const paletteDrawerSummary = root.querySelector('[data-role="palette-drawer-summary"]');
 const palettePreviewList = root.querySelector('[data-role="palette-preview-list"]');
@@ -197,7 +199,7 @@ const saveClose = root.querySelector('[data-action="save-close"]');
 const saveExport = root.querySelector('[data-action="save-export-image"]');
 const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
 const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !paletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !mobileViewToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !paletteSizeLabels.length || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !mobileViewToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !paletteSizeLabels.length || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
   return;
 }
 
@@ -1135,11 +1137,11 @@ function getPaletteAvailableHeight() {
   const gap = parseFloat(panelStyles.rowGap || panelStyles.gap || "0") || 0;
   const summaryVisible = !paletteDrawerSummary.hidden && window.getComputedStyle(paletteDrawerSummary).display !== "none";
   const openVisible = !paletteDrawerOpen.hidden && window.getComputedStyle(paletteDrawerOpen).display !== "none";
-  const toolbarVisible = window.getComputedStyle(paletteToolbar).display !== "none";
+  const toolbarVisible = window.getComputedStyle(desktopPaletteToolbar).display !== "none";
   const usedHeights = [
     openVisible ? paletteDrawerOpen.getBoundingClientRect().height : 0,
     summaryVisible ? paletteDrawerSummary.getBoundingClientRect().height : 0,
-    toolbarVisible ? paletteToolbar.getBoundingClientRect().height : 0,
+    toolbarVisible ? desktopPaletteToolbar.getBoundingClientRect().height : 0,
   ].filter((value) => value > 0);
   const visibleItems = usedHeights.length + 1;
   const gaps = Math.max(0, visibleItems - 1) * gap;
