@@ -1439,8 +1439,15 @@
 .webflow-palette-embed[data-mobile-layout="true"] .recipe-button,
 .webflow-palette-embed[data-mobile-layout="true"] .recipe-export,
 .webflow-palette-embed[data-mobile-layout="true"] .save-export {
-  width: 100%;
   min-height: 44px;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .recipe-export {
+  width: calc(var(--recipe-modal-width) - 32px);
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .save-export {
+  width: calc(var(--save-modal-width) - 32px);
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .save-option-row-sizes .save-option-button {
