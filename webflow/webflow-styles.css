@@ -1599,9 +1599,15 @@
 }
 
 .webflow-palette-embed .recipe-component-head {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.webflow-palette-embed .recipe-component-head strong {
+  display: inline-flex;
+  align-items: center;
 }
 
 .webflow-palette-embed .recipe-component-dot {

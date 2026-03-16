@@ -520,9 +520,15 @@ canvas {
 }
 
 .recipe-component-head {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.recipe-component-head strong {
+  display: inline-flex;
+  align-items: center;
 }
 
 .recipe-component-dot {
