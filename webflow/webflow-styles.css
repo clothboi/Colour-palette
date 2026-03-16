@@ -270,7 +270,12 @@
 .webflow-palette-embed .recipe-button,
 .webflow-palette-embed .hud-settings-toggle,
 .webflow-palette-embed .palette-button,
-.webflow-palette-embed .palette-drawer-close {
+.webflow-palette-embed .palette-drawer-close,
+.webflow-palette-embed .recipe-close,
+.webflow-palette-embed .recipe-export,
+.webflow-palette-embed .save-close,
+.webflow-palette-embed .save-export,
+.webflow-palette-embed .save-option-button {
   border: 1px solid var(--glass-button-border);
   background: var(--glass-button-bg);
   color: var(--text);
@@ -1185,9 +1190,14 @@
 .webflow-palette-embed .save-control-group,
 .webflow-palette-embed .save-toggle,
 .webflow-palette-embed .save-preview-shell {
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-surface-border);
+  background: var(--glass-surface-bg-soft);
   border-radius: 14px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 18px rgba(0, 0, 0, 0.12);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+  backdrop-filter: blur(18px) saturate(145%);
 }
 
 .webflow-palette-embed .save-control-group {
@@ -1226,8 +1236,8 @@
 
 .webflow-palette-embed .save-option-button.active,
 .webflow-palette-embed .save-option-button[aria-pressed="true"] {
-  border-color: rgba(158, 188, 223, 0.3);
-  background: rgba(158, 188, 223, 0.14);
+  border-color: rgba(255, 255, 255, 0.24);
+  background: var(--glass-button-bg-strong);
 }
 
 .webflow-palette-embed .save-toggle {
@@ -1263,6 +1273,9 @@
   height: auto;
   border-radius: 12px;
   background: #111417;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 12px 24px rgba(0, 0, 0, 0.18);
 }
 
 .webflow-palette-embed .save-preview-empty {
@@ -1326,7 +1339,13 @@
   gap: 12px;
   padding: 7px 9px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-surface-border);
+  background: var(--glass-surface-bg-soft);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 18px rgba(0, 0, 0, 0.12);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] {
