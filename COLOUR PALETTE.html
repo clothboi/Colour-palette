@@ -1908,11 +1908,13 @@ function exportRecipeImage() {
     return;
   }
 
-  const width = 920;
+  const cardCount = state.recipeResults.length;
+  const columns = Math.ceil(Math.sqrt(cardCount));
+  const rows = Math.ceil(cardCount / columns);
   const padding = 24;
   const titleHeight = 48;
   const cardGap = 12;
-  const cardWidth = width - (padding * 2);
+  const cardWidth = 420;
   const measureCanvas = document.createElement("canvas");
   const measureCtx = measureCanvas.getContext("2d");
   measureCtx.font = '500 16px "Space Grotesk", sans-serif';
@@ -1940,7 +1942,13 @@ function exportRecipeImage() {
   }
 
   const cardHeights = state.recipeResults.map((entry) => 152 + (getCardLines(entry).length * 20));
-  const height = padding + titleHeight + 16 + cardHeights.reduce((sum, value) => sum + value, 0) + (Math.max(0, state.recipeResults.length - 1) * cardGap) + padding;
+  const rowHeights = new Array(rows).fill(0);
+  cardHeights.forEach((height, index) => {
+    const row = Math.floor(index / columns);
+    rowHeights[row] = Math.max(rowHeights[row], height);
+  });
+  const width = (padding * 2) + (columns * cardWidth) + (Math.max(0, columns - 1) * cardGap);
+  const height = padding + titleHeight + 16 + rowHeights.reduce((sum, value) => sum + value, 0) + (Math.max(0, rows - 1) * cardGap) + padding;
   const exportCanvas = document.createElement("canvas");
   exportCanvas.width = width;
   exportCanvas.height = height;
@@ -1952,33 +1960,41 @@ function exportRecipeImage() {
   exportCtx.font = '700 26px "Space Grotesk", sans-serif';
   exportCtx.fillText("Paint recipes", padding, padding + 26);
 
-  let y = padding + titleHeight + 16;
+  const rowOffsets = [];
+  let runningY = padding + titleHeight + 16;
+  rowHeights.forEach((rowHeight) => {
+    rowOffsets.push(runningY);
+    runningY += rowHeight + cardGap;
+  });
+
   state.recipeResults.forEach((entry, index) => {
     const cardHeight = cardHeights[index];
-    drawRoundedRect(exportCtx, padding, y, cardWidth, cardHeight, 14, "#191d22");
+    const column = index % columns;
+    const row = Math.floor(index / columns);
+    const x = padding + (column * (cardWidth + cardGap));
+    const y = rowOffsets[row];
+    drawRoundedRect(exportCtx, x, y, cardWidth, cardHeight, 14, "#191d22");
 
     const swatch = entry.display.swatchColor || entry.target_hex;
     const swatchRgb = hexToRgb(swatch);
     const headerTextColor = luminance(swatchRgb.r, swatchRgb.g, swatchRgb.b) > 0.62 ? "#15171a" : "#f2efe8";
-    drawRoundedRect(exportCtx, padding + 12, y + 12, cardWidth - 24, 40, 10, swatch);
+    drawRoundedRect(exportCtx, x + 12, y + 12, cardWidth - 24, 40, 10, swatch);
     exportCtx.fillStyle = headerTextColor;
     exportCtx.font = '700 18px "Space Grotesk", sans-serif';
-    exportCtx.fillText(entry.target_hex, padding + 28, y + 38);
+    exportCtx.fillText(entry.target_hex, x + 28, y + 38);
 
     exportCtx.fillStyle = "#bcc0c7";
     exportCtx.font = '600 16px "Space Grotesk", sans-serif';
-    exportCtx.fillText(entry.display.targetRgb, padding + 12, y + 76);
-    exportCtx.fillText(`LAB ${entry.target_lab.L.toFixed(1)}, ${entry.target_lab.a.toFixed(1)}, ${entry.target_lab.b.toFixed(1)}`, padding + 12, y + 102);
-    exportCtx.fillText(`Using ${entry.display.sourceLabel}`, padding + 12, y + 128);
+    exportCtx.fillText(entry.display.targetRgb, x + 12, y + 76);
+    exportCtx.fillText(`LAB ${entry.target_lab.L.toFixed(1)}, ${entry.target_lab.a.toFixed(1)}, ${entry.target_lab.b.toFixed(1)}`, x + 12, y + 102);
+    exportCtx.fillText(`Using ${entry.display.sourceLabel}`, x + 12, y + 128);
 
     const lines = getCardLines(entry);
     exportCtx.fillStyle = "#91969d";
     exportCtx.font = '500 16px "Space Grotesk", sans-serif';
     lines.forEach((line, lineIndex) => {
-      exportCtx.fillText(line, padding + 12, y + 160 + (lineIndex * 20));
+      exportCtx.fillText(line, x + 12, y + 160 + (lineIndex * 20));
     });
-
-    y += cardHeight + cardGap;
   });
 
   const link = document.createElement("a");
