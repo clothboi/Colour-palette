@@ -153,59 +153,62 @@ function ensurePaletteMarkup(root) {
 }
 
 function initPalette(root) {
-if (!root || root.dataset.webflowPaletteReady === "true") {
-  return;
-}
-ensurePaletteMarkup(root);
-root.dataset.webflowPaletteReady = "true";
-root.dataset.paletteHasImage = "false";
-const input = root.querySelector('[data-role="image-input"]');
-const blurRange = root.querySelector('[data-role="blur-range"]');
-const importWarning = root.querySelector('[data-role="import-warning"]');
-const canvas = root.querySelector('[data-role="display-canvas"]');
-if (!input || !blurRange || !importWarning || !canvas) {
-  return;
-}
-const ctx = canvas.getContext("2d", { willReadFrequently: true });
-const swatchLayer = root.querySelector('[data-role="swatch-layer"]');
-const paletteList = root.querySelector('[data-role="palette-list"]');
-const palettePanel = root.querySelector('[data-role="palette-panel"]');
-const mobilePaletteRail = root.querySelector('[data-role="mobile-palette-rail"]');
-const desktopPaletteToolbar = root.querySelector('[data-role="desktop-palette-toolbar"]');
-const paletteDrawerSheet = root.querySelector('[data-role="palette-drawer-sheet"]');
-const paletteDrawerSummary = root.querySelector('[data-role="palette-drawer-summary"]');
-const palettePreviewList = root.querySelector('[data-role="palette-preview-list"]');
-const palettePreviewStatus = root.querySelector('[data-role="palette-preview-status"]');
-const emptyState = root.querySelector('[data-role="empty-state"]');
-const canvasStage = root.querySelector('.canvas-stage');
-const canvasWrap = root.querySelector('[data-role="canvas-wrap"]');
-const controlHud = root.querySelector('.control-hud');
-const hudSettingsPanel = root.querySelector('[data-role="hud-settings-panel"]');
-const settingsToggle = root.querySelector('[data-action="toggle-settings"]');
-const paletteDrawerOpen = root.querySelector('[data-action="palette-drawer-open"]');
-const paletteDrawerClose = root.querySelector('[data-action="palette-drawer-close"]');
-const paletteMinusButtons = [...root.querySelectorAll('[data-action="palette-minus"]')];
-const palettePlusButtons = [...root.querySelectorAll('[data-action="palette-plus"]')];
-const paletteSizeLabels = [...root.querySelectorAll('[data-role="palette-size-label"]')];
-const recipeButton = root.querySelector('[data-action="recipe"]');
-const imageExportButton = root.querySelector('[data-action="export-image"]');
-const recipeModal = root.querySelector('[data-role="recipe-modal"]');
-const recipeContent = root.querySelector('[data-role="recipe-content"]');
-const recipeClose = root.querySelector('[data-action="recipe-close"]');
-const recipeExport = root.querySelector('[data-action="recipe-export"]');
-const saveModal = root.querySelector('[data-role="save-modal"]');
-const saveContent = root.querySelector('[data-role="save-content"]');
-const savePreviewCanvas = root.querySelector('[data-role="save-preview-canvas"]');
-const savePreviewEmpty = root.querySelector('[data-role="save-preview-empty"]');
-const saveNodesRow = root.querySelector('[data-role="save-nodes-row"]');
-const saveStripNodes = root.querySelector('[data-role="save-strip-nodes"]');
-const saveClose = root.querySelector('[data-action="save-close"]');
-const saveExport = root.querySelector('[data-action="save-export-image"]');
-const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
-const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !paletteSizeLabels.length || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
-  return;
-}
+  if (!root || root.dataset.webflowPaletteReady === "true") {
+    return;
+  }
+
+  ensurePaletteMarkup(root);
+  root.dataset.webflowPaletteReady = "true";
+  root.dataset.paletteHasImage = "false";
+
+  const input = root.querySelector('[data-role="image-input"]');
+  const blurRange = root.querySelector('[data-role="blur-range"]');
+  const importWarning = root.querySelector('[data-role="import-warning"]');
+  const canvas = root.querySelector('[data-role="display-canvas"]');
+  if (!input || !blurRange || !importWarning || !canvas) {
+    return;
+  }
+
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  const swatchLayer = root.querySelector('[data-role="swatch-layer"]');
+  const paletteList = root.querySelector('[data-role="palette-list"]');
+  const palettePanel = root.querySelector('[data-role="palette-panel"]');
+  const mobilePaletteRail = root.querySelector('[data-role="mobile-palette-rail"]');
+  const desktopPaletteToolbar = root.querySelector('[data-role="desktop-palette-toolbar"]');
+  const paletteDrawerSheet = root.querySelector('[data-role="palette-drawer-sheet"]');
+  const paletteDrawerSummary = root.querySelector('[data-role="palette-drawer-summary"]');
+  const palettePreviewList = root.querySelector('[data-role="palette-preview-list"]');
+  const palettePreviewStatus = root.querySelector('[data-role="palette-preview-status"]');
+  const emptyState = root.querySelector('[data-role="empty-state"]');
+  const canvasStage = root.querySelector('.canvas-stage');
+  const canvasWrap = root.querySelector('[data-role="canvas-wrap"]');
+  const controlHud = root.querySelector('.control-hud');
+  const hudSettingsPanel = root.querySelector('[data-role="hud-settings-panel"]');
+  const settingsToggle = root.querySelector('[data-action="toggle-settings"]');
+  const paletteDrawerOpen = root.querySelector('[data-action="palette-drawer-open"]');
+  const paletteDrawerClose = root.querySelector('[data-action="palette-drawer-close"]');
+  const paletteMinusButtons = [...root.querySelectorAll('[data-action="palette-minus"]')];
+  const palettePlusButtons = [...root.querySelectorAll('[data-action="palette-plus"]')];
+  const paletteSizeLabels = [...root.querySelectorAll('[data-role="palette-size-label"]')];
+  const recipeButton = root.querySelector('[data-action="recipe"]');
+  const imageExportButton = root.querySelector('[data-action="export-image"]');
+  const recipeModal = root.querySelector('[data-role="recipe-modal"]');
+  const recipeContent = root.querySelector('[data-role="recipe-content"]');
+  const recipeClose = root.querySelector('[data-action="recipe-close"]');
+  const recipeExport = root.querySelector('[data-action="recipe-export"]');
+  const saveModal = root.querySelector('[data-role="save-modal"]');
+  const saveContent = root.querySelector('[data-role="save-content"]');
+  const savePreviewCanvas = root.querySelector('[data-role="save-preview-canvas"]');
+  const savePreviewEmpty = root.querySelector('[data-role="save-preview-empty"]');
+  const saveNodesRow = root.querySelector('[data-role="save-nodes-row"]');
+  const saveStripNodes = root.querySelector('[data-role="save-strip-nodes"]');
+  const saveClose = root.querySelector('[data-action="save-close"]');
+  const saveExport = root.querySelector('[data-action="save-export-image"]');
+  const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
+  const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
+  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !paletteSizeLabels.length || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+    return;
+  }
 
 const PALETTE_MIN = 2;
 const PALETTE_MAX = 30;
