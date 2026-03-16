@@ -1568,14 +1568,22 @@ function updatePaletteLabel() {
     : "Upload an image to build a palette.";
 }
 
+function shouldCollapseSettingsOnMobile() {
+  if (!isRealMobileLayout() || !state.image) {
+    return false;
+  }
+  return state.image.height > state.image.width;
+}
+
 function syncLayoutState() {
   const mobileLayout = isRealMobileLayout();
+  const collapsibleSettings = shouldCollapseSettingsOnMobile();
   if (mobileLayout !== state.wasMobileLayout) {
     state.wasMobileLayout = mobileLayout;
     state.isSettingsOpen = false;
   }
 
-  if (!mobileLayout) {
+  if (!mobileLayout || !collapsibleSettings) {
     state.isSettingsOpen = false;
   }
 
@@ -1584,13 +1592,13 @@ function syncLayoutState() {
   }
 
   root.dataset.mobileLayout = mobileLayout ? "true" : "false";
-  root.dataset.settingsOpen = mobileLayout && state.isSettingsOpen ? "true" : "false";
+  root.dataset.settingsOpen = mobileLayout && collapsibleSettings && state.isSettingsOpen ? "true" : "false";
   root.dataset.paletteDrawerOpen = mobileLayout && state.isPaletteDrawerOpen ? "true" : "false";
 
-  settingsToggle.hidden = !mobileLayout;
-  settingsToggle.setAttribute("aria-expanded", String(mobileLayout && state.isSettingsOpen));
-  hudSettingsPanel.hidden = mobileLayout ? !state.isSettingsOpen : false;
-  hudSettingsPanel.setAttribute("aria-hidden", String(mobileLayout ? !state.isSettingsOpen : false));
+  settingsToggle.hidden = !mobileLayout || !collapsibleSettings;
+  settingsToggle.setAttribute("aria-expanded", String(mobileLayout && collapsibleSettings && state.isSettingsOpen));
+  hudSettingsPanel.hidden = mobileLayout && collapsibleSettings ? !state.isSettingsOpen : false;
+  hudSettingsPanel.setAttribute("aria-hidden", String(mobileLayout && collapsibleSettings ? !state.isSettingsOpen : false));
   mobilePaletteRail.hidden = !mobileLayout || state.isPaletteDrawerOpen;
   paletteDrawerOpen.hidden = !mobileLayout || state.isPaletteDrawerOpen;
   paletteDrawerOpen.setAttribute("aria-expanded", mobileLayout && state.isPaletteDrawerOpen ? "true" : "false");
@@ -3212,7 +3220,7 @@ blurRange.addEventListener("input", () => {
 });
 
 settingsToggle.addEventListener("click", () => {
-  if (!isRealMobileLayout()) {
+  if (!isRealMobileLayout() || !shouldCollapseSettingsOnMobile()) {
     return;
   }
 
