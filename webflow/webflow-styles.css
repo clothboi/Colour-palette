@@ -1594,6 +1594,10 @@
   gap: 3px;
 }
 
+.webflow-palette-embed .recipe-buy-copy strong {
+  text-transform: uppercase;
+}
+
 .webflow-palette-embed .recipe-component-head {
   display: flex;
   align-items: center;
