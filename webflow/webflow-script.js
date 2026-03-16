@@ -801,6 +801,33 @@ function buildSubstitutions(recipeEntries) {
     }));
 }
 
+function solveBestRecipe(targetLab, paints, maxPigments) {
+  const candidatePaints = selectCandidatePaints(targetLab, paints);
+  let best = null;
+
+  for (let pigmentCount = 1; pigmentCount <= Math.min(maxPigments, candidatePaints.length); pigmentCount += 1) {
+    const combinations = getPaintCombinations(candidatePaints, pigmentCount);
+    const weights = generateWeightSets(pigmentCount, 10);
+    combinations.forEach((combo) => {
+      weights.forEach((set) => {
+        const recipe = combo.map((paint, index) => ({ paint, massPercent: set[index] }));
+        const mixed = mixPaints(recipe);
+        const mixedLab = rgbToLab(mixed);
+        const distance = deltaE(targetLab, mixedLab);
+        const penalty = recipe.reduce((sum, entry) => sum + (entry.paint.is_multi_pigment ? 1.4 : 0), 0)
+          + recipe.reduce((sum, entry) => sum + (entry.paint.model_source.startsWith("proxy_") ? 0.55 : 0), 0)
+          + (recipe.length - 1) * 0.18;
+        const score = distance + penalty;
+        if (!best || score < best.score) {
+          best = { recipe, mixed, mixedLab, distance, score };
+        }
+      });
+    });
+  }
+
+  return { best, candidatePaints };
+}
+
 function formatIdealMixPart(paint, massPercent) {
   return `${getPaintLabel(paint)} (${paint.pigment_codes.join(", ")}) ${Math.round(massPercent)}%`;
 }
@@ -821,30 +848,49 @@ function buildIdealMixSummary(targetLab, candidatePaints, recipeEntries) {
   return recipeEntries.map((entry) => formatIdealMixPart(entry.paint, entry.massPercent)).join(" + ");
 }
 
+function getIdealSinglePaintMatch(targetLab, candidatePaints) {
+  return candidatePaints
+    .filter((paint) => paint.rgb)
+    .map((paint) => ({
+      paint,
+      distance: deltaE(targetLab, rgbToLab(paint.rgb)),
+    }))
+    .sort((left, right) => left.distance - right.distance)[0] || null;
+}
+
+function hasOwnedEquivalent(paint, ownedPaints) {
+  return ownedPaints.some((ownedPaint) => ownedPaint.pigment_codes.some((code) => paint.pigment_codes.includes(code)));
+}
+
+function buildIdealMixBanner(targetLab, request, fallbackRecipeEntries, fallbackCandidatePaints) {
+  const starterSolve = solveBestRecipe(targetLab, STARTER_PALETTE, request.constraints.max_pigments);
+  const starterCandidatePaints = starterSolve.candidatePaints || [];
+  const singlePaintMatch = getIdealSinglePaintMatch(targetLab, starterCandidatePaints);
+  if (singlePaintMatch && singlePaintMatch.distance <= IDEAL_SINGLE_PAINT_DISTANCE_THRESHOLD) {
+    const label = hasOwnedEquivalent(singlePaintMatch.paint, state.ownedPaints) ? "Ideal mix" : "Best paint to buy";
+    return {
+      label,
+      summary: formatIdealMixPart(singlePaintMatch.paint, 100),
+    };
+  }
+  const idealRecipeEntries = starterSolve.best?.recipe || fallbackRecipeEntries;
+  const missingEntries = idealRecipeEntries.filter((entry) => !hasOwnedEquivalent(entry.paint, state.ownedPaints));
+  if (missingEntries.length) {
+    return {
+      label: "Best paints to buy",
+      summary: missingEntries.map((entry) => formatIdealMixPart(entry.paint, entry.massPercent)).join(" + "),
+    };
+  }
+
+  return {
+    label: "Ideal mix",
+    summary: buildIdealMixSummary(targetLab, fallbackCandidatePaints, fallbackRecipeEntries),
+  };
+}
+
 function estimatePaintRecipe(targetColor, request) {
   const targetLab = rgbToLab(targetColor);
-  const candidatePaints = selectCandidatePaints(targetLab, request.owned_paints);
-  let best = null;
-
-  for (let pigmentCount = 1; pigmentCount <= Math.min(request.constraints.max_pigments, candidatePaints.length); pigmentCount += 1) {
-    const combinations = getPaintCombinations(candidatePaints, pigmentCount);
-    const weights = generateWeightSets(pigmentCount, 10);
-    combinations.forEach((combo) => {
-      weights.forEach((set) => {
-        const recipe = combo.map((paint, index) => ({ paint, massPercent: set[index] }));
-        const mixed = mixPaints(recipe);
-        const mixedLab = rgbToLab(mixed);
-        const distance = deltaE(targetLab, mixedLab);
-        const penalty = recipe.reduce((sum, entry) => sum + (entry.paint.is_multi_pigment ? 1.4 : 0), 0)
-          + recipe.reduce((sum, entry) => sum + (entry.paint.model_source.startsWith("proxy_") ? 0.55 : 0), 0)
-          + (recipe.length - 1) * 0.18;
-        const score = distance + penalty;
-        if (!best || score < best.score) {
-          best = { recipe, mixed, mixedLab, distance, score };
-        }
-      });
-    });
-  }
+  const { best, candidatePaints } = solveBestRecipe(targetLab, request.owned_paints, request.constraints.max_pigments);
 
   if (!best) {
     return {
@@ -889,7 +935,7 @@ function estimatePaintRecipe(targetColor, request) {
   const gamutStatus = best.distance <= 12 ? "in_gamut" : "nearest_achievable";
   const gamutNote = gamutStatus === "in_gamut" ? "This target appears achievable within the current proxy palette." : describeLabMiss(targetLab, best.mixedLab);
   const substitutions = buildSubstitutions(best.recipe);
-  const idealMixSummary = buildIdealMixSummary(targetLab, candidatePaints, best.recipe);
+  const idealMixBanner = buildIdealMixBanner(targetLab, request, best.recipe, candidatePaints);
   const warnings = [];
 
   if (!state.ownedPaints.length) {
@@ -926,7 +972,8 @@ function estimatePaintRecipe(targetColor, request) {
       mixedRgb: `RGB ${best.mixed.r}, ${best.mixed.g}, ${best.mixed.b}`,
       mixedHex: rgbToHex(best.mixed.r, best.mixed.g, best.mixed.b),
       swatchColor: targetColor.hex,
-      idealMixSummary,
+      idealMixSummary: idealMixBanner.summary,
+      idealMixLabel: idealMixBanner.label,
     },
   };
 }
@@ -1548,7 +1595,7 @@ function exportRecipeImage() {
     }
 
     if (entry.display.idealMixSummary) {
-      lines.push(`Ideal mix ${entry.display.idealMixSummary}`);
+      lines.push(`${entry.display.idealMixLabel || "Ideal mix"} ${entry.display.idealMixSummary}`);
     }
 
     entry.recipe.components.forEach((component) => {
@@ -1657,7 +1704,7 @@ function renderRecipe() {
       ${entry.quality.gamut_note ? `<p class="recipe-note">${escapeHtml(entry.quality.gamut_note)}</p>` : ""}
       ${entry.substitutions.length ? `<div class="recipe-section"><strong>Substitutions</strong><ul class="recipe-inline-list">${entry.substitutions.map((item) => `<li>${escapeHtml(item.missing_paint)} -> ${escapeHtml(item.recommended_substitute.color_name)} (${escapeHtml(item.match_class.replaceAll("_", " "))})</li>`).join("")}</ul></div>` : ""}
       ${entry.warnings.length ? `<div class="recipe-section"><strong>Warnings</strong><ul class="recipe-inline-list">${entry.warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("")}</ul></div>` : ""}
-      ${entry.display.idealMixSummary ? `<div class="recipe-ideal-banner"><strong>Ideal mix</strong><span>${escapeHtml(entry.display.idealMixSummary)}</span></div>` : ""}
+      ${entry.display.idealMixSummary ? `<div class="recipe-ideal-banner"><strong>${escapeHtml(entry.display.idealMixLabel || "Ideal mix")}</strong><span>${escapeHtml(entry.display.idealMixSummary)}</span></div>` : ""}
     </section>`).join("")}</div>`;
 }
 
