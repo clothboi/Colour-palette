@@ -177,7 +177,6 @@ const paletteDrawerSummary = root.querySelector('[data-role="palette-drawer-summ
 const palettePreviewList = root.querySelector('[data-role="palette-preview-list"]');
 const palettePreviewStatus = root.querySelector('[data-role="palette-preview-status"]');
 const emptyState = root.querySelector('[data-role="empty-state"]');
-const appShell = root.querySelector('.app-shell');
 const canvasStage = root.querySelector('.canvas-stage');
 const canvasWrap = root.querySelector('[data-role="canvas-wrap"]');
 const controlHud = root.querySelector('.control-hud');
@@ -204,7 +203,7 @@ const saveClose = root.querySelector('[data-action="save-close"]');
 const saveExport = root.querySelector('[data-action="save-export-image"]');
 const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
 const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !appShell || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !paletteSizeLabels.length || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !paletteSizeLabels.length || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
   return;
 }
 
@@ -599,7 +598,7 @@ function refreshStageSize() {
   if (!state.image) {
     root.dataset.paletteHasImage = "false";
     state.processedReferenceCanvas = null;
-    appShell.style.removeProperty("--ambient-image");
+    root.style.removeProperty("--ambient-image");
     root.dataset.ambientImage = "false";
     canvasStage.style.removeProperty("--image-ratio");
     canvasStage.style.removeProperty("--frame-width");
@@ -653,7 +652,7 @@ function refreshStageSize() {
 
 function updateAmbientBackdrop() {
   if (!state.image || !state.processedReferenceCanvas) {
-    appShell.style.removeProperty("--ambient-image");
+    root.style.removeProperty("--ambient-image");
     root.dataset.ambientImage = "false";
     return;
   }
@@ -668,7 +667,7 @@ function updateAmbientBackdrop() {
   backdropCtx.imageSmoothingEnabled = true;
   backdropCtx.imageSmoothingQuality = "high";
   backdropCtx.drawImage(sourceCanvas, 0, 0, backdropCanvas.width, backdropCanvas.height);
-  appShell.style.setProperty("--ambient-image", `url("${backdropCanvas.toDataURL("image/jpeg", 0.68)}")`);
+  root.style.setProperty("--ambient-image", `url("${backdropCanvas.toDataURL("image/jpeg", 0.68)}")`);
   root.dataset.ambientImage = "true";
 }
 
