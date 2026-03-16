@@ -1588,7 +1588,6 @@
   backdrop-filter: blur(16px) saturate(140%);
 }
 
-.webflow-palette-embed .recipe-list li span,
 .webflow-palette-embed .recipe-buy-copy {
   display: grid;
   gap: 3px;
