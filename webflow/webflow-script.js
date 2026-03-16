@@ -549,11 +549,16 @@ function getPaintProxy(pigmentCodes) {
 function normalizePaintProduct(paint, index = 0, source = "inventory") {
   const colorName = String(paint.color_name || paint.name || "").trim();
   const pigmentCodes = parsePigmentCodes(paint.pigment_codes);
-  const explicitHex = toHexOrEmpty(paint.approx_srgb_hex);
+  const starterFallbackHex = source === "starter" ? toHexOrEmpty(paint.approx_srgb_hex) : "";
+  const explicitHex = source === "starter" ? "" : toHexOrEmpty(paint.approx_srgb_hex);
   const proxy = explicitHex ? null : getPaintProxy(pigmentCodes);
-  const proxyHex = proxy?.paint?.approx_srgb_hex || "";
-  const approxHex = explicitHex || proxyHex;
-  const modelSource = explicitHex ? (source === "starter" ? "starter_demo" : "inventory_swatch") : (proxy ? `proxy_${proxy.matchClass}` : "missing_proxy");
+  const catalogColor = explicitHex ? null : getCatalogColorForPaint({ ...paint, color_name: colorName, pigment_codes: pigmentCodes });
+  const approxHex = getResolvedPaintSwatchHex({ ...paint, color_name: colorName, pigment_codes: pigmentCodes }, { explicitHex, fallbackHex: starterFallbackHex, proxy });
+  const modelSource = explicitHex
+    ? (source === "starter" ? "starter_demo" : "inventory_swatch")
+    : (catalogColor
+      ? (source === "starter" ? "starter_catalog" : "catalog_match")
+      : (starterFallbackHex ? "starter_demo" : (proxy ? `proxy_${proxy.matchClass}` : "missing_proxy")));
   const rgb = approxHex ? hexToRgb(approxHex) : null;
 
   return {
@@ -598,6 +603,66 @@ function createCatalogSwatchHex(catalogColor) {
   if (!catalogColor.lab) return "#2A2F36";
   const rgb = labToRgb({ l: catalogColor.lab.L, a: catalogColor.lab.a, b: catalogColor.lab.b });
   return rgbToHex(rgb.r, rgb.g, rgb.b);
+}
+
+function getCatalogColorForPaint(paint) {
+  if (!Array.isArray(WILLIAMSBURG_CATALOG.colors) || !WILLIAMSBURG_CATALOG.colors.length) {
+    return null;
+  }
+
+  const normalizedName = getPaintLabel(paint).trim().toLowerCase();
+  if (normalizedName) {
+    const exactName = WILLIAMSBURG_CATALOG.colors.find((color) => color.color_name.trim().toLowerCase() === normalizedName);
+    if (exactName) {
+      return exactName;
+    }
+  }
+
+  const pigmentCodes = parsePigmentCodes(paint.pigment_codes);
+  if (!pigmentCodes.length) {
+    return null;
+  }
+
+  const exactPigmentSet = WILLIAMSBURG_CATALOG.colors.find((color) => {
+    const catalogPigments = parsePigmentCodes(color.pigment_codes);
+    return catalogPigments.length === pigmentCodes.length && catalogPigments.every((code) => pigmentCodes.includes(code));
+  });
+  if (exactPigmentSet) {
+    return exactPigmentSet;
+  }
+
+  return WILLIAMSBURG_CATALOG.colors.find((color) => {
+    const catalogPigments = parsePigmentCodes(color.pigment_codes);
+    return catalogPigments.some((code) => pigmentCodes.includes(code));
+  }) || null;
+}
+
+function getResolvedPaintSwatchHex(paint, options = {}) {
+  const explicitHex = toHexOrEmpty(options.explicitHex ?? paint.user_swatch_hex ?? paint.approx_srgb_hex);
+  if (explicitHex) {
+    return explicitHex;
+  }
+
+  const catalogColor = getCatalogColorForPaint(paint);
+  if (catalogColor) {
+    return createCatalogSwatchHex(catalogColor);
+  }
+
+  const fallbackHex = toHexOrEmpty(options.fallbackHex);
+  if (fallbackHex) {
+    return fallbackHex;
+  }
+
+  const proxy = options.proxy ?? getPaintProxy(parsePigmentCodes(paint.pigment_codes));
+  if (proxy?.paint) {
+    const proxyCatalogColor = getCatalogColorForPaint(proxy.paint);
+    if (proxyCatalogColor) {
+      return createCatalogSwatchHex(proxyCatalogColor);
+    }
+    return toHexOrEmpty(proxy.paint.user_swatch_hex || proxy.paint.approx_srgb_hex);
+  }
+
+  return "";
 }
 
 function getCatalogRefreshLabel(value) {
@@ -943,15 +1008,9 @@ function resolveCatalogMatchForPaint(paint, targetLab) {
     return null;
   }
 
-  const normalizedName = getPaintLabel(paint).trim().toLowerCase();
-  const exactName = WILLIAMSBURG_CATALOG.colors.find((color) => color.color_name.trim().toLowerCase() === normalizedName);
-  if (exactName) {
-    return { color: exactName, reason: "same pigment" };
-  }
-
-  const pigmentMatch = WILLIAMSBURG_CATALOG.colors.find((color) => Array.isArray(color.pigment_codes) && color.pigment_codes.some((code) => paint.pigment_codes.includes(code)));
-  if (pigmentMatch) {
-    return { color: pigmentMatch, reason: "same pigment" };
+  const directMatch = getCatalogColorForPaint(paint);
+  if (directMatch) {
+    return { color: directMatch, reason: "same pigment" };
   }
 
   const withLab = WILLIAMSBURG_CATALOG.colors
@@ -1115,7 +1174,7 @@ function estimatePaintRecipe(targetColor, request) {
     brand: entry.paint.brand,
     color_name: entry.paint.color_name,
     pigment_codes: [...entry.paint.pigment_codes],
-    swatch_hex: entry.paint.approx_srgb_hex || "#2A2F36",
+    swatch_hex: getResolvedPaintSwatchHex(entry.paint) || "#2A2F36",
     role: index === 0 ? "base" : "adjustment",
     parts: parts[index],
     fraction_mass: Number((entry.massPercent / 100).toFixed(3)),
@@ -1602,7 +1661,7 @@ function renderInventoryList() {
   }
 
   inventoryList.innerHTML = paints.map((paint, index) => {
-    const swatch = paint.approx_srgb_hex || "#2A2F36";
+    const swatch = getResolvedPaintSwatchHex(paint) || "#2A2F36";
     const proxyTag = paint.model_source.startsWith("proxy_") ? `<span class="recipe-chip">Proxy ${escapeHtml(paint.substitution_proxy.paint.pigment_codes[0])}</span>` : "";
     return `
       <article class="inventory-item">
@@ -1916,7 +1975,7 @@ function renderRecipe() {
         <span class="recipe-chip">Gamut ${escapeHtml(entry.quality.gamut_status.replaceAll("_", " "))}</span>
         <span class="recipe-chip">${entry.quality.metamerism_status === "not_computed_missing_spectra" ? "Metamerism not computed" : `Metamerism ${escapeHtml(entry.quality.metamerism_risk)}`}</span>
       </div>
-      <ul class="recipe-list">${entry.recipe.components.map((item) => `<li><span><span class="recipe-component-head"><span class="recipe-component-dot" style="background:${escapeHtml(item.swatch_hex || "#2A2F36")}"></span><strong>${escapeHtml(getPaintLabel(item))}</strong></span><small>${escapeHtml(item.brand)} - ${escapeHtml(item.pigment_codes.join(", "))}</small></span><strong>${item.mass_percent}%</strong></li>`).join("")}</ul>
+      <ul class="recipe-list">${entry.recipe.components.map((item) => `<li><span class="recipe-buy-copy"><span class="recipe-component-head"><span class="recipe-component-dot" style="background:${escapeHtml(item.swatch_hex || "#2A2F36")}"></span><strong>${escapeHtml(getPaintLabel(item))}</strong></span><small>${escapeHtml(item.brand)} - ${escapeHtml(item.pigment_codes.join(", "))}</small></span><strong class="recipe-mix-percent">${item.mass_percent}%</strong></li>`).join("")}</ul>
       <div class="recipe-section">
         <strong>Mixing steps</strong>
         <ol class="recipe-steps">${entry.recipe.mixing_steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol>
