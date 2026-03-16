@@ -1168,7 +1168,7 @@
 }
 
 .webflow-palette-embed .recipe-export {
-  width: var(--recipe-modal-width);
+  width: calc(var(--recipe-modal-width) - 32px);
   max-width: calc(100% - 32px);
   align-self: center;
 }
