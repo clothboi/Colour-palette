@@ -55,16 +55,18 @@ function getPaletteMarkup() {
                 <span class="palette-drawer-toggle__label">Palette Rail</span>
                 <span class="palette-drawer-toggle__status" data-role="palette-preview-status">Upload an image to build a palette.</span>
               </div>
-              <div class="mobile-palette-rail__controls palette-toolbar-controls palette-toolbar-controls--summary">
-                <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
-                <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
-                <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
+              <div class="mobile-palette-rail__toolbar palette-toolbar">
+                <div class="palette-toolbar-controls palette-toolbar-controls--summary">
+                  <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
+                  <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
+                  <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
+                </div>
               </div>
             </div>
             <span class="mobile-palette-rail__preview palette-preview-list" data-role="palette-preview-list" aria-hidden="true"></span>
           </div>
         </div>
-        <div class="palette-toolbar">
+        <div class="palette-toolbar" data-role="desktop-palette-toolbar">
           <div class="palette-toolbar-head">
             <span class="palette-rail-label">Palette Rail</span>
             <button class="palette-drawer-close" type="button" data-action="palette-drawer-close" aria-label="Close palette drawer">Close</button>
@@ -164,7 +166,7 @@ const swatchLayer = root.querySelector('[data-role="swatch-layer"]');
 const paletteList = root.querySelector('[data-role="palette-list"]');
 const palettePanel = root.querySelector('[data-role="palette-panel"]');
 const mobilePaletteRail = root.querySelector('[data-role="mobile-palette-rail"]');
-const paletteToolbar = root.querySelector('.palette-toolbar');
+const paletteToolbar = root.querySelector('[data-role="desktop-palette-toolbar"]');
 const paletteDrawerSheet = root.querySelector('[data-role="palette-drawer-sheet"]');
 const paletteDrawerSummary = root.querySelector('[data-role="palette-drawer-summary"]');
 const palettePreviewList = root.querySelector('[data-role="palette-preview-list"]');
