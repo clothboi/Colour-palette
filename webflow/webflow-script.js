@@ -45,22 +45,24 @@ function getPaletteMarkup() {
       </div>
 
       <aside class="palette-panel" data-role="palette-panel">
-        <button class="palette-drawer-open" type="button" data-action="palette-drawer-open" aria-label="Open reorder menu" aria-expanded="false">
-          <span class="palette-drawer-open__label">Open</span>
-        </button>
-        <div class="palette-drawer-summary" data-role="palette-drawer-summary">
-          <div class="palette-drawer-summary__header">
-            <span class="palette-drawer-toggle__copy">
-              <span class="palette-drawer-toggle__label">Palette Rail</span>
-              <span class="palette-drawer-toggle__status" data-role="palette-preview-status">Upload an image to build a palette.</span>
-            </span>
-            <div class="palette-toolbar-controls palette-toolbar-controls--summary">
-              <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
-              <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
-              <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
+        <div class="mobile-palette-rail" data-role="mobile-palette-rail">
+          <button class="palette-drawer-open" type="button" data-action="palette-drawer-open" aria-label="Open reorder menu" aria-expanded="false">
+            <span class="palette-drawer-open__label">Open</span>
+          </button>
+          <div class="mobile-palette-rail__surface palette-drawer-summary" data-role="palette-drawer-summary">
+            <div class="mobile-palette-rail__top">
+              <span class="mobile-palette-rail__copy palette-drawer-toggle__copy">
+                <span class="palette-drawer-toggle__label">Palette Rail</span>
+                <span class="palette-drawer-toggle__status" data-role="palette-preview-status">Upload an image to build a palette.</span>
+              </span>
+              <div class="mobile-palette-rail__controls palette-toolbar-controls palette-toolbar-controls--summary">
+                <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
+                <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
+                <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
+              </div>
             </div>
+            <span class="mobile-palette-rail__preview palette-preview-list" data-role="palette-preview-list" aria-hidden="true"></span>
           </div>
-          <span class="palette-preview-list" data-role="palette-preview-list" aria-hidden="true"></span>
         </div>
         <div class="palette-toolbar">
           <div class="palette-toolbar-head">
@@ -161,6 +163,7 @@ const ctx = canvas.getContext("2d", { willReadFrequently: true });
 const swatchLayer = root.querySelector('[data-role="swatch-layer"]');
 const paletteList = root.querySelector('[data-role="palette-list"]');
 const palettePanel = root.querySelector('[data-role="palette-panel"]');
+const mobilePaletteRail = root.querySelector('[data-role="mobile-palette-rail"]');
 const paletteToolbar = root.querySelector('.palette-toolbar');
 const paletteDrawerSheet = root.querySelector('[data-role="palette-drawer-sheet"]');
 const paletteDrawerSummary = root.querySelector('[data-role="palette-drawer-summary"]');
@@ -192,7 +195,7 @@ const saveClose = root.querySelector('[data-action="save-close"]');
 const saveExport = root.querySelector('[data-action="save-export-image"]');
 const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
 const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-if (!ctx || !swatchLayer || !paletteList || !palettePanel || !paletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !mobileViewToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !paletteSizeLabels.length || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !paletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !mobileViewToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !paletteSizeLabels.length || !recipeButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
   return;
 }
 
@@ -681,6 +684,7 @@ function syncLayoutState() {
   root.dataset.paletteDrawerOpen = effectiveMobileLayout && state.isPaletteDrawerOpen ? "true" : "false";
 
   mobileViewToggle.setAttribute("aria-pressed", String(state.forceMobileView));
+  mobilePaletteRail.hidden = !effectiveMobileLayout || state.isPaletteDrawerOpen;
   paletteDrawerOpen.hidden = !effectiveMobileLayout || state.isPaletteDrawerOpen;
   paletteDrawerOpen.setAttribute("aria-expanded", effectiveMobileLayout && state.isPaletteDrawerOpen ? "true" : "false");
   paletteDrawerSummary.hidden = !effectiveMobileLayout || state.isPaletteDrawerOpen;
