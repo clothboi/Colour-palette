@@ -1733,37 +1733,40 @@ function hasOwnedEquivalent(paint, ownedPaints) {
   return ownedPaints.some((ownedPaint) => ownedPaint.pigment_codes.some((code) => paint.pigment_codes.includes(code)));
 }
 
+function recipeEntriesEquivalent(leftEntries, rightEntries) {
+  if (leftEntries.length !== rightEntries.length) return false;
+  const normalize = (entries) => entries
+    .map((entry) => ({
+      key: [...entry.paint.pigment_codes].sort().join("|"),
+      massPercent: Math.round(entry.massPercent),
+    }))
+    .sort((left, right) => left.key.localeCompare(right.key) || left.massPercent - right.massPercent);
+  const leftNormalized = normalize(leftEntries);
+  const rightNormalized = normalize(rightEntries);
+  return leftNormalized.every((entry, index) => entry.key === rightNormalized[index].key && entry.massPercent === rightNormalized[index].massPercent);
+}
+
 function resolveIdealMixGuidance(targetLab, request, fallbackRecipeEntries, fallbackCandidatePaints) {
   const starterSolve = solveBestRecipe(targetLab, STARTER_PALETTE, request.constraints.max_pigments);
   const starterCandidatePaints = starterSolve.candidatePaints || [];
   const singlePaintMatch = getIdealSinglePaintMatch(targetLab, starterCandidatePaints);
+  let idealRecipeEntries = starterSolve.best?.recipe || fallbackRecipeEntries;
+  let idealSummary = buildIdealMixSummary(targetLab, starterCandidatePaints, idealRecipeEntries);
+
   if (singlePaintMatch && singlePaintMatch.distance <= IDEAL_SINGLE_PAINT_DISTANCE_THRESHOLD) {
-    const missingEntries = hasOwnedEquivalent(singlePaintMatch.paint, state.ownedPaints)
-      ? []
-      : [{ paint: singlePaintMatch.paint, massPercent: 100 }];
-    const label = hasOwnedEquivalent(singlePaintMatch.paint, state.ownedPaints) ? "Ideal mix" : "Best paint to buy";
-    return {
-      label,
-      summary: formatIdealMixPart(singlePaintMatch.paint, 100),
-      missingEntries,
-      idealRecipeEntries: [{ paint: singlePaintMatch.paint, massPercent: 100 }],
-    };
+    idealRecipeEntries = [{ paint: singlePaintMatch.paint, massPercent: 100 }];
+    idealSummary = formatIdealMixPart(singlePaintMatch.paint, 100);
   }
-  const idealRecipeEntries = starterSolve.best?.recipe || fallbackRecipeEntries;
+
   const missingEntries = idealRecipeEntries.filter((entry) => !hasOwnedEquivalent(entry.paint, state.ownedPaints));
-  if (missingEntries.length) {
-    return {
-      label: "Best paints to buy",
-      summary: missingEntries.map((entry) => formatIdealMixPart(entry.paint, entry.massPercent)).join(" + "),
-      missingEntries,
-      idealRecipeEntries,
-    };
-  }
+  const matchesCurrentRecipe = recipeEntriesEquivalent(idealRecipeEntries, fallbackRecipeEntries);
 
   return {
     label: "Ideal mix",
-    summary: buildIdealMixSummary(targetLab, fallbackCandidatePaints, fallbackRecipeEntries),
-    missingEntries: [],
+    summary: matchesCurrentRecipe
+      ? buildIdealMixSummary(targetLab, fallbackCandidatePaints, fallbackRecipeEntries)
+      : idealSummary,
+    missingEntries,
     idealRecipeEntries,
   };
 }
