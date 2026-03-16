@@ -23,6 +23,10 @@
   --mobile-rail-button-height: 34px;
   --mobile-rail-button-width: 90px;
   --mobile-rail-radius: 22px;
+  --mobile-rail-tab-width: clamp(88px, 18vw, 112px);
+  --mobile-rail-tab-height: clamp(24px, 5.2vw, 34px);
+  --mobile-rail-tab-radius: clamp(14px, 3.8vw, 18px);
+  --mobile-rail-tab-lift: calc(var(--mobile-rail-tab-height) - 8px);
 }
 
 .webflow-palette-embed[data-palette-layout="double"] {
@@ -579,9 +583,9 @@
 
 .webflow-palette-embed .mobile-palette-rail .palette-drawer-open {
   position: absolute;
-  top: -40px;
+  top: calc(var(--mobile-rail-tab-lift) * -1);
   left: 50%;
-  z-index: 0;
+  z-index: 3;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -639,6 +643,40 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.05),
     var(--shadow-soft);
   backdrop-filter: blur(18px);
+  overflow: visible;
+}
+
+.webflow-palette-embed .mobile-palette-rail__surface::before,
+.webflow-palette-embed .mobile-palette-rail__surface::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  pointer-events: none;
+}
+
+.webflow-palette-embed .mobile-palette-rail__surface::before {
+  top: calc(var(--mobile-rail-tab-lift) * -1);
+  width: var(--mobile-rail-tab-width);
+  height: var(--mobile-rail-tab-height);
+  transform: translateX(-50%);
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  border-radius: var(--mobile-rail-tab-radius) var(--mobile-rail-tab-radius) 0 0;
+  background: rgba(12, 14, 17, 0.92);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 10px 24px rgba(0, 0, 0, 0.18);
+  z-index: 1;
+}
+
+.webflow-palette-embed .mobile-palette-rail__surface::after {
+  top: -1px;
+  width: calc(var(--mobile-rail-tab-width) + 28px);
+  height: calc(var(--mobile-rail-tab-height) * 0.62);
+  transform: translateX(-50%);
+  background: rgba(12, 14, 17, 0.92);
+  border-radius: 999px;
+  z-index: 2;
 }
 
 .webflow-palette-embed .mobile-palette-rail__top {
