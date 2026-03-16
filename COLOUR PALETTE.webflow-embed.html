@@ -586,17 +586,19 @@
   min-width: var(--mobile-rail-button-width);
   height: var(--mobile-rail-button-height);
   padding: 0 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
   background:
-    linear-gradient(180deg, rgba(92, 96, 103, 0.24), rgba(54, 57, 63, 0.16)),
-    rgba(36, 38, 43, 0.9);
+    linear-gradient(180deg, rgba(108, 112, 120, 0.18), rgba(63, 66, 73, 0.1)),
+    rgba(36, 38, 43, 0.48);
   color: inherit;
   cursor: pointer;
   font: inherit;
   box-shadow:
     0 10px 24px rgba(0, 0, 0, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
   transform: translateX(-50%);
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
 }
@@ -717,8 +719,8 @@
   transform: translate(-50%, -1px);
   border-color: rgba(255, 255, 255, 0.22);
   background:
-    linear-gradient(180deg, rgba(108, 112, 120, 0.28), rgba(63, 66, 73, 0.2)),
-    rgba(44, 47, 53, 0.94);
+    linear-gradient(180deg, rgba(126, 131, 140, 0.22), rgba(73, 77, 84, 0.14)),
+    rgba(44, 47, 53, 0.58);
 }
 
 .webflow-palette-embed .mobile-palette-rail .palette-drawer-open:active:not(:disabled) {
@@ -1298,7 +1300,7 @@
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-panel {
   position: absolute;
-  inset: auto var(--mobile-rail-margin) 0 var(--mobile-rail-margin);
+  inset: auto 0 0 0;
   z-index: 20;
   display: block;
   height: var(--palette-drawer-collapsed-height);
