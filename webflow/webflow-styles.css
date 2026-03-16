@@ -239,6 +239,10 @@
   display: none;
 }
 
+.webflow-palette-embed .hud-settings-toggle[hidden] {
+  display: none !important;
+}
+
 .webflow-palette-embed .hud-actions {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
