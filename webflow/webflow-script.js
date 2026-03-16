@@ -111,7 +111,7 @@ ${getPaletteControlsMarkup()}
           <p class="recipe-modal-kicker">Owned paint inventory</p>
           <h2>Paint setup</h2>
         </div>
-        <button class="inventory-close" type="button" data-action="inventory-close" aria-label="Close paint setup">x</button>
+        <button class="recipe-close" type="button" data-action="inventory-close" aria-label="Close paint setup">x</button>
       </div>
       <div class="inventory-modal-body">
         <p class="inventory-note">Add the tubes you own. Pigment codes are required, and the app will use the Williamsburg starter palette whenever no saved inventory is available.</p>
@@ -160,11 +160,11 @@ ${getPaletteControlsMarkup()}
           </div>
           <div data-role="inventory-list" class="inventory-list"></div>
         </div>
-        <div class="inventory-modal-actions">
-          <button class="recipe-button" type="button" data-action="inventory-reset">Use starter palette</button>
-          <button class="recipe-export" type="button" data-action="inventory-save">Save inventory</button>
-        </div>
       </div>
+    </div>
+    <div class="inventory-modal-actions">
+      <button class="recipe-button" type="button" data-action="inventory-reset">Use starter palette</button>
+      <button class="recipe-export" type="button" data-action="inventory-save">Save inventory</button>
     </div>
   </div>
 
