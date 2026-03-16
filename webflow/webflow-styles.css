@@ -13,10 +13,11 @@
   --accent: rgba(158, 188, 223, 0.92);
   --palette-panel-width: 404px;
   --frame-clearance: 460px;
-  --palette-drawer-collapsed-height: 132px;
   --mobile-rail-margin: 10px;
   --mobile-rail-gap: 6px;
   --mobile-rail-padding: 10px;
+  --mobile-rail-preview-height: 33px;
+  --palette-drawer-collapsed-height: calc((var(--mobile-rail-padding) * 2) + 42px + var(--mobile-rail-gap) + var(--mobile-rail-preview-height));
   --mobile-rail-button-height: 34px;
   --mobile-rail-button-width: 90px;
   --mobile-rail-radius: 22px;
@@ -573,7 +574,7 @@
 
 .webflow-palette-embed .mobile-palette-rail .palette-drawer-open {
   position: absolute;
-  top: calc(var(--mobile-rail-button-height) / -2);
+  top: -40px;
   left: 50%;
   z-index: 0;
   display: inline-flex;
@@ -643,7 +644,7 @@
   display: grid;
   gap: 2px;
   align-content: start;
-  max-width: 132px;
+  justify-self: start;
   min-width: 0;
 }
 
@@ -732,8 +733,9 @@
 
 .webflow-palette-embed .palette-preview-tile {
   min-width: 0;
-  height: 44px;
-  border-radius: 14px;
+  height: var(--mobile-rail-preview-height);
+  border-radius: 10px;
+  border-radius: clamp(8px, 18%, 12px);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
@@ -1294,7 +1296,7 @@
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-panel {
   position: absolute;
-  inset: auto 0 0 0;
+  inset: auto var(--mobile-rail-margin) 0 var(--mobile-rail-margin);
   z-index: 20;
   display: block;
   height: var(--palette-drawer-collapsed-height);
@@ -1313,7 +1315,9 @@
 .webflow-palette-embed[data-mobile-layout="true"] .mobile-palette-rail {
   position: relative;
   display: block;
-  margin: var(--mobile-rail-margin);
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .mobile-palette-rail .palette-drawer-open,
