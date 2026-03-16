@@ -2186,8 +2186,10 @@ function openPaletteDrawer() {
   state.isPaletteDrawerOpen = true;
   syncLayoutState();
   requestAnimationFrame(() => {
-    renderPalette();
-    paletteDrawerClose.focus({ preventScroll: true });
+    requestAnimationFrame(() => {
+      renderPalette();
+      paletteDrawerClose.focus({ preventScroll: true });
+    });
   });
 }
 
