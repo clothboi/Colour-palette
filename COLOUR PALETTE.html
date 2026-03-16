@@ -1708,6 +1708,12 @@ function describeLabMiss(targetLab, mixedLab) {
 function buildSubstitutions(recipeEntries) {
   return recipeEntries
     .filter((entry) => entry.paint.substitution_proxy)
+    .filter((entry) => {
+      const substitute = entry.paint.substitution_proxy.paint;
+      const sameName = getPaintLabel(entry.paint).trim().toLowerCase() === getPaintLabel(substitute).trim().toLowerCase();
+      const samePigments = [...entry.paint.pigment_codes].sort().join("|") === [...substitute.pigment_codes].sort().join("|");
+      return !(sameName || samePigments);
+    })
     .map((entry) => ({
       missing_paint: getPaintLabel(entry.paint),
       recommended_substitute: {
@@ -1917,6 +1923,7 @@ function applyIdealMixDisplay(entry, guidance) {
   } else {
     entry.display.idealMixLabel = "Current recipe is ideal mix";
     entry.display.idealMixSummary = "";
+    entry.substitutions = [];
   }
   return entry;
 }
