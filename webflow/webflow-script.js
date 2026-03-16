@@ -1411,6 +1411,41 @@ function useStarterPalette() {
   showImportWarning("Starter palette active", "Recipes will use the Williamsburg starter palette until you save a custom inventory.");
 }
 
+function handleInventoryModalClick(event) {
+  const removeButton = event.target.closest("[data-index]");
+  if (removeButton && inventoryList.contains(removeButton)) {
+    const index = Number(removeButton.dataset.index);
+    if (Number.isInteger(index)) {
+      state.inventoryDraft.splice(index, 1);
+      renderInventoryList();
+      setInventoryFeedback("Paint removed. Save inventory to apply the change.");
+    }
+    return;
+  }
+
+  if (event.target.closest('[data-action="inventory-close"]')) {
+    event.preventDefault();
+    closeInventoryModal();
+    return;
+  }
+
+  if (event.target.closest('[data-action="inventory-reset"]')) {
+    event.preventDefault();
+    useStarterPalette();
+    return;
+  }
+
+  if (event.target.closest('[data-action="inventory-save"]')) {
+    event.preventDefault();
+    saveInventoryDraft();
+    return;
+  }
+
+  if (event.target === inventoryModal) {
+    closeInventoryModal();
+  }
+}
+
 function showRecipeMessage(message) {
   if (!recipeModal || !recipeContent) return;
   recipeModal.classList.remove("hidden");
@@ -2684,18 +2719,7 @@ paintSetupButton.addEventListener("click", () => {
 });
 
 inventoryForm.addEventListener("submit", addInventoryPaint);
-inventoryList.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-index]");
-  if (!button) return;
-  const index = Number(button.dataset.index);
-  if (!Number.isInteger(index)) return;
-  state.inventoryDraft.splice(index, 1);
-  renderInventoryList();
-  setInventoryFeedback("Paint removed. Save inventory to apply the change.");
-});
-inventorySave.addEventListener("click", saveInventoryDraft);
-inventoryReset.addEventListener("click", useStarterPalette);
-inventoryClose.addEventListener("click", closeInventoryModal);
+inventoryModal.addEventListener("click", handleInventoryModalClick);
 
 
 input.addEventListener("change", async (event) => {
@@ -2804,11 +2828,6 @@ if (recipeClose) {
 if (recipeModal) {
   recipeModal.addEventListener("click", (event) => {
     if (event.target === recipeModal) closeRecipeModal();
-  });
-}
-if (inventoryModal) {
-  inventoryModal.addEventListener("click", (event) => {
-    if (event.target === inventoryModal) closeInventoryModal();
   });
 }
 if (saveClose) {

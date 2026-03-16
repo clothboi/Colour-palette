@@ -393,6 +393,7 @@
 .webflow-palette-embed .import-warning.hidden,
 .webflow-palette-embed .empty-state.hidden,
 .webflow-palette-embed .recipe-modal.hidden,
+.webflow-palette-embed .inventory-modal.hidden,
 .webflow-palette-embed .save-modal.hidden {
   display: none;
 }
