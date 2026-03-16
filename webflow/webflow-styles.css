@@ -22,9 +22,9 @@
   --mobile-rail-button-width: 82px;
   --mobile-rail-radius: 22px;
   --mobile-rail-tab-width: calc(var(--mobile-rail-button-width) + 24px);
-  --mobile-rail-tab-height: calc((var(--mobile-rail-button-height) + 10px) * 2);
+  --mobile-rail-tab-height: 60px;
   --mobile-rail-tab-radius: 20px;
-  --mobile-rail-tab-lift: calc(var(--mobile-rail-tab-height) - 18px);
+  --mobile-rail-tab-lift: 40px;
 }
 
 .webflow-palette-embed[data-palette-layout="double"] {
@@ -583,7 +583,7 @@
 
 .webflow-palette-embed .mobile-palette-rail .palette-drawer-open {
   position: absolute;
-  top: calc(var(--mobile-rail-tab-lift) * -1);
+  top: -40px;
   left: 50%;
   z-index: 3;
   display: inline-flex;
