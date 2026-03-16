@@ -30,6 +30,10 @@
   --glass-button-bg-strong:
     linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06) 42%, rgba(24, 26, 31, 0.1)),
     rgba(40, 42, 48, 0.28);
+  --glass-button-highlight-border: rgba(158, 188, 223, 0.58);
+  --glass-button-highlight-bg:
+    linear-gradient(180deg, rgba(158, 188, 223, 0.22), rgba(158, 188, 223, 0.08)),
+    rgba(36, 40, 48, 0.24);
   --glass-button-shadow:
     0 10px 24px rgba(0, 0, 0, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.16),
@@ -315,8 +319,8 @@
 }
 
 .webflow-palette-embed .hud-settings-toggle[aria-expanded="true"] {
-  border-color: rgba(255, 255, 255, 0.24);
-  background: var(--glass-button-bg-strong);
+  border-color: var(--glass-button-highlight-border);
+  background: var(--glass-button-highlight-bg);
   color: var(--text);
 }
 
@@ -1167,7 +1171,7 @@
 }
 
 .webflow-palette-embed .save-export {
-  width: var(--save-modal-width);
+  width: calc(var(--save-modal-width) - 32px);
 }
 
 .webflow-palette-embed [data-role="recipe-content"] {
@@ -1238,8 +1242,8 @@
 
 .webflow-palette-embed .save-option-button.active,
 .webflow-palette-embed .save-option-button[aria-pressed="true"] {
-  border-color: rgba(255, 255, 255, 0.24);
-  background: var(--glass-button-bg-strong);
+  border-color: var(--glass-button-highlight-border);
+  background: var(--glass-button-highlight-bg);
 }
 
 .webflow-palette-embed .save-toggle {
@@ -1265,13 +1269,16 @@
   display: grid;
   place-items: center;
   min-height: 260px;
+  height: clamp(260px, 42vh, 420px);
   padding: 12px;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .webflow-palette-embed .save-preview-shell canvas {
   display: block;
-  width: 100%;
+  width: auto;
+  max-width: 100%;
+  max-height: 100%;
   height: auto;
   border-radius: 12px;
   background: #111417;
