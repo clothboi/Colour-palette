@@ -134,6 +134,21 @@ h1 {
   font: inherit;
 }
 
+.hero-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.hero-actions .recipe-button {
+  width: 100%;
+  min-width: 0;
+}
+
+.hero-actions .upload-pill {
+  grid-column: 1 / -1;
+}
+
 .upload-pill:hover,
 .recipe-button:hover,
 .palette-button:hover {
