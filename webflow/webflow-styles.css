@@ -87,7 +87,7 @@
   --frame-width: min(40vw, calc(100vw - var(--frame-clearance)));
 }
 
-.webflow-palette-embed .control-hud,
+.webflow-palette-embed .control-hud__panel,
 .webflow-palette-embed .palette-panel,
 .webflow-palette-embed .recipe-modal-panel,
 .webflow-palette-embed .recipe-export,
@@ -106,11 +106,16 @@
 .webflow-palette-embed .control-hud {
   position: relative;
   z-index: 3;
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 10px;
   width: var(--frame-width);
   max-width: 100%;
+}
+
+.webflow-palette-embed .control-hud__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   padding: 14px 16px;
   border-radius: 16px;
 }
@@ -164,18 +169,6 @@
 .webflow-palette-embed .hud-count {
   white-space: nowrap;
   text-align: right;
-}
-
-.webflow-palette-embed .hud-rule {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.14);
-}
-
-.webflow-palette-embed .hud-actions {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 10px;
-  align-items: center;
 }
 
 .webflow-palette-embed .hud-buttons {
@@ -1291,6 +1284,9 @@
 
 .webflow-palette-embed[data-mobile-layout="true"] .control-hud {
   width: 100%;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .control-hud__panel {
   padding: 12px;
 }
 

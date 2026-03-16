@@ -15,19 +15,20 @@ function getPaletteMarkup() {
     <section class="workspace">
       <div class="canvas-stage">
         <div class="control-hud" aria-label="Color study controls">
-          <div class="hud-bar">
-            <div class="hud-bar__group hud-bar__group--title">
-              <p class="eyebrow">Colour Palette</p>
-            </div>
-            <div class="hud-bar__group hud-bar__group--center">
-              <button class="hud-mobile-toggle" type="button" data-action="toggle-mobile-view" aria-pressed="false">Mobile View</button>
-            </div>
-            <div class="hud-bar__group hud-bar__group--status">
-              <span class="hud-count">Studio blur map</span>
+          <div class="control-hud__panel control-hud__panel--bar">
+            <div class="hud-bar">
+              <div class="hud-bar__group hud-bar__group--title">
+                <p class="eyebrow">Colour Palette</p>
+              </div>
+              <div class="hud-bar__group hud-bar__group--center">
+                <button class="hud-mobile-toggle" type="button" data-action="toggle-mobile-view" aria-pressed="false">Mobile View</button>
+              </div>
+              <div class="hud-bar__group hud-bar__group--status">
+                <span class="hud-count">Studio blur map</span>
+              </div>
             </div>
           </div>
-          <div class="hud-rule" aria-hidden="true"></div>
-          <div class="hud-actions">
+          <div class="control-hud__panel control-hud__panel--actions">
             <div class="hud-buttons">
               <button class="recipe-button" type="button" data-action="recipe">Paint Recipe</button>
               <button class="recipe-button" type="button" data-action="export-image">Save Image</button>

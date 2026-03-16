@@ -89,7 +89,7 @@
   --frame-width: min(40vw, calc(100vw - var(--frame-clearance)));
 }
 
-.webflow-palette-embed .control-hud,
+.webflow-palette-embed .control-hud__panel,
 .webflow-palette-embed .palette-panel,
 .webflow-palette-embed .recipe-modal-panel,
 .webflow-palette-embed .recipe-export,
@@ -108,11 +108,16 @@
 .webflow-palette-embed .control-hud {
   position: relative;
   z-index: 3;
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 10px;
   width: var(--frame-width);
   max-width: 100%;
+}
+
+.webflow-palette-embed .control-hud__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   padding: 14px 16px;
   border-radius: 16px;
 }
@@ -166,18 +171,6 @@
 .webflow-palette-embed .hud-count {
   white-space: nowrap;
   text-align: right;
-}
-
-.webflow-palette-embed .hud-rule {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.14);
-}
-
-.webflow-palette-embed .hud-actions {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 10px;
-  align-items: center;
 }
 
 .webflow-palette-embed .hud-buttons {
@@ -1293,6 +1286,9 @@
 
 .webflow-palette-embed[data-mobile-layout="true"] .control-hud {
   width: 100%;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .control-hud__panel {
   padding: 12px;
 }
 
@@ -1478,19 +1474,20 @@ function getPaletteMarkup() {
     <section class="workspace">
       <div class="canvas-stage">
         <div class="control-hud" aria-label="Color study controls">
-          <div class="hud-bar">
-            <div class="hud-bar__group hud-bar__group--title">
-              <p class="eyebrow">Colour Palette</p>
-            </div>
-            <div class="hud-bar__group hud-bar__group--center">
-              <button class="hud-mobile-toggle" type="button" data-action="toggle-mobile-view" aria-pressed="false">Mobile View</button>
-            </div>
-            <div class="hud-bar__group hud-bar__group--status">
-              <span class="hud-count">Studio blur map</span>
+          <div class="control-hud__panel control-hud__panel--bar">
+            <div class="hud-bar">
+              <div class="hud-bar__group hud-bar__group--title">
+                <p class="eyebrow">Colour Palette</p>
+              </div>
+              <div class="hud-bar__group hud-bar__group--center">
+                <button class="hud-mobile-toggle" type="button" data-action="toggle-mobile-view" aria-pressed="false">Mobile View</button>
+              </div>
+              <div class="hud-bar__group hud-bar__group--status">
+                <span class="hud-count">Studio blur map</span>
+              </div>
             </div>
           </div>
-          <div class="hud-rule" aria-hidden="true"></div>
-          <div class="hud-actions">
+          <div class="control-hud__panel control-hud__panel--actions">
             <div class="hud-buttons">
               <button class="recipe-button" type="button" data-action="recipe">Paint Recipe</button>
               <button class="recipe-button" type="button" data-action="export-image">Save Image</button>
