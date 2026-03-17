@@ -1503,11 +1503,26 @@ function refreshStageSize() {
     return;
   }
 
-  const frameHeight = Math.max(320, Math.round(canvasWrap.clientHeight || canvasWrap.getBoundingClientRect().height || 0));
-  const maxWidth = Math.max(280, Math.round(window.innerWidth - getPaletteFrameClearance()));
-  const frameWidth = Math.min(Math.round(frameHeight * imageRatio), maxWidth);
-  canvasStage.style.setProperty("--frame-width", `${frameWidth}px`);
-  canvasStage.style.setProperty("--frame-height", `${Math.max(320, Math.round(frameWidth / imageRatio))}px`);
+  const stageStyles = window.getComputedStyle(canvasStage);
+  const gap = parseFloat(stageStyles.rowGap || stageStyles.gap || "0") || 0;
+  const paddingTop = parseFloat(stageStyles.paddingTop || "0") || 0;
+  const paddingBottom = parseFloat(stageStyles.paddingBottom || "0") || 0;
+  const stageHeight = canvasStage.clientHeight || canvasStage.getBoundingClientRect().height || 0;
+  const availableHeight = Math.max(
+    320,
+    Math.round(stageHeight - paddingTop - paddingBottom - controlHud.getBoundingClientRect().height - gap),
+  );
+  const availableWidth = Math.max(280, Math.round(window.innerWidth - getPaletteFrameClearance()));
+
+  let frameWidth = availableWidth;
+  let frameHeight = Math.round(frameWidth / imageRatio);
+  if (frameHeight > availableHeight) {
+    frameHeight = availableHeight;
+    frameWidth = Math.round(frameHeight * imageRatio);
+  }
+
+  canvasStage.style.setProperty("--frame-width", `${Math.max(280, frameWidth)}px`);
+  canvasStage.style.setProperty("--frame-height", `${Math.max(320, frameHeight)}px`);
 }
 
 function updateAmbientBackdrop() {
