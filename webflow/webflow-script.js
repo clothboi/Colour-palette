@@ -1873,23 +1873,6 @@ function closeRecipeModal() {
   recipeModal.setAttribute("aria-hidden", "true");
 }
 
-function wrapRecipeText(context, text, maxWidth) {
-  const words = text.split(" ");
-  const lines = [];
-  let current = "";
-  words.forEach((word) => {
-    const trial = current ? `${current} ${word}` : word;
-    if (context.measureText(trial).width <= maxWidth || !current) {
-      current = trial;
-    } else {
-      lines.push(current);
-      current = word;
-    }
-  });
-  if (current) lines.push(current);
-  return lines;
-}
-
 function drawRoundedRect(context, x, y, width, height, radius, fill) {
   context.beginPath();
   context.moveTo(x + radius, y);
@@ -1906,135 +1889,197 @@ function drawRoundedRect(context, x, y, width, height, radius, fill) {
   context.fill();
 }
 
-function exportRecipeImage() {
-  if (!state.recipeResults.length) {
-    showRecipeMessage("Upload an image first to generate paint recipes for the palette.");
-    return;
+const RECIPE_EXPORT_CARD_WIDTH = 420;
+const RECIPE_EXPORT_PADDING = 24;
+const RECIPE_EXPORT_GAP = 12;
+const RECIPE_EXPORT_STYLES = `
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .recipe-export-sheet {
+    width: var(--recipe-export-width);
+    padding: ${RECIPE_EXPORT_PADDING}px;
+    background: #111417;
+    color: #f2efe8;
+    font-family: "Space Grotesk", sans-serif;
   }
-
-  const cardCount = state.recipeResults.length;
-  const columns = Math.ceil(Math.sqrt(cardCount));
-  const rows = Math.ceil(cardCount / columns);
-  const padding = 24;
-  const titleHeight = 48;
-  const cardGap = 12;
-  const cardWidth = 420;
-  const measureCanvas = document.createElement("canvas");
-  const measureCtx = measureCanvas.getContext("2d");
-  measureCtx.font = '500 16px "Space Grotesk", sans-serif';
-
-  function getCardLines(entry) {
-    const lines = [
-      entry.display.targetRgb,
-      `LAB ${entry.target_lab.L.toFixed(1)}, ${entry.target_lab.a.toFixed(1)}, ${entry.target_lab.b.toFixed(1)}`,
-      `Model ${entry.model_used.replaceAll("_", " ")}`,
-      `Using ${entry.display.sourceLabel}`,
-      `Gamut ${entry.quality.gamut_status.replaceAll("_", " ")}`,
-      `Metamerism ${entry.quality.metamerism_status === "not_computed_missing_spectra" ? "not computed" : entry.quality.metamerism_risk}`,
-    ];
-
-    if (entry.quality.gamut_note) {
-      lines.push(entry.quality.gamut_note);
-    }
-
-    if (entry.display.idealMixLabel) {
-      lines.push(entry.display.idealMixSummary ? `${entry.display.idealMixLabel} ${entry.display.idealMixSummary}` : entry.display.idealMixLabel);
-    }
-    if (entry.catalog_matches?.length) {
-      lines.push(`Buy Williamsburg (${entry.display.catalogRefreshLabel || "active catalog"})`);
-      entry.catalog_matches.forEach((match) => {
-        lines.push(`${match.color_name} - ${formatPaintDetailLine(match)} - ${Math.round(match.recommended_mass_percent || 0)}%`);
-      });
-    }
-
-    entry.recipe.components.forEach((component) => {
-      lines.push(`${getPaintLabel(component)} - ${component.mass_percent}% - ${formatPaintDetailLine(component)}`);
-    });
-
-    entry.recipe.mixing_steps.forEach((step, index) => {
-      lines.push(`${index + 1}. ${step}`);
-    });
-
-    entry.warnings.forEach((warning) => {
-      lines.push(`Warning: ${warning}`);
-    });
-
-    return lines.flatMap((line) => wrapRecipeText(measureCtx, line, cardWidth - 44));
+  .recipe-export-title {
+    margin: 0 0 28px;
+    color: #f2efe8;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.15;
   }
+  .recipe-stack {
+    display: grid;
+    grid-template-columns: repeat(var(--recipe-export-columns), minmax(0, var(--recipe-export-card-width)));
+    gap: ${RECIPE_EXPORT_GAP}px;
+    align-items: start;
+  }
+  .recipe-card {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.04);
+  }
+  .recipe-card-head {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin: 0 0 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+  }
+  .recipe-card-head strong { font-size: 0.98rem; }
+  .recipe-meta {
+    display: grid;
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+  .recipe-meta span,
+  .recipe-note,
+  .recipe-empty,
+  .recipe-confidence,
+  .recipe-list li small,
+  .recipe-buy-copy small,
+  .recipe-buy-reason,
+  .recipe-section-caption,
+  .recipe-steps,
+  .recipe-inline-list {
+    color: #bcc0c7;
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+  .recipe-badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .recipe-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: #f2efe8;
+    font-size: 0.78rem;
+    line-height: 1.2;
+  }
+  .recipe-list,
+  .recipe-buy-list {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .recipe-list li,
+  .recipe-buy-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: 12px;
+    padding: 7px 9px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 8px 18px rgba(0, 0, 0, 0.12);
+  }
+  .recipe-buy-copy {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+  }
+  .recipe-buy-copy strong { text-transform: uppercase; }
+  .recipe-component-head {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+  .recipe-component-head strong {
+    display: inline-flex;
+    align-items: center;
+  }
+  .recipe-component-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    flex: 0 0 14px;
+  }
+  .recipe-mix-percent {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    line-height: 1.2;
+    font-size: 0.98rem;
+  }
+  .recipe-section {
+    display: grid;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .recipe-section strong {
+    font-size: 0.84rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .recipe-section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .recipe-buy-reason {
+    text-align: right;
+    text-transform: capitalize;
+    flex: 0 0 auto;
+  }
+  .recipe-ideal-banner {
+    display: grid;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .recipe-ideal-banner strong {
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #bcc0c7;
+  }
+  .recipe-steps,
+  .recipe-inline-list {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding-left: 18px;
+  }
+`;
 
-  const cardHeights = state.recipeResults.map((entry) => 152 + (getCardLines(entry).length * 20));
-  const rowHeights = new Array(rows).fill(0);
-  cardHeights.forEach((height, index) => {
-    const row = Math.floor(index / columns);
-    rowHeights[row] = Math.max(rowHeights[row], height);
-  });
-  const width = (padding * 2) + (columns * cardWidth) + (Math.max(0, columns - 1) * cardGap);
-  const height = padding + titleHeight + 16 + rowHeights.reduce((sum, value) => sum + value, 0) + (Math.max(0, rows - 1) * cardGap) + padding;
-  const exportCanvas = document.createElement("canvas");
-  exportCanvas.width = width;
-  exportCanvas.height = height;
-  const exportCtx = exportCanvas.getContext("2d");
-
-  exportCtx.fillStyle = "#111417";
-  exportCtx.fillRect(0, 0, width, height);
-  exportCtx.fillStyle = "#f2efe8";
-  exportCtx.font = '700 26px "Space Grotesk", sans-serif';
-  exportCtx.fillText("Paint recipes", padding, padding + 26);
-
-  const rowOffsets = [];
-  let runningY = padding + titleHeight + 16;
-  rowHeights.forEach((rowHeight) => {
-    rowOffsets.push(runningY);
-    runningY += rowHeight + cardGap;
-  });
-
-  state.recipeResults.forEach((entry, index) => {
-    const cardHeight = cardHeights[index];
-    const column = index % columns;
-    const row = Math.floor(index / columns);
-    const x = padding + (column * (cardWidth + cardGap));
-    const y = rowOffsets[row];
-    drawRoundedRect(exportCtx, x, y, cardWidth, cardHeight, 14, "#191d22");
-
-    const swatch = entry.display.swatchColor || entry.target_hex;
-    const swatchRgb = hexToRgb(swatch);
-    const headerTextColor = luminance(swatchRgb.r, swatchRgb.g, swatchRgb.b) > 0.62 ? "#15171a" : "#f2efe8";
-    drawRoundedRect(exportCtx, x + 12, y + 12, cardWidth - 24, 40, 10, swatch);
-    exportCtx.fillStyle = headerTextColor;
-    exportCtx.font = '700 18px "Space Grotesk", sans-serif';
-    exportCtx.fillText(entry.target_hex, x + 28, y + 38);
-
-    exportCtx.fillStyle = "#bcc0c7";
-    exportCtx.font = '600 16px "Space Grotesk", sans-serif';
-    exportCtx.fillText(entry.display.targetRgb, x + 12, y + 76);
-    exportCtx.fillText(`LAB ${entry.target_lab.L.toFixed(1)}, ${entry.target_lab.a.toFixed(1)}, ${entry.target_lab.b.toFixed(1)}`, x + 12, y + 102);
-    exportCtx.fillText(`Using ${entry.display.sourceLabel}`, x + 12, y + 128);
-
-    const lines = getCardLines(entry);
-    exportCtx.fillStyle = "#91969d";
-    exportCtx.font = '500 16px "Space Grotesk", sans-serif';
-    lines.forEach((line, lineIndex) => {
-      exportCtx.fillText(line, x + 12, y + 160 + (lineIndex * 20));
-    });
-  });
-
-  const link = document.createElement("a");
-  link.href = exportCanvas.toDataURL("image/png");
-  link.download = `paint-recipes-${Date.now()}.png`;
-  link.click();
+function getRecipeSwatchColor(entry) {
+  return entry.display.swatchColor || entry.target_hex;
 }
-function renderRecipe() {
-  if (!recipeModal || !recipeContent) return;
-  if (!state.recipeResults.length) {
-    closeRecipeModal();
-    recipeContent.innerHTML = "";
-    return;
-  }
-  recipeModal.classList.remove("hidden");
-  recipeModal.setAttribute("aria-hidden", "false");
-  recipeContent.innerHTML = `<div class="recipe-stack">${state.recipeResults.map((entry) => `
-    <section class="recipe-card" style="--recipe-color:${escapeHtml(entry.display.swatchColor || entry.target_hex)}">
-      <div class="recipe-card-head" style="background:${escapeHtml(entry.display.swatchColor || entry.target_hex)};color:${luminance(hexToRgb(entry.display.swatchColor || entry.target_hex).r, hexToRgb(entry.display.swatchColor || entry.target_hex).g, hexToRgb(entry.display.swatchColor || entry.target_hex).b) > 0.62 ? "#15171a" : "#f2efe8"};"><strong>${escapeHtml(entry.target_hex)}</strong></div>
+
+function getRecipeHeaderTextColor(colorHex) {
+  const color = hexToRgb(colorHex);
+  return luminance(color.r, color.g, color.b) > 0.62 ? "#15171a" : "#f2efe8";
+}
+
+function buildRecipeCardMarkup(entry) {
+  const swatchColor = getRecipeSwatchColor(entry);
+  return `
+    <section class="recipe-card" style="--recipe-color:${escapeHtml(swatchColor)}">
+      <div class="recipe-card-head" style="background:${escapeHtml(swatchColor)};color:${getRecipeHeaderTextColor(swatchColor)};"><strong>${escapeHtml(entry.target_hex)}</strong></div>
       <div class="recipe-meta">
         <span>${escapeHtml(entry.display.targetRgb)}</span>
         <span>LAB ${entry.target_lab.L.toFixed(1)}, ${entry.target_lab.a.toFixed(1)}, ${entry.target_lab.b.toFixed(1)}</span>
@@ -2055,7 +2100,79 @@ function renderRecipe() {
       ${entry.catalog_matches?.length ? `<div class="recipe-section"><div class="recipe-section-head"><strong>Buy Williamsburg</strong><span class="recipe-section-caption">${escapeHtml(entry.display.catalogRefreshLabel || "Williamsburg active catalog")}</span></div><ul class="recipe-buy-list">${entry.catalog_matches.map((item) => `<li><span class="recipe-buy-copy"><span class="recipe-component-head"><span class="recipe-component-dot" style="background:${escapeHtml(item.swatch_hex || "#2A2F36")}"></span><strong>${escapeHtml(item.color_name)}</strong></span><small>${escapeHtml(formatPaintDetailLine(item))}</small></span><small class="recipe-buy-reason">${Math.round(item.recommended_mass_percent || 0)}%</small></li>`).join("")}</ul></div>` : ""}
       ${entry.substitutions.length ? `<div class="recipe-section"><strong>Substitutions</strong><ul class="recipe-inline-list">${entry.substitutions.map((item) => `<li>${escapeHtml(item.missing_paint)} -> ${escapeHtml(item.recommended_substitute.color_name)} (${escapeHtml(item.match_class.replaceAll("_", " "))})</li>`).join("")}</ul></div>` : ""}
       ${entry.warnings.length ? `<div class="recipe-section"><strong>Warnings</strong><ul class="recipe-inline-list">${entry.warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("")}</ul></div>` : ""}
-    </section>`).join("")}</div>`;
+    </section>`;
+}
+
+function buildRecipeCardsMarkup() {
+  return `<div class="recipe-stack">${state.recipeResults.map((entry) => buildRecipeCardMarkup(entry)).join("")}</div>`;
+}
+
+function buildRecipeExportMarkup(columns, width) {
+  return `<div xmlns="http://www.w3.org/1999/xhtml" class="recipe-export-sheet" style="--recipe-export-columns:${columns};--recipe-export-card-width:${RECIPE_EXPORT_CARD_WIDTH}px;--recipe-export-width:${width}px"><h1 class="recipe-export-title">Paint recipes</h1>${buildRecipeCardsMarkup()}</div>`;
+}
+
+async function renderRecipeExportCanvas() {
+  const cardCount = state.recipeResults.length;
+  const columns = Math.ceil(Math.sqrt(cardCount));
+  const width = (RECIPE_EXPORT_PADDING * 2) + (columns * RECIPE_EXPORT_CARD_WIDTH) + (Math.max(0, columns - 1) * RECIPE_EXPORT_GAP);
+  const exportMarkup = buildRecipeExportMarkup(columns, width);
+  const measurementHost = document.createElement("div");
+  measurementHost.style.position = "fixed";
+  measurementHost.style.left = "-100000px";
+  measurementHost.style.top = "0";
+  measurementHost.style.opacity = "0";
+  measurementHost.style.pointerEvents = "none";
+  measurementHost.innerHTML = `<style>${RECIPE_EXPORT_STYLES}</style>${exportMarkup}`;
+  document.body.appendChild(measurementHost);
+  const sheet = measurementHost.querySelector(".recipe-export-sheet");
+  const height = Math.ceil(sheet.getBoundingClientRect().height);
+  measurementHost.remove();
+
+  const svgMarkup = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml"><style>${RECIPE_EXPORT_STYLES}</style>${exportMarkup}</div></foreignObject></svg>`;
+  const svgUrl = URL.createObjectURL(new Blob([svgMarkup], { type: "image/svg+xml;charset=utf-8" }));
+  try {
+    const image = await readImageFromSource(svgUrl);
+    const scale = 2;
+    const exportCanvas = document.createElement("canvas");
+    exportCanvas.width = width * scale;
+    exportCanvas.height = height * scale;
+    const exportCtx = exportCanvas.getContext("2d");
+    exportCtx.scale(scale, scale);
+    exportCtx.fillStyle = "#111417";
+    exportCtx.fillRect(0, 0, width, height);
+    exportCtx.drawImage(image, 0, 0, width, height);
+    return exportCanvas;
+  } finally {
+    URL.revokeObjectURL(svgUrl);
+  }
+}
+
+async function exportRecipeImage() {
+  if (!state.recipeResults.length) {
+    showRecipeMessage("Upload an image first to generate paint recipes for the palette.");
+    return;
+  }
+
+  try {
+    const exportCanvas = await renderRecipeExportCanvas();
+    const link = document.createElement("a");
+    link.href = exportCanvas.toDataURL("image/png");
+    link.download = `paint-recipes-${Date.now()}.png`;
+    link.click();
+  } catch (error) {
+    showRecipeMessage("Recipe export could not render. Try again in a moment.");
+  }
+}
+function renderRecipe() {
+  if (!recipeModal || !recipeContent) return;
+  if (!state.recipeResults.length) {
+    closeRecipeModal();
+    recipeContent.innerHTML = "";
+    return;
+  }
+  recipeModal.classList.remove("hidden");
+  recipeModal.setAttribute("aria-hidden", "false");
+  recipeContent.innerHTML = buildRecipeCardsMarkup();
 }
 
 
