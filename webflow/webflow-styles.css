@@ -1910,6 +1910,7 @@
 
 .webflow-palette-embed[data-mobile-layout="true"][data-palette-drawer-open="true"] .palette-panel {
   inset: var(--mobile-rail-margin);
+  z-index: 32;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   gap: var(--mobile-rail-gap);
