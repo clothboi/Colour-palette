@@ -370,6 +370,10 @@ const PALETTE_GAP = 3;
 const PALETTE_SINGLE_MIN_HEIGHT = 52;
 const PALETTE_TWO_COLUMN_TARGET_MIN_HEIGHT = 34;
 const PALETTE_TWO_COLUMN_FLOOR_HEIGHT = 18;
+const MOBILE_HARMONIZE_PALETTE_GAP = 2;
+const MOBILE_HARMONIZE_SINGLE_MIN_HEIGHT = 36;
+const MOBILE_HARMONIZE_TWO_COLUMN_TARGET_MIN_HEIGHT = 24;
+const MOBILE_HARMONIZE_TWO_COLUMN_FLOOR_HEIGHT = 16;
 const SAMPLE_GRID = 72;
 const PERCENTAGE_SAMPLE_LONG_EDGE = 96;
 const EXPORT_LAYOUT_CURRENT = "current";
@@ -2079,6 +2083,9 @@ function closeHarmonizePanel(options = {}) {
   resetHarmonizeConfig();
   renderHarmonizePanel();
   updatePaletteLabel();
+  if (!revertPreview) {
+    renderPalette();
+  }
 
   if (restoreFocus) {
     const trigger = getVisibleHarmonizeTrigger();
@@ -2101,6 +2108,7 @@ function openHarmonizePanel(trigger = null) {
   resetHarmonizeConfig();
   renderHarmonizePanel();
   updatePaletteLabel();
+  renderPalette();
   scheduleHarmonizePreview();
   requestAnimationFrame(() => {
     focusHarmonizePrimaryControl();
@@ -2210,6 +2218,7 @@ function applyHarmonizeChanges() {
   resetHarmonizeConfig();
   renderHarmonizePanel();
   updatePaletteLabel();
+  renderPalette();
   if (recipeModal.classList.contains("hidden")) {
     state.recipeResults = [];
     state.recipeRequest = null;
@@ -3240,17 +3249,22 @@ function getPaletteAvailableHeight() {
   const summaryVisible = !paletteDrawerSummary.hidden && window.getComputedStyle(paletteDrawerSummary).display !== "none";
   const openVisible = !paletteDrawerOpen.hidden && window.getComputedStyle(paletteDrawerOpen).display !== "none";
   const toolbarVisible = window.getComputedStyle(desktopPaletteToolbar).display !== "none";
+  const harmonizeVisible = !harmonizePanel.hidden && window.getComputedStyle(harmonizePanel).display !== "none";
   const usedHeights = [
     openVisible ? paletteDrawerOpen.getBoundingClientRect().height : 0,
     summaryVisible ? paletteDrawerSummary.getBoundingClientRect().height : 0,
     toolbarVisible ? desktopPaletteToolbar.getBoundingClientRect().height : 0,
+    harmonizeVisible ? harmonizePanel.getBoundingClientRect().height : 0,
   ].filter((value) => value > 0);
   const visibleItems = usedHeights.length + 1;
   const gaps = Math.max(0, visibleItems - 1) * gap;
   const computedHeight = Math.max(0, Math.round(panelHeight - paddingTop - paddingBottom - gaps - usedHeights.reduce((sum, value) => sum + value, 0)));
 
   if (isRealMobileLayout() && state.isPaletteDrawerOpen) {
-    const fittedHeight = Math.max(0, Math.round(computedHeight || sheetHeight || listHeight));
+    const mobileCandidates = [computedHeight, sheetHeight, listHeight].filter((value) => value > 0);
+    const fittedHeight = mobileCandidates.length
+      ? Math.min(...mobileCandidates)
+      : Math.max(0, Math.round(computedHeight || sheetHeight || listHeight));
     return Math.max(0, fittedHeight - 4);
   }
 
@@ -3261,19 +3275,38 @@ function getPaletteAvailableHeight() {
   return Math.max(0, Math.round(fittedHeight) - 4);
 }
 
+function getPaletteHeightConfig() {
+  if (isRealMobileLayout() && state.isPaletteDrawerOpen && state.harmonize.isOpen) {
+    return {
+      gap: MOBILE_HARMONIZE_PALETTE_GAP,
+      singleMinHeight: MOBILE_HARMONIZE_SINGLE_MIN_HEIGHT,
+      twoColumnPreferredMinHeight: MOBILE_HARMONIZE_TWO_COLUMN_TARGET_MIN_HEIGHT,
+      twoColumnFloorHeight: MOBILE_HARMONIZE_TWO_COLUMN_FLOOR_HEIGHT,
+    };
+  }
+
+  return {
+    gap: PALETTE_GAP,
+    singleMinHeight: PALETTE_SINGLE_MIN_HEIGHT,
+    twoColumnPreferredMinHeight: PALETTE_TWO_COLUMN_TARGET_MIN_HEIGHT,
+    twoColumnFloorHeight: PALETTE_TWO_COLUMN_FLOOR_HEIGHT,
+  };
+}
+
 function getPaletteHeightMap() {
   const availableHeight = getPaletteAvailableHeight();
+  const heightConfig = getPaletteHeightConfig();
   const heightById = new Map();
 
   if (!isTwoColumnPalette()) {
     const heights = normalizePaletteHeights(
-      getScaledPaletteHeights(state.colors, availableHeight, PALETTE_GAP, PALETTE_SINGLE_MIN_HEIGHT),
+      getScaledPaletteHeights(state.colors, availableHeight, heightConfig.gap, heightConfig.singleMinHeight),
       availableHeight,
-      PALETTE_GAP,
-      PALETTE_SINGLE_MIN_HEIGHT,
+      heightConfig.gap,
+      heightConfig.singleMinHeight,
     );
     state.colors.forEach((color, index) => {
-      heightById.set(color.id, heights[index] || PALETTE_SINGLE_MIN_HEIGHT);
+      heightById.set(color.id, heights[index] || heightConfig.singleMinHeight);
     });
     return heightById;
   }
@@ -3282,13 +3315,13 @@ function getPaletteHeightMap() {
   const columns = [state.colors.slice(0, leftCount), state.colors.slice(leftCount)];
   columns.forEach((columnColors) => {
     const heights = normalizePaletteHeights(
-      getFittedPaletteHeights(columnColors, availableHeight, PALETTE_GAP, PALETTE_TWO_COLUMN_TARGET_MIN_HEIGHT, PALETTE_TWO_COLUMN_FLOOR_HEIGHT),
+      getFittedPaletteHeights(columnColors, availableHeight, heightConfig.gap, heightConfig.twoColumnPreferredMinHeight, heightConfig.twoColumnFloorHeight),
       availableHeight,
-      PALETTE_GAP,
-      PALETTE_TWO_COLUMN_FLOOR_HEIGHT,
+      heightConfig.gap,
+      heightConfig.twoColumnFloorHeight,
     );
     columnColors.forEach((color, index) => {
-      heightById.set(color.id, heights[index] || PALETTE_TWO_COLUMN_FLOOR_HEIGHT);
+      heightById.set(color.id, heights[index] || heightConfig.twoColumnFloorHeight);
     });
   });
 

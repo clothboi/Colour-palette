@@ -2270,7 +2270,7 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-harmonize-panel {
-  max-height: min(42vh, 420px);
+  max-height: min(50vh, 520px);
   padding: 12px;
 }
 
@@ -2329,6 +2329,10 @@
   width: 100%;
   max-width: 100%;
   touch-action: none;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"][data-harmonize-open="true"] .palette-card {
+  min-height: 36px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-card-lock {
