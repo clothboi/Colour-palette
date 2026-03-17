@@ -927,6 +927,13 @@
 .webflow-palette-embed .palette-drawer-close {
   grid-column: 3;
   justify-self: end;
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 11px;
+  font-size: 1rem;
+  line-height: 1;
 }
 
 .webflow-palette-embed .palette-toolbar-controls {

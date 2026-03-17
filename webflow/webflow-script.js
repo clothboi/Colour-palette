@@ -79,7 +79,7 @@ ${getPaletteControlsMarkup("mobile-palette-rail__toolbar-controls")}
         <div class="palette-toolbar" data-role="desktop-palette-toolbar">
           <div class="palette-toolbar-head">
             <span class="palette-rail-label">Palette Rail</span>
-            <button class="palette-drawer-close" type="button" data-action="palette-drawer-close" aria-label="Close palette drawer">Close</button>
+            <button class="palette-drawer-close" type="button" data-action="palette-drawer-close" aria-label="Close palette drawer">X</button>
           </div>
 ${getPaletteControlsMarkup()}
         </div>
