@@ -577,6 +577,7 @@
   cursor: grab;
   pointer-events: auto;
   touch-action: none;
+  isolation: isolate;
   transition: transform 120ms ease, box-shadow 120ms ease;
 }
 
@@ -584,6 +585,7 @@
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 0;
   border-radius: 50%;
   background: var(--swatch-color);
 }
@@ -593,6 +595,86 @@
   transform: scale(1.08);
   box-shadow:
     0 0 0 2px rgba(255, 255, 255, 0.34),
+    0 14px 28px rgba(0, 0, 0, 0.36);
+}
+
+.webflow-palette-embed[data-harmonize-open="true"] .swatch {
+  cursor: default;
+}
+
+.webflow-palette-embed .swatch-lock-button {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  z-index: 3;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--glass-button-border);
+  border-radius: 999px;
+  background: rgba(20, 24, 28, 0.92);
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.84);
+  transition: opacity 120ms ease, transform 120ms ease, background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.webflow-palette-embed .swatch-lock-button::before,
+.webflow-palette-embed .swatch-lock-button::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.webflow-palette-embed .swatch-lock-button::before {
+  top: 4px;
+  width: 8px;
+  height: 5px;
+  border: 1.5px solid rgba(244, 241, 233, 0.88);
+  border-bottom: 0;
+  border-radius: 999px 999px 0 0;
+}
+
+.webflow-palette-embed .swatch-lock-button::after {
+  top: 9px;
+  width: 10px;
+  height: 7px;
+  border-radius: 3px;
+  background: rgba(244, 241, 233, 0.82);
+}
+
+.webflow-palette-embed[data-harmonize-open="true"] .swatch-lock-button {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.webflow-palette-embed .swatch-lock-button[aria-pressed="true"] {
+  border-color: var(--glass-button-highlight-border);
+  background: var(--glass-button-highlight-bg);
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.webflow-palette-embed .swatch[data-harmonize-locked="true"] {
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.3),
+    0 0 0 4px rgba(158, 188, 223, 0.2),
+    0 12px 24px rgba(0, 0, 0, 0.34);
+}
+
+.webflow-palette-embed .swatch[data-harmonize-anchor="true"] {
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.34),
+    0 0 0 5px rgba(244, 241, 233, 0.26),
     0 14px 28px rgba(0, 0, 0, 0.36);
 }
 
@@ -988,8 +1070,7 @@
 .webflow-palette-embed .palette-harmonize-toggle,
 .webflow-palette-embed .palette-harmonize-action,
 .webflow-palette-embed .palette-harmonize-close,
-.webflow-palette-embed .palette-harmonize-chip,
-.webflow-palette-embed .palette-harmonize-lock-toggle {
+.webflow-palette-embed .palette-harmonize-chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1099,8 +1180,7 @@
 }
 
 .webflow-palette-embed .palette-harmonize-subtle,
-.webflow-palette-embed .palette-harmonize-helper,
-.webflow-palette-embed .palette-harmonize-lock-copy span {
+.webflow-palette-embed .palette-harmonize-helper {
   color: var(--muted);
   font-size: 0.78rem;
   line-height: 1.4;
@@ -1129,8 +1209,7 @@
 }
 
 .webflow-palette-embed .palette-harmonize-chip[aria-pressed="true"],
-.webflow-palette-embed .palette-harmonize-action--primary,
-.webflow-palette-embed .palette-harmonize-lock-toggle[aria-pressed="true"] {
+.webflow-palette-embed .palette-harmonize-action--primary {
   border-color: var(--glass-button-highlight-border);
   background: var(--glass-button-highlight-bg);
 }
@@ -1162,85 +1241,6 @@
   color: var(--muted);
   font-size: 0.72rem;
   letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.webflow-palette-embed .palette-harmonize-lock-list {
-  display: grid;
-  gap: 8px;
-}
-
-.webflow-palette-embed .palette-harmonize-lock-item {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 10px;
-  align-items: center;
-  padding: 10px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.webflow-palette-embed .palette-harmonize-lock-item.is-changed {
-  border-color: rgba(158, 188, 223, 0.24);
-  background: rgba(158, 188, 223, 0.06);
-}
-
-.webflow-palette-embed .palette-harmonize-lock-item.is-locked {
-  border-color: rgba(255, 255, 255, 0.16);
-}
-
-.webflow-palette-embed .palette-harmonize-lock-swatch {
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: var(--harmonize-swatch);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    0 8px 16px rgba(0, 0, 0, 0.2);
-}
-
-.webflow-palette-embed .palette-harmonize-lock-copy {
-  min-width: 0;
-  display: grid;
-  gap: 4px;
-}
-
-.webflow-palette-embed .palette-harmonize-lock-head {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-.webflow-palette-embed .palette-harmonize-lock-head strong {
-  font-size: 0.82rem;
-}
-
-.webflow-palette-embed .palette-harmonize-lock-flag {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 20px;
-  padding: 0 8px;
-  border-radius: 999px;
-  background: rgba(158, 188, 223, 0.14);
-  color: var(--muted-strong);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.webflow-palette-embed .palette-harmonize-lock-toggle {
-  min-height: 32px;
-  padding: 7px 10px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -2348,16 +2348,9 @@ ${HARMONIZE_SCHEMES.map((scheme) => `              <button class="palette-harmon
             </div>
             <input class="palette-harmonize-slider" data-role="harmonize-strength" type="range" min="0" max="100" step="1" value="${HARMONIZE_DEFAULT_STRENGTH}">
           </label>
-          <p class="palette-harmonize-helper" data-role="harmonize-helper">The first locked colour becomes the anchor.</p>
+          <p class="palette-harmonize-helper" data-role="harmonize-helper">Use the swatch locks to pin colours. The first locked swatch becomes the anchor.</p>
           <section class="palette-harmonize-section">
             <div class="palette-harmonize-metrics" data-role="harmonize-metrics"></div>
-          </section>
-          <section class="palette-harmonize-section">
-            <div class="palette-harmonize-section-head">
-              <span class="palette-harmonize-label">Locks</span>
-              <span class="palette-harmonize-subtle">Pinned colours stay fixed during preview.</span>
-            </div>
-            <div class="palette-harmonize-lock-list" data-role="harmonize-lock-list"></div>
           </section>
           <ul class="palette-harmonize-warnings" data-role="harmonize-warnings" hidden></ul>
           <div class="palette-harmonize-actions">
@@ -2622,7 +2615,6 @@ function initPalette(root) {
   const harmonizeStrengthValue = root.querySelector('[data-role="harmonize-strength-value"]');
   const harmonizeHelper = root.querySelector('[data-role="harmonize-helper"]');
   const harmonizeMetrics = root.querySelector('[data-role="harmonize-metrics"]');
-  const harmonizeLockList = root.querySelector('[data-role="harmonize-lock-list"]');
   const harmonizeWarnings = root.querySelector('[data-role="harmonize-warnings"]');
   const harmonizeClose = root.querySelector('[data-action="harmonize-close"]');
   const harmonizeReset = root.querySelector('[data-action="harmonize-reset"]');
@@ -2659,7 +2651,7 @@ function initPalette(root) {
   const saveExport = root.querySelector('[data-action="save-export-image"]');
   const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
   const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeButtons.length || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeHelper || !harmonizeMetrics || !harmonizeLockList || !harmonizeWarnings || !harmonizeClose || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeButtons.length || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeHelper || !harmonizeMetrics || !harmonizeWarnings || !harmonizeClose || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
     return;
   }
 
@@ -4279,17 +4271,17 @@ function renderHarmonizePanel() {
 
   if (!state.harmonize.isOpen) {
     harmonizeMetrics.innerHTML = "";
-    harmonizeLockList.innerHTML = "";
     harmonizeWarnings.hidden = true;
     harmonizeWarnings.innerHTML = "";
-    harmonizeHelper.textContent = "The first locked colour becomes the anchor.";
+    harmonizeHelper.textContent = "Use the swatch locks to pin colours. The first locked swatch becomes the anchor.";
+    syncSwatchLockControls();
     return;
   }
 
   const metrics = state.harmonize.metrics;
   const anchorMetric = metrics?.perColorMetrics.find((entry) => entry.anchor) || null;
   harmonizeHelper.textContent = state.harmonize.lockedIds.size
-    ? `The first locked colour becomes the anchor. ${anchorMetric ? `${anchorMetric.outputHex} is currently anchoring this preview.` : ""}`.trim()
+    ? `Use the swatch locks to pin colours. The first locked swatch becomes the anchor. ${anchorMetric ? `${anchorMetric.outputHex} is currently anchoring this preview.` : ""}`.trim()
     : `${anchorMetric ? `${anchorMetric.outputHex}` : "The most chromatic swatch"} is currently acting as the anchor.`;
 
   if (metrics) {
@@ -4314,32 +4306,9 @@ function renderHarmonizePanel() {
       </div>`;
   }
 
-  const baselineById = new Map(state.harmonize.baselineColors.map((color) => [color.id, color]));
-  const metricById = new Map((metrics?.perColorMetrics || []).map((entry) => [entry.colorId, entry]));
-  harmonizeLockList.innerHTML = state.colors.map((color) => {
-    const baseline = baselineById.get(color.id) || color;
-    const metric = metricById.get(color.id);
-    const locked = state.harmonize.lockedIds.has(color.id);
-    const anchor = Boolean(metric?.anchor);
-    const changed = Boolean(metric?.changed);
-    const deltaLabel = metric ? `DeltaE ${formatMetricNumber(metric.deltaE, 2)}` : "Pending";
-    const transitionLabel = baseline.hex === color.hex ? baseline.hex : `${baseline.hex} -> ${color.hex}`;
-    return `
-      <div class="palette-harmonize-lock-item${locked ? " is-locked" : ""}${changed ? " is-changed" : ""}">
-        <span class="palette-harmonize-lock-swatch" style="--harmonize-swatch:${color.hex}"></span>
-        <div class="palette-harmonize-lock-copy">
-          <div class="palette-harmonize-lock-head">
-            <strong>${transitionLabel}</strong>
-            ${anchor ? '<span class="palette-harmonize-lock-flag">Anchor</span>' : ""}
-          </div>
-          <span>${deltaLabel}${metric?.nearNeutral ? " • Near-neutral" : ""}${locked ? " • Locked" : ""}</span>
-        </div>
-        <button class="palette-harmonize-lock-toggle" type="button" data-action="harmonize-lock" data-color-id="${color.id}" aria-pressed="${locked ? "true" : "false"}">${locked ? "Locked" : "Lock"}</button>
-      </div>`;
-  }).join("");
-
   harmonizeWarnings.innerHTML = state.harmonize.warnings.map((warning) => `<li>${warning}</li>`).join("");
   harmonizeWarnings.hidden = !state.harmonize.warnings.length;
+  syncSwatchLockControls();
 }
 
 function syncPreviewDrivenViews() {
@@ -4471,6 +4440,58 @@ function handleHarmonizeOutsidePointerDown(event) {
   event.preventDefault();
   event.stopPropagation();
   closeHarmonizePanel({ restoreFocus: false, revertPreview: true });
+}
+
+function getHarmonizeAnchorId() {
+  if (!state.harmonize.isOpen) {
+    return null;
+  }
+
+  if (state.harmonize.lockedIds.size) {
+    const lockedColor = state.colors.find((color) => state.harmonize.lockedIds.has(color.id));
+    if (lockedColor) {
+      return lockedColor.id;
+    }
+  }
+
+  return state.harmonize.metrics?.anchorId || null;
+}
+
+function syncSwatchLockControls() {
+  const anchorId = getHarmonizeAnchorId();
+  state.swatches.forEach((swatch) => {
+    if (!swatch.lockButton) {
+      return;
+    }
+
+    const locked = state.harmonize.lockedIds.has(swatch.id);
+    const isAnchor = swatch.id === anchorId;
+    swatch.element.dataset.harmonizeLocked = locked ? "true" : "false";
+    swatch.element.dataset.harmonizeAnchor = isAnchor ? "true" : "false";
+    swatch.lockButton.hidden = !state.harmonize.isOpen;
+    swatch.lockButton.setAttribute("aria-pressed", String(locked));
+    swatch.lockButton.setAttribute("aria-label", locked ? `Unlock ${swatch.color.hex} during harmonise` : `Lock ${swatch.color.hex} during harmonise`);
+    swatch.lockButton.title = isAnchor
+      ? `${swatch.color.hex} is the harmonise anchor`
+      : locked
+        ? `${swatch.color.hex} is locked during harmonise`
+        : `Lock ${swatch.color.hex} during harmonise`;
+  });
+}
+
+function toggleHarmonizeLock(colorId) {
+  if (!state.harmonize.isOpen || !colorId) {
+    return;
+  }
+
+  if (state.harmonize.lockedIds.has(colorId)) {
+    state.harmonize.lockedIds.delete(colorId);
+  } else {
+    state.harmonize.lockedIds.add(colorId);
+  }
+
+  renderHarmonizePanel();
+  scheduleHarmonizePreview();
 }
 
 function applyHarmonizeChanges() {
@@ -6041,6 +6062,7 @@ function syncSwatchTargetsFromColors() {
     swatch.element.style.setProperty("--swatch-color", color.hex);
     swatch.element.setAttribute("aria-label", `${color.hex} swatch`);
   });
+  syncSwatchLockControls();
 }
 
 function setHoveredColor(id) {
@@ -6052,22 +6074,37 @@ function setHoveredColor(id) {
 function createSwatch(color) {
   const bounds = getImageBounds();
   const swatch = document.createElement("div");
+  const lockButton = document.createElement("button");
   swatch.className = "swatch";
   swatch.style.setProperty("--swatch-color", color.hex);
   swatch.style.left = "0px";
   swatch.style.top = "0px";
   swatch.setAttribute("aria-label", `${color.hex} swatch`);
   swatch.dataset.id = color.id;
+  lockButton.className = "swatch-lock-button";
+  lockButton.type = "button";
+  lockButton.hidden = true;
+  lockButton.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  });
+  lockButton.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    toggleHarmonizeLock(color.id);
+  });
+  swatch.appendChild(lockButton);
   swatch.addEventListener("pointerenter", () => setHoveredColor(color.id));
   swatch.addEventListener("pointerleave", () => setHoveredColor(null));
   swatch.addEventListener("pointerdown", (event) => startDrag(event, color.id));
   swatchLayer.appendChild(swatch);
-  return { id: color.id, color, element: swatch, x: color.x * bounds.width, y: color.y * bounds.height, targetX: color.x * bounds.width, targetY: color.y * bounds.height };
+  return { id: color.id, color, element: swatch, lockButton, x: color.x * bounds.width, y: color.y * bounds.height, targetX: color.x * bounds.width, targetY: color.y * bounds.height };
 }
 function rebuildSwatches() {
   destroyDragLens(true);
   swatchLayer.innerHTML = "";
   state.swatches = state.colors.map((color) => createSwatch(color));
+  syncSwatchLockControls();
   startAnimation();
 }
 
@@ -6433,23 +6470,6 @@ harmonizeStrength.addEventListener("input", () => {
     return;
   }
   state.harmonize.strength = clamp(Number(harmonizeStrength.value), 0, 100);
-  renderHarmonizePanel();
-  scheduleHarmonizePreview();
-});
-harmonizeLockList.addEventListener("click", (event) => {
-  const lockButton = event.target.closest('[data-action="harmonize-lock"]');
-  if (!lockButton || !state.harmonize.isOpen) {
-    return;
-  }
-  const { colorId } = lockButton.dataset;
-  if (!colorId) {
-    return;
-  }
-  if (state.harmonize.lockedIds.has(colorId)) {
-    state.harmonize.lockedIds.delete(colorId);
-  } else {
-    state.harmonize.lockedIds.add(colorId);
-  }
   renderHarmonizePanel();
   scheduleHarmonizePreview();
 });
