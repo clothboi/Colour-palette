@@ -2284,6 +2284,7 @@ function drawRoundedRect(context, x, y, width, height, radius, fill) {
 const RECIPE_EXPORT_CARD_WIDTH = 420;
 const RECIPE_EXPORT_PADDING = 24;
 const RECIPE_EXPORT_GAP = 12;
+const HTML2CANVAS_URL = "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js";
 const RECIPE_EXPORT_STYLES = `
   :root { color-scheme: dark; }
   * { box-sizing: border-box; }
@@ -2452,6 +2453,7 @@ const RECIPE_EXPORT_STYLES = `
     padding-left: 18px;
   }
 `;
+let html2CanvasPromise = null;
 
 function getRecipeSwatchColor(entry) {
   return entry.display.swatchColor || entry.target_hex;
@@ -2498,23 +2500,42 @@ function buildRecipeExportMarkup(columns, width) {
   return `<div xmlns="http://www.w3.org/1999/xhtml" class="recipe-export-sheet" style="--recipe-export-columns:${columns};--recipe-export-card-width:${RECIPE_EXPORT_CARD_WIDTH}px;--recipe-export-width:${width}px"><h1 class="recipe-export-title">Paint recipes</h1>${buildRecipeCardsMarkup()}</div>`;
 }
 
-async function renderRecipeExportCanvas() {
-  const cardCount = state.recipeResults.length;
-  const columns = Math.ceil(Math.sqrt(cardCount));
-  const width = (RECIPE_EXPORT_PADDING * 2) + (columns * RECIPE_EXPORT_CARD_WIDTH) + (Math.max(0, columns - 1) * RECIPE_EXPORT_GAP);
-  const exportMarkup = buildRecipeExportMarkup(columns, width);
-  const measurementHost = document.createElement("div");
-  measurementHost.style.position = "fixed";
-  measurementHost.style.left = "-100000px";
-  measurementHost.style.top = "0";
-  measurementHost.style.opacity = "0";
-  measurementHost.style.pointerEvents = "none";
-  measurementHost.innerHTML = `<style>${RECIPE_EXPORT_STYLES}</style>${exportMarkup}`;
-  document.body.appendChild(measurementHost);
-  const sheet = measurementHost.querySelector(".recipe-export-sheet");
-  const height = Math.ceil(sheet.getBoundingClientRect().height);
-  measurementHost.remove();
+function waitForNextFrame() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => resolve());
+  });
+}
 
+async function loadHtml2Canvas() {
+  if (window.html2canvas) {
+    return window.html2canvas;
+  }
+  if (html2CanvasPromise) {
+    return html2CanvasPromise;
+  }
+
+  html2CanvasPromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = HTML2CANVAS_URL;
+    script.async = true;
+    script.onload = () => {
+      if (window.html2canvas) {
+        resolve(window.html2canvas);
+      } else {
+        reject(new Error("html2canvas did not initialize"));
+      }
+    };
+    script.onerror = () => reject(new Error("html2canvas failed to load"));
+    document.head.appendChild(script);
+  }).catch((error) => {
+    html2CanvasPromise = null;
+    throw error;
+  });
+
+  return html2CanvasPromise;
+}
+
+async function renderRecipeExportCanvasWithSvg(exportMarkup, width, height) {
   const svgMarkup = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml"><style>${RECIPE_EXPORT_STYLES}</style>${exportMarkup}</div></foreignObject></svg>`;
   const svgUrl = URL.createObjectURL(new Blob([svgMarkup], { type: "image/svg+xml;charset=utf-8" }));
   try {
@@ -2531,6 +2552,43 @@ async function renderRecipeExportCanvas() {
     return exportCanvas;
   } finally {
     URL.revokeObjectURL(svgUrl);
+  }
+}
+
+async function renderRecipeExportCanvas() {
+  const cardCount = state.recipeResults.length;
+  const columns = Math.ceil(Math.sqrt(cardCount));
+  const width = (RECIPE_EXPORT_PADDING * 2) + (columns * RECIPE_EXPORT_CARD_WIDTH) + (Math.max(0, columns - 1) * RECIPE_EXPORT_GAP);
+  const exportMarkup = buildRecipeExportMarkup(columns, width);
+  const measurementHost = document.createElement("div");
+  measurementHost.style.position = "fixed";
+  measurementHost.style.left = "-100000px";
+  measurementHost.style.top = "0";
+  measurementHost.style.opacity = "0";
+  measurementHost.style.pointerEvents = "none";
+  measurementHost.innerHTML = `<style>${RECIPE_EXPORT_STYLES}</style>${exportMarkup}`;
+  document.body.appendChild(measurementHost);
+  const sheet = measurementHost.querySelector(".recipe-export-sheet");
+  try {
+    if (document.fonts?.ready) {
+      await Promise.race([document.fonts.ready, new Promise((resolve) => window.setTimeout(resolve, 1200))]);
+    }
+    await waitForNextFrame();
+    await waitForNextFrame();
+    const height = Math.ceil(sheet.getBoundingClientRect().height);
+    try {
+      const html2canvas = await loadHtml2Canvas();
+      return await html2canvas(sheet, {
+        backgroundColor: "#111417",
+        scale: 2,
+        logging: false,
+        useCORS: true,
+      });
+    } catch (error) {
+      return await renderRecipeExportCanvasWithSvg(exportMarkup, width, height);
+    }
+  } finally {
+    measurementHost.remove();
   }
 }
 
