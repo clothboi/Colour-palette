@@ -31,7 +31,6 @@ function getHarmonizePanelMarkup() {
               <p class="palette-harmonize-kicker">Palette tuning</p>
               <h3>Harmonise palette</h3>
             </div>
-            <button class="palette-harmonize-close" type="button" data-action="harmonize-close" aria-label="Close harmonise panel">X</button>
           </div>
           <section class="palette-harmonize-section">
             <div class="palette-harmonize-section-head">
@@ -320,7 +319,6 @@ function initPalette(root) {
   const harmonizeHelper = root.querySelector('[data-role="harmonize-helper"]');
   const harmonizeMetrics = root.querySelector('[data-role="harmonize-metrics"]');
   const harmonizeWarnings = root.querySelector('[data-role="harmonize-warnings"]');
-  const harmonizeClose = root.querySelector('[data-action="harmonize-close"]');
   const harmonizeReset = root.querySelector('[data-action="harmonize-reset"]');
   const harmonizeCancel = root.querySelector('[data-action="harmonize-cancel"]');
   const harmonizeApply = root.querySelector('[data-action="harmonize-apply"]');
@@ -355,7 +353,7 @@ function initPalette(root) {
   const saveExport = root.querySelector('[data-action="save-export-image"]');
   const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
   const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeHelper || !harmonizeMetrics || !harmonizeWarnings || !harmonizeClose || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeHelper || !harmonizeMetrics || !harmonizeWarnings || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
     return;
   }
 
@@ -4240,9 +4238,6 @@ harmonizeStrength.addEventListener("input", () => {
   state.harmonize.strength = clamp(Number(harmonizeStrength.value), 0, 100);
   renderHarmonizePanel();
   scheduleHarmonizePreview();
-});
-harmonizeClose.addEventListener("click", () => {
-  closeHarmonizePanel();
 });
 harmonizeCancel.addEventListener("click", () => {
   closeHarmonizePanel();

@@ -986,8 +986,7 @@
 }
 
 .webflow-palette-embed .palette-harmonize-toggle,
-.webflow-palette-embed .palette-harmonize-action,
-.webflow-palette-embed .palette-harmonize-close {
+.webflow-palette-embed .palette-harmonize-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1064,16 +1063,6 @@
 .webflow-palette-embed .palette-harmonize-head h3 {
   margin: 0;
   font-size: 1rem;
-}
-
-.webflow-palette-embed .palette-harmonize-close {
-  width: 36px;
-  min-width: 36px;
-  height: 36px;
-  padding: 0;
-  border-radius: 11px;
-  cursor: pointer;
-  line-height: 1;
 }
 
 .webflow-palette-embed .palette-harmonize-section {
