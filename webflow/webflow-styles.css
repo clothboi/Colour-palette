@@ -1194,6 +1194,7 @@
 .webflow-palette-embed .palette-harmonize-actions {
   display: flex;
   gap: 8px;
+  margin-top: -4px;
   justify-content: flex-end;
 }
 
