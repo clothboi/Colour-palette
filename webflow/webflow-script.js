@@ -1973,16 +1973,16 @@ function renderHarmonizePanel() {
     harmonizeMetrics.innerHTML = "";
     harmonizeWarnings.hidden = true;
     harmonizeWarnings.innerHTML = "";
-    harmonizeHelper.textContent = "Use the swatch locks to pin colours. The first locked swatch becomes the anchor.";
-    syncSwatchLockControls();
+    harmonizeHelper.textContent = "Use the palette rail locks to pin colours. The first locked colour becomes the anchor.";
+    syncPaletteLockControls();
     return;
   }
 
   const metrics = state.harmonize.metrics;
   const anchorMetric = metrics?.perColorMetrics.find((entry) => entry.anchor) || null;
   harmonizeHelper.textContent = state.harmonize.lockedIds.size
-    ? `Use the swatch locks to pin colours. The first locked swatch becomes the anchor. ${anchorMetric ? `${anchorMetric.outputHex} is currently anchoring this preview.` : ""}`.trim()
-    : `${anchorMetric ? `${anchorMetric.outputHex}` : "The most chromatic swatch"} is currently acting as the anchor.`;
+    ? `Use the palette rail locks to pin colours. The first locked colour becomes the anchor. ${anchorMetric ? `${anchorMetric.outputHex} is currently anchoring this preview.` : ""}`.trim()
+    : `${anchorMetric ? `${anchorMetric.outputHex}` : "The most chromatic colour"} is currently acting as the anchor.`;
 
   if (metrics) {
     harmonizeMetrics.innerHTML = `
@@ -2008,7 +2008,7 @@ function renderHarmonizePanel() {
 
   harmonizeWarnings.innerHTML = state.harmonize.warnings.map((warning) => `<li>${warning}</li>`).join("");
   harmonizeWarnings.hidden = !state.harmonize.warnings.length;
-  syncSwatchLockControls();
+  syncPaletteLockControls();
 }
 
 function syncPreviewDrivenViews() {
@@ -2157,25 +2157,30 @@ function getHarmonizeAnchorId() {
   return state.harmonize.metrics?.anchorId || null;
 }
 
-function syncSwatchLockControls() {
+function syncPaletteLockControls() {
   const anchorId = getHarmonizeAnchorId();
-  state.swatches.forEach((swatch) => {
-    if (!swatch.lockButton) {
+  const cards = [...paletteList.querySelectorAll(".palette-card")];
+  cards.forEach((card) => {
+    const colorId = card.dataset.id;
+    const lockButton = card.querySelector('[data-action="harmonize-lock-card"]');
+    if (!colorId || !lockButton) {
       return;
     }
 
-    const locked = state.harmonize.lockedIds.has(swatch.id);
-    const isAnchor = swatch.id === anchorId;
-    swatch.element.dataset.harmonizeLocked = locked ? "true" : "false";
-    swatch.element.dataset.harmonizeAnchor = isAnchor ? "true" : "false";
-    swatch.lockButton.hidden = !state.harmonize.isOpen;
-    swatch.lockButton.setAttribute("aria-pressed", String(locked));
-    swatch.lockButton.setAttribute("aria-label", locked ? `Unlock ${swatch.color.hex} during harmonise` : `Lock ${swatch.color.hex} during harmonise`);
-    swatch.lockButton.title = isAnchor
-      ? `${swatch.color.hex} is the harmonise anchor`
+    const color = state.colors.find((entry) => entry.id === colorId);
+    const hex = color?.hex || "";
+    const locked = state.harmonize.lockedIds.has(colorId);
+    const isAnchor = colorId === anchorId;
+    card.dataset.harmonizeLocked = locked ? "true" : "false";
+    card.dataset.harmonizeAnchor = isAnchor ? "true" : "false";
+    lockButton.hidden = !state.harmonize.isOpen;
+    lockButton.setAttribute("aria-pressed", String(locked));
+    lockButton.setAttribute("aria-label", locked ? `Unlock ${hex} during harmonise` : `Lock ${hex} during harmonise`);
+    lockButton.title = isAnchor
+      ? `${hex} is the harmonise anchor`
       : locked
-        ? `${swatch.color.hex} is locked during harmonise`
-        : `Lock ${swatch.color.hex} during harmonise`;
+        ? `${hex} is locked during harmonise`
+        : `Lock ${hex} during harmonise`;
   });
 }
 
@@ -2191,6 +2196,7 @@ function toggleHarmonizeLock(colorId) {
   }
 
   renderHarmonizePanel();
+  syncPaletteLockControls();
   scheduleHarmonizePreview();
 }
 
@@ -3649,6 +3655,14 @@ function commitPaletteOrder() {
 
 function createPaletteCard(color, height) {
   const card = document.createElement('div');
+  const locked = state.harmonize.lockedIds.has(color.id);
+  const isAnchor = color.id === getHarmonizeAnchorId();
+  const lockAriaLabel = locked ? `Unlock ${color.hex} during harmonise` : `Lock ${color.hex} during harmonise`;
+  const lockTitle = isAnchor
+    ? `${color.hex} is the harmonise anchor`
+    : locked
+      ? `${color.hex} is locked during harmonise`
+      : `Lock ${color.hex} during harmonise`;
   card.className = 'palette-card';
   if (state.hoveredColorId === color.id) card.classList.add('hovered');
   card.style.setProperty('--card-color', color.hex);
@@ -3657,9 +3671,12 @@ function createPaletteCard(color, height) {
   const textColor = luminance(color.r, color.g, color.b) > 0.62 ? '#15171a' : '#f2efe8';
   card.style.color = textColor;
   card.dataset.id = color.id;
+  card.dataset.harmonizeLocked = locked ? "true" : "false";
+  card.dataset.harmonizeAnchor = isAnchor ? "true" : "false";
   card.addEventListener('pointerdown', (event) => startPaletteDrag(event, color.id));
-  card.innerHTML = `<div class="palette-meta"><div class="palette-line"><button class="palette-code palette-copy" type="button" data-copy-hex="${color.hex}" title="Copy"><strong>${color.hex}</strong></button><span class="percent-badge">${formatPercent(color.percent)}</span></div></div>`;
+  card.innerHTML = `<div class="palette-meta"><div class="palette-line"><button class="palette-code palette-copy" type="button" data-copy-hex="${color.hex}" title="Copy"><strong>${color.hex}</strong></button><span class="percent-badge">${formatPercent(color.percent)}</span></div></div><button class="palette-card-lock" type="button" data-action="harmonize-lock-card" ${state.harmonize.isOpen ? "" : "hidden "}aria-pressed="${locked ? "true" : "false"}" aria-label="${lockAriaLabel}" title="${lockTitle}"></button>`;
   const copyButton = card.querySelector('[data-copy-hex]');
+  const lockButton = card.querySelector('[data-action="harmonize-lock-card"]');
   if (copyButton) {
     copyButton.addEventListener('pointerdown', (event) => {
       event.stopPropagation();
@@ -3667,6 +3684,17 @@ function createPaletteCard(color, height) {
     copyButton.addEventListener('click', async (event) => {
       event.stopPropagation();
       await copyHexCode(color.hex);
+    });
+  }
+  if (lockButton) {
+    lockButton.addEventListener('pointerdown', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+    });
+    lockButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleHarmonizeLock(color.id);
     });
   }
   return card;
@@ -3721,6 +3749,7 @@ function renderPalette() {
     getPaletteColumns(state.colors, state.colors.length).forEach((items, index) => {
       appendPaletteItems(columns[index], items, heightById, 0);
     });
+    syncPaletteLockControls();
     return;
   }
 
@@ -3750,6 +3779,7 @@ function renderPalette() {
   dragCard.style.left = `${state.paletteDragLeft}px`;
   dragCard.style.width = `${state.paletteDragWidth}px`;
   paletteList.appendChild(dragCard);
+  syncPaletteLockControls();
 }
 
 function syncSwatchTargetsFromColors() {
@@ -3762,7 +3792,6 @@ function syncSwatchTargetsFromColors() {
     swatch.element.style.setProperty("--swatch-color", color.hex);
     swatch.element.setAttribute("aria-label", `${color.hex} swatch`);
   });
-  syncSwatchLockControls();
 }
 
 function setHoveredColor(id) {
@@ -3774,37 +3803,22 @@ function setHoveredColor(id) {
 function createSwatch(color) {
   const bounds = getImageBounds();
   const swatch = document.createElement("div");
-  const lockButton = document.createElement("button");
   swatch.className = "swatch";
   swatch.style.setProperty("--swatch-color", color.hex);
   swatch.style.left = "0px";
   swatch.style.top = "0px";
   swatch.setAttribute("aria-label", `${color.hex} swatch`);
   swatch.dataset.id = color.id;
-  lockButton.className = "swatch-lock-button";
-  lockButton.type = "button";
-  lockButton.hidden = true;
-  lockButton.addEventListener("pointerdown", (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-  });
-  lockButton.addEventListener("click", (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    toggleHarmonizeLock(color.id);
-  });
-  swatch.appendChild(lockButton);
   swatch.addEventListener("pointerenter", () => setHoveredColor(color.id));
   swatch.addEventListener("pointerleave", () => setHoveredColor(null));
   swatch.addEventListener("pointerdown", (event) => startDrag(event, color.id));
   swatchLayer.appendChild(swatch);
-  return { id: color.id, color, element: swatch, lockButton, x: color.x * bounds.width, y: color.y * bounds.height, targetX: color.x * bounds.width, targetY: color.y * bounds.height };
+  return { id: color.id, color, element: swatch, x: color.x * bounds.width, y: color.y * bounds.height, targetX: color.x * bounds.width, targetY: color.y * bounds.height };
 }
 function rebuildSwatches() {
   destroyDragLens(true);
   swatchLayer.innerHTML = "";
   state.swatches = state.colors.map((color) => createSwatch(color));
-  syncSwatchLockControls();
   startAnimation();
 }
 
