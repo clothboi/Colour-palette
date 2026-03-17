@@ -1522,11 +1522,15 @@ function refreshStageSize() {
     Math.round(workspaceWidth ? (workspaceWidth - paletteWidth - workspaceGap) : (window.innerWidth - getPaletteFrameClearance())),
   );
 
+  const coverDesktopImage = shouldUseImageCoverOnDesktop();
   let frameWidth = availableWidth;
-  let frameHeight = Math.round(frameWidth / imageRatio);
-  if (frameHeight > availableHeight) {
-    frameHeight = availableHeight;
-    frameWidth = Math.round(frameHeight * imageRatio);
+  let frameHeight = availableHeight;
+  if (!coverDesktopImage) {
+    frameHeight = Math.round(frameWidth / imageRatio);
+    if (frameHeight > availableHeight) {
+      frameHeight = availableHeight;
+      frameWidth = Math.round(frameHeight * imageRatio);
+    }
   }
 
   canvasStage.style.setProperty("--frame-width", `${Math.max(280, frameWidth)}px`);
@@ -1607,6 +1611,13 @@ function shouldUseImageCoverOnMobile() {
     return false;
   }
   return true;
+}
+
+function shouldUseImageCoverOnDesktop() {
+  if (isRealMobileLayout() || !state.image) {
+    return false;
+  }
+  return state.image.width >= state.image.height;
 }
 
 function syncLayoutState() {
@@ -2385,11 +2396,13 @@ function drawProcessedImage() {
   const imageRatio = state.image.width / state.image.height;
   const frameRatio = displayWidth / displayHeight;
   const coverMobileImage = shouldUseImageCoverOnMobile();
+  const coverDesktopImage = shouldUseImageCoverOnDesktop();
+  const coverImage = coverMobileImage || coverDesktopImage;
   let drawWidth;
   let drawHeight;
   let offsetX = 0;
   let offsetY = 0;
-  if (coverMobileImage) {
+  if (coverImage) {
     if (imageRatio > frameRatio) {
       drawHeight = reducedHeight;
       drawWidth = reducedHeight * imageRatio;
@@ -2410,15 +2423,15 @@ function drawProcessedImage() {
       offsetX = (reducedWidth - drawWidth) / 2;
     }
   }
-  const imageDisplayWidth = coverMobileImage
+  const imageDisplayWidth = coverImage
     ? displayWidth
     : (imageRatio > frameRatio ? displayWidth : displayHeight * imageRatio);
-  const imageDisplayHeight = coverMobileImage
+  const imageDisplayHeight = coverImage
     ? displayHeight
     : (imageRatio > frameRatio ? displayWidth / imageRatio : displayHeight);
   state.imageBounds = {
-    x: coverMobileImage ? 0 : Math.max(0, (displayWidth - imageDisplayWidth) / 2),
-    y: coverMobileImage ? 0 : Math.max(0, (displayHeight - imageDisplayHeight) / 2),
+    x: coverImage ? 0 : Math.max(0, (displayWidth - imageDisplayWidth) / 2),
+    y: coverImage ? 0 : Math.max(0, (displayHeight - imageDisplayHeight) / 2),
     width: Math.max(1, imageDisplayWidth),
     height: Math.max(1, imageDisplayHeight),
   };
