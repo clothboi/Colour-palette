@@ -1486,11 +1486,11 @@ function refreshStageSize() {
       Math.round(stageHeight - paddingTop - paddingBottom - fixedHeight - (gap * gapCount)),
     );
     const availableWidth = Math.max(180, Math.round(stageWidth - paddingLeft - paddingRight));
-    const landscapeCover = shouldUseLandscapeCoverOnMobile();
+    const coverMobileImage = shouldUseImageCoverOnMobile();
 
     let frameWidth = availableWidth;
     let frameHeight = availableHeight;
-    if (!landscapeCover) {
+    if (!coverMobileImage) {
       frameHeight = Math.round(frameWidth / imageRatio);
       if (frameHeight > availableHeight) {
         frameHeight = availableHeight;
@@ -1594,11 +1594,11 @@ function shouldCollapseSettingsOnMobile() {
   return state.image.height > state.image.width;
 }
 
-function shouldUseLandscapeCoverOnMobile() {
+function shouldUseImageCoverOnMobile() {
   if (!isRealMobileLayout() || !state.image) {
     return false;
   }
-  return state.image.width > state.image.height;
+  return true;
 }
 
 function syncLayoutState() {
@@ -2376,12 +2376,12 @@ function drawProcessedImage() {
   downscaleCtx.imageSmoothingQuality = "high";
   const imageRatio = state.image.width / state.image.height;
   const frameRatio = displayWidth / displayHeight;
-  const coverMobileLandscape = shouldUseLandscapeCoverOnMobile();
+  const coverMobileImage = shouldUseImageCoverOnMobile();
   let drawWidth;
   let drawHeight;
   let offsetX = 0;
   let offsetY = 0;
-  if (coverMobileLandscape) {
+  if (coverMobileImage) {
     if (imageRatio > frameRatio) {
       drawHeight = reducedHeight;
       drawWidth = reducedHeight * imageRatio;
@@ -2402,15 +2402,15 @@ function drawProcessedImage() {
       offsetX = (reducedWidth - drawWidth) / 2;
     }
   }
-  const imageDisplayWidth = coverMobileLandscape
+  const imageDisplayWidth = coverMobileImage
     ? displayWidth
     : (imageRatio > frameRatio ? displayWidth : displayHeight * imageRatio);
-  const imageDisplayHeight = coverMobileLandscape
+  const imageDisplayHeight = coverMobileImage
     ? displayHeight
     : (imageRatio > frameRatio ? displayWidth / imageRatio : displayHeight);
   state.imageBounds = {
-    x: coverMobileLandscape ? 0 : Math.max(0, (displayWidth - imageDisplayWidth) / 2),
-    y: coverMobileLandscape ? 0 : Math.max(0, (displayHeight - imageDisplayHeight) / 2),
+    x: coverMobileImage ? 0 : Math.max(0, (displayWidth - imageDisplayWidth) / 2),
+    y: coverMobileImage ? 0 : Math.max(0, (displayHeight - imageDisplayHeight) / 2),
     width: Math.max(1, imageDisplayWidth),
     height: Math.max(1, imageDisplayHeight),
   };
