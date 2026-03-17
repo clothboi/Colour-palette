@@ -1604,6 +1604,7 @@ function syncLayoutState() {
 
   root.dataset.mobileLayout = mobileLayout ? "true" : "false";
   root.dataset.settingsOpen = mobileLayout && collapsibleSettings && state.isSettingsOpen ? "true" : "false";
+  root.dataset.settingsMode = mobileLayout && collapsibleSettings ? "overlay" : "inline";
   root.dataset.paletteDrawerOpen = mobileLayout && state.isPaletteDrawerOpen ? "true" : "false";
 
   settingsToggle.hidden = !mobileLayout || !collapsibleSettings;

@@ -1763,6 +1763,19 @@
   padding: 12px 14px;
 }
 
+.webflow-palette-embed[data-mobile-layout="true"][data-settings-mode="overlay"] .control-hud {
+  position: relative;
+  z-index: 24;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"][data-settings-mode="overlay"] .hud-settings-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 25;
+}
+
 .webflow-palette-embed[data-mobile-layout="true"] .hud-settings-toggle {
   display: inline-flex;
 }
