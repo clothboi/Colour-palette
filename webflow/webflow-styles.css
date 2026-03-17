@@ -2274,6 +2274,15 @@
   padding: 12px;
 }
 
+.webflow-palette-embed[data-mobile-layout="true"] .palette-harmonize-head > div {
+  display: none;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .palette-harmonize-head {
+  justify-content: end;
+  gap: 0;
+}
+
 .webflow-palette-embed[data-mobile-layout="true"] .palette-harmonize-metrics {
   grid-template-columns: 1fr;
 }
@@ -2332,7 +2341,7 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"][data-harmonize-open="true"] .palette-card {
-  min-height: 36px;
+  min-height: 32px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-card-lock {

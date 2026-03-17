@@ -3159,6 +3159,14 @@ function getScaledPaletteHeights(colors, availableHeight, gap = PALETTE_GAP, min
   return scaled.map((value) => value * scale);
 }
 
+function getUniformPaletteHeights(count, availableHeight, gap = PALETTE_GAP, minHeight = PALETTE_SINGLE_MIN_HEIGHT) {
+  if (!count) return [];
+  const totalGaps = Math.max(0, count - 1) * gap;
+  const usableHeight = Math.max(minHeight * count, availableHeight - totalGaps);
+  const uniformHeight = usableHeight / count;
+  return new Array(count).fill(uniformHeight);
+}
+
 function normalizePaletteHeights(heights, availableHeight, gap = PALETTE_GAP, minimumHeight = 0) {
   if (!heights.length) return [];
   const totalGaps = Math.max(0, heights.length - 1) * gap;
@@ -3282,6 +3290,7 @@ function getPaletteHeightConfig() {
       singleMinHeight: MOBILE_HARMONIZE_SINGLE_MIN_HEIGHT,
       twoColumnPreferredMinHeight: MOBILE_HARMONIZE_TWO_COLUMN_TARGET_MIN_HEIGHT,
       twoColumnFloorHeight: MOBILE_HARMONIZE_TWO_COLUMN_FLOOR_HEIGHT,
+      useUniformHeights: true,
     };
   }
 
@@ -3290,6 +3299,7 @@ function getPaletteHeightConfig() {
     singleMinHeight: PALETTE_SINGLE_MIN_HEIGHT,
     twoColumnPreferredMinHeight: PALETTE_TWO_COLUMN_TARGET_MIN_HEIGHT,
     twoColumnFloorHeight: PALETTE_TWO_COLUMN_FLOOR_HEIGHT,
+    useUniformHeights: false,
   };
 }
 
@@ -3299,8 +3309,11 @@ function getPaletteHeightMap() {
   const heightById = new Map();
 
   if (!isTwoColumnPalette()) {
+    const rawHeights = heightConfig.useUniformHeights
+      ? getUniformPaletteHeights(state.colors.length, availableHeight, heightConfig.gap, heightConfig.singleMinHeight)
+      : getScaledPaletteHeights(state.colors, availableHeight, heightConfig.gap, heightConfig.singleMinHeight);
     const heights = normalizePaletteHeights(
-      getScaledPaletteHeights(state.colors, availableHeight, heightConfig.gap, heightConfig.singleMinHeight),
+      rawHeights,
       availableHeight,
       heightConfig.gap,
       heightConfig.singleMinHeight,
@@ -3314,8 +3327,11 @@ function getPaletteHeightMap() {
   const leftCount = getPaletteLeftColumnCount();
   const columns = [state.colors.slice(0, leftCount), state.colors.slice(leftCount)];
   columns.forEach((columnColors) => {
+    const rawHeights = heightConfig.useUniformHeights
+      ? getUniformPaletteHeights(columnColors.length, availableHeight, heightConfig.gap, heightConfig.twoColumnFloorHeight)
+      : getFittedPaletteHeights(columnColors, availableHeight, heightConfig.gap, heightConfig.twoColumnPreferredMinHeight, heightConfig.twoColumnFloorHeight);
     const heights = normalizePaletteHeights(
-      getFittedPaletteHeights(columnColors, availableHeight, heightConfig.gap, heightConfig.twoColumnPreferredMinHeight, heightConfig.twoColumnFloorHeight),
+      rawHeights,
       availableHeight,
       heightConfig.gap,
       heightConfig.twoColumnFloorHeight,
