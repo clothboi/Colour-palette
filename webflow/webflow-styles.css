@@ -987,8 +987,7 @@
 
 .webflow-palette-embed .palette-harmonize-toggle,
 .webflow-palette-embed .palette-harmonize-action,
-.webflow-palette-embed .palette-harmonize-close,
-.webflow-palette-embed .palette-harmonize-chip {
+.webflow-palette-embed .palette-harmonize-close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1108,25 +1107,55 @@
   margin: -2px 0 0;
 }
 
-.webflow-palette-embed .palette-harmonize-scheme-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+.webflow-palette-embed .palette-harmonize-select-wrap {
+  position: relative;
 }
 
-.webflow-palette-embed .palette-harmonize-chip {
-  min-height: 38px;
-  padding: 9px 12px;
+.webflow-palette-embed .palette-harmonize-select-wrap::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid rgba(242, 239, 232, 0.78);
+  border-bottom: 1.5px solid rgba(242, 239, 232, 0.78);
+  pointer-events: none;
+  transform: translateY(-65%) rotate(45deg);
+}
+
+.webflow-palette-embed .palette-harmonize-select {
+  width: 100%;
+  min-height: 40px;
+  padding: 10px 38px 10px 12px;
+  border: 1px solid var(--glass-button-border);
   border-radius: 11px;
-  cursor: pointer;
-  font-size: 0.78rem;
+  background: var(--glass-button-bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8rem;
   font-weight: 600;
-  justify-content: flex-start;
-  text-align: left;
-  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+  box-shadow: var(--glass-button-shadow);
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  backdrop-filter: blur(22px) saturate(150%);
 }
 
-.webflow-palette-embed .palette-harmonize-chip[aria-pressed="true"],
+.webflow-palette-embed .palette-harmonize-select:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.72);
+  outline-offset: 2px;
+}
+
+.webflow-palette-embed .palette-harmonize-select option {
+  color: #f2efe8;
+  background: #191c20;
+}
+
+.webflow-palette-embed .palette-harmonize-scheme-description {
+  margin: 0;
+}
+
 .webflow-palette-embed .palette-harmonize-action--primary {
   border-color: var(--glass-button-highlight-border);
   background: var(--glass-button-highlight-bg);

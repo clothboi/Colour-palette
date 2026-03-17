@@ -1,11 +1,11 @@
 ﻿(() => {
 const HARMONIZE_SCHEMES = [
-  { id: "analogous", label: "Analogous" },
-  { id: "complementary", label: "Complementary" },
-  { id: "split-complementary", label: "Split Complementary" },
-  { id: "triadic", label: "Triadic" },
-  { id: "tetradic", label: "Tetradic" },
-  { id: "monochromatic", label: "Monochromatic" },
+  { id: "analogous", label: "Analogous", description: "Keeps colours close to the anchor hue, using nearby angles for a calmer, more unified palette." },
+  { id: "complementary", label: "Complementary", description: "Pushes colours toward the hue opposite the anchor for stronger contrast and more visual tension." },
+  { id: "split-complementary", label: "Split Complementary", description: "Uses the two hues beside the complement, keeping contrast while feeling softer than a direct opposite." },
+  { id: "triadic", label: "Triadic", description: "Spreads colours around three evenly spaced hue targets for a balanced, lively palette." },
+  { id: "tetradic", label: "Tetradic", description: "Uses four broader hue targets around the wheel, creating the widest and most varied harmony set here." },
+  { id: "monochromatic", label: "Monochromatic", description: "Keeps everything near the anchor hue and harmonises mostly through lightness and chroma shifts." },
 ];
 const HARMONIZE_DEFAULT_SCHEME = "analogous";
 const HARMONIZE_DEFAULT_STRENGTH = 60;
@@ -37,9 +37,12 @@ function getHarmonizePanelMarkup() {
             <div class="palette-harmonize-section-head">
               <span class="palette-harmonize-label">Scheme</span>
             </div>
-            <div class="palette-harmonize-scheme-grid" data-role="harmonize-scheme-grid">
-${HARMONIZE_SCHEMES.map((scheme) => `              <button class="palette-harmonize-chip" type="button" data-action="harmonize-scheme" data-scheme="${scheme.id}" aria-pressed="${scheme.id === HARMONIZE_DEFAULT_SCHEME ? "true" : "false"}">${scheme.label}</button>`).join("\n")}
+            <div class="palette-harmonize-select-wrap">
+              <select class="palette-harmonize-select" data-role="harmonize-scheme-select" aria-label="Choose a harmony scheme">
+${HARMONIZE_SCHEMES.map((scheme) => `                <option value="${scheme.id}"${scheme.id === HARMONIZE_DEFAULT_SCHEME ? " selected" : ""}>${scheme.label}</option>`).join("\n")}
+              </select>
             </div>
+            <p class="palette-harmonize-subtle palette-harmonize-scheme-description" data-role="harmonize-scheme-description">${HARMONIZE_SCHEMES.find((scheme) => scheme.id === HARMONIZE_DEFAULT_SCHEME)?.description || ""}</p>
           </section>
           <label class="palette-harmonize-section palette-harmonize-range">
             <div class="palette-harmonize-section-head">
@@ -48,7 +51,7 @@ ${HARMONIZE_SCHEMES.map((scheme) => `              <button class="palette-harmon
             </div>
             <input class="palette-harmonize-slider" data-role="harmonize-strength" type="range" min="0" max="100" step="1" value="${HARMONIZE_DEFAULT_STRENGTH}">
           </label>
-          <p class="palette-harmonize-helper" data-role="harmonize-helper">Use the swatch locks to pin colours. The first locked swatch becomes the anchor.</p>
+          <p class="palette-harmonize-helper" data-role="harmonize-helper">Use the palette rail locks to pin colours. The first locked colour becomes the anchor.</p>
           <section class="palette-harmonize-section">
             <div class="palette-harmonize-metrics" data-role="harmonize-metrics"></div>
           </section>
@@ -310,7 +313,8 @@ function initPalette(root) {
   const harmonizeToggleButtons = [...root.querySelectorAll('[data-action="toggle-harmonize"]')];
   const paletteSizeLabels = [...root.querySelectorAll('[data-role="palette-size-label"]')];
   const harmonizePanel = root.querySelector('[data-role="harmonize-panel"]');
-  const harmonizeSchemeButtons = [...root.querySelectorAll('[data-action="harmonize-scheme"]')];
+  const harmonizeSchemeSelect = root.querySelector('[data-role="harmonize-scheme-select"]');
+  const harmonizeSchemeDescription = root.querySelector('[data-role="harmonize-scheme-description"]');
   const harmonizeStrength = root.querySelector('[data-role="harmonize-strength"]');
   const harmonizeStrengthValue = root.querySelector('[data-role="harmonize-strength-value"]');
   const harmonizeHelper = root.querySelector('[data-role="harmonize-helper"]');
@@ -351,7 +355,7 @@ function initPalette(root) {
   const saveExport = root.querySelector('[data-action="save-export-image"]');
   const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
   const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeButtons.length || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeHelper || !harmonizeMetrics || !harmonizeWarnings || !harmonizeClose || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeHelper || !harmonizeMetrics || !harmonizeWarnings || !harmonizeClose || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
     return;
   }
 
@@ -1937,6 +1941,10 @@ function formatMetricNumber(value, digits = 1) {
   return Number(value.toFixed(digits)).toString();
 }
 
+function getHarmonizeSchemeDefinition(schemeId) {
+  return HARMONIZE_SCHEMES.find((entry) => entry.id === schemeId) || HARMONIZE_SCHEMES.find((entry) => entry.id === HARMONIZE_DEFAULT_SCHEME) || HARMONIZE_SCHEMES[0];
+}
+
 function clearHarmonizePreviewRaf() {
   if (!state.harmonize.previewRaf) return;
   cancelAnimationFrame(state.harmonize.previewRaf);
@@ -1951,23 +1959,18 @@ function getVisibleHarmonizeTrigger() {
 }
 
 function focusHarmonizePrimaryControl() {
-  const selectedScheme = harmonizeSchemeButtons.find((button) => button.dataset.scheme === state.harmonize.scheme);
-  if (selectedScheme) {
-    selectedScheme.focus({ preventScroll: true });
-    return;
-  }
-  harmonizeStrength.focus({ preventScroll: true });
+  harmonizeSchemeSelect.focus({ preventScroll: true });
 }
 
 function renderHarmonizePanel() {
   root.dataset.harmonizeOpen = state.harmonize.isOpen ? "true" : "false";
   harmonizePanel.hidden = !state.harmonize.isOpen;
   harmonizePanel.setAttribute("aria-hidden", String(!state.harmonize.isOpen));
+  const selectedScheme = getHarmonizeSchemeDefinition(state.harmonize.scheme);
+  harmonizeSchemeSelect.value = selectedScheme.id;
+  harmonizeSchemeDescription.textContent = selectedScheme.description;
   harmonizeStrength.value = String(state.harmonize.strength);
   harmonizeStrengthValue.textContent = `${state.harmonize.strength}%`;
-  harmonizeSchemeButtons.forEach((button) => {
-    button.setAttribute("aria-pressed", String(button.dataset.scheme === state.harmonize.scheme));
-  });
 
   if (!state.harmonize.isOpen) {
     harmonizeMetrics.innerHTML = "";
@@ -4169,15 +4172,17 @@ harmonizeToggleButtons.forEach((button) => {
     toggleHarmonizePanel(button);
   });
 });
-harmonizeSchemeButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    if (!state.harmonize.isOpen || state.harmonize.scheme === button.dataset.scheme) {
-      return;
-    }
-    state.harmonize.scheme = button.dataset.scheme || HARMONIZE_DEFAULT_SCHEME;
-    renderHarmonizePanel();
-    scheduleHarmonizePreview();
-  });
+harmonizeSchemeSelect.addEventListener("change", () => {
+  if (!state.harmonize.isOpen) {
+    return;
+  }
+  const nextScheme = getHarmonizeSchemeDefinition(harmonizeSchemeSelect.value).id;
+  if (state.harmonize.scheme === nextScheme) {
+    return;
+  }
+  state.harmonize.scheme = nextScheme;
+  renderHarmonizePanel();
+  scheduleHarmonizePreview();
 });
 harmonizeStrength.addEventListener("input", () => {
   if (!state.harmonize.isOpen) {
