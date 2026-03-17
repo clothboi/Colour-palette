@@ -1,12 +1,71 @@
 ﻿(() => {
+const HARMONIZE_SCHEMES = [
+  { id: "analogous", label: "Analogous" },
+  { id: "complementary", label: "Complementary" },
+  { id: "split-complementary", label: "Split Complementary" },
+  { id: "triadic", label: "Triadic" },
+  { id: "tetradic", label: "Tetradic" },
+  { id: "monochromatic", label: "Monochromatic" },
+];
+const HARMONIZE_DEFAULT_SCHEME = "analogous";
+const HARMONIZE_DEFAULT_STRENGTH = 60;
+
 function getPaletteControlsMarkup(extraClass = "") {
   const className = extraClass ? `palette-toolbar-controls ${extraClass}` : "palette-toolbar-controls";
   return `
                 <div class="${className}">
-                  <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
-                  <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
-                  <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
+                  <div class="palette-toolbar-stepper">
+                    <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
+                    <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
+                    <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
+                  </div>
+                  <button class="palette-harmonize-toggle" type="button" data-action="toggle-harmonize" aria-expanded="false">Harmonise</button>
                 </div>`;
+}
+
+function getHarmonizePanelMarkup() {
+  return `
+        <section class="palette-harmonize-panel" data-role="harmonize-panel" hidden aria-hidden="true">
+          <div class="palette-harmonize-head">
+            <div>
+              <p class="palette-harmonize-kicker">Palette tuning</p>
+              <h3>Harmonise palette</h3>
+            </div>
+            <button class="palette-harmonize-close" type="button" data-action="harmonize-close" aria-label="Close harmonise panel">X</button>
+          </div>
+          <section class="palette-harmonize-section">
+            <div class="palette-harmonize-section-head">
+              <span class="palette-harmonize-label">Scheme</span>
+            </div>
+            <div class="palette-harmonize-scheme-grid" data-role="harmonize-scheme-grid">
+${HARMONIZE_SCHEMES.map((scheme) => `              <button class="palette-harmonize-chip" type="button" data-action="harmonize-scheme" data-scheme="${scheme.id}" aria-pressed="${scheme.id === HARMONIZE_DEFAULT_SCHEME ? "true" : "false"}">${scheme.label}</button>`).join("\n")}
+            </div>
+          </section>
+          <label class="palette-harmonize-section palette-harmonize-range">
+            <div class="palette-harmonize-section-head">
+              <span class="palette-harmonize-label">Strength</span>
+              <strong class="palette-harmonize-value" data-role="harmonize-strength-value">${HARMONIZE_DEFAULT_STRENGTH}%</strong>
+            </div>
+            <input class="palette-harmonize-slider" data-role="harmonize-strength" type="range" min="0" max="100" step="1" value="${HARMONIZE_DEFAULT_STRENGTH}">
+          </label>
+          <p class="palette-harmonize-helper" data-role="harmonize-helper">The first locked colour becomes the anchor.</p>
+          <section class="palette-harmonize-section">
+            <div class="palette-harmonize-metrics" data-role="harmonize-metrics"></div>
+          </section>
+          <section class="palette-harmonize-section">
+            <div class="palette-harmonize-section-head">
+              <span class="palette-harmonize-label">Locks</span>
+              <span class="palette-harmonize-subtle">Pinned colours stay fixed during preview.</span>
+            </div>
+            <div class="palette-harmonize-lock-list" data-role="harmonize-lock-list"></div>
+          </section>
+          <ul class="palette-harmonize-warnings" data-role="harmonize-warnings" hidden></ul>
+          <div class="palette-harmonize-actions">
+            <button class="palette-harmonize-action" type="button" data-action="harmonize-reset">Reset</button>
+            <button class="palette-harmonize-action" type="button" data-action="harmonize-cancel">Cancel</button>
+            <button class="palette-harmonize-action palette-harmonize-action--primary" type="button" data-action="harmonize-apply">Apply</button>
+          </div>
+        </section>`;
 }
 
 function getPaletteMarkup() {
@@ -83,6 +142,7 @@ ${getPaletteControlsMarkup("mobile-palette-rail__toolbar-controls")}
           </div>
 ${getPaletteControlsMarkup()}
         </div>
+${getHarmonizePanelMarkup()}
         <div class="palette-drawer-sheet" data-role="palette-drawer-sheet" aria-hidden="false">
           <div data-role="palette-list" class="palette-list"></div>
         </div>
@@ -254,7 +314,20 @@ function initPalette(root) {
   const paletteDrawerClose = root.querySelector('[data-action="palette-drawer-close"]');
   const paletteMinusButtons = [...root.querySelectorAll('[data-action="palette-minus"]')];
   const palettePlusButtons = [...root.querySelectorAll('[data-action="palette-plus"]')];
+  const harmonizeToggleButtons = [...root.querySelectorAll('[data-action="toggle-harmonize"]')];
   const paletteSizeLabels = [...root.querySelectorAll('[data-role="palette-size-label"]')];
+  const harmonizePanel = root.querySelector('[data-role="harmonize-panel"]');
+  const harmonizeSchemeButtons = [...root.querySelectorAll('[data-action="harmonize-scheme"]')];
+  const harmonizeStrength = root.querySelector('[data-role="harmonize-strength"]');
+  const harmonizeStrengthValue = root.querySelector('[data-role="harmonize-strength-value"]');
+  const harmonizeHelper = root.querySelector('[data-role="harmonize-helper"]');
+  const harmonizeMetrics = root.querySelector('[data-role="harmonize-metrics"]');
+  const harmonizeLockList = root.querySelector('[data-role="harmonize-lock-list"]');
+  const harmonizeWarnings = root.querySelector('[data-role="harmonize-warnings"]');
+  const harmonizeClose = root.querySelector('[data-action="harmonize-close"]');
+  const harmonizeReset = root.querySelector('[data-action="harmonize-reset"]');
+  const harmonizeCancel = root.querySelector('[data-action="harmonize-cancel"]');
+  const harmonizeApply = root.querySelector('[data-action="harmonize-apply"]');
   const recipeButton = root.querySelector('[data-action="recipe"]');
   const paintSetupButton = root.querySelector('[data-action="paint-setup"]');
   const imageExportButton = root.querySelector('[data-action="export-image"]');
@@ -286,7 +359,7 @@ function initPalette(root) {
   const saveExport = root.querySelector('[data-action="save-export-image"]');
   const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
   const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !paletteSizeLabels.length || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeButtons.length || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeHelper || !harmonizeMetrics || !harmonizeLockList || !harmonizeWarnings || !harmonizeClose || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
     return;
   }
 
@@ -313,13 +386,19 @@ const SCROLL_LOCK_PALETTE_DRAG = "palette-drag";
 const SCROLL_LOCK_PALETTE_DRAWER = "palette-drawer";
 const PALETTE_PREVIEW_PLACEHOLDER_COUNT = 4;
 const PALETTE_DRAWER_SETTLE_DELAY_MS = 260;
+const HARMONIZE_MIN_NEUTRAL_CHROMA = 4;
 const mobileLayoutQuery = window.matchMedia(`(max-width: ${MOBILE_LAYOUT_MAX_WIDTH}px)`);
 const tabletPortraitLayoutQuery = window.matchMedia(`(max-width: ${TABLET_PORTRAIT_MAX_WIDTH}px) and (orientation: portrait) and (pointer: coarse)`);
 const paletteDrawerId = `palette-drawer-${Math.random().toString(36).slice(2, 10)}`;
+const harmonizePanelId = `palette-harmonize-${Math.random().toString(36).slice(2, 10)}`;
 
 paletteDrawerSheet.id = paletteDrawerId;
 paletteDrawerOpen.setAttribute("aria-controls", paletteDrawerId);
 paletteDrawerClose.setAttribute("aria-controls", paletteDrawerId);
+harmonizePanel.id = harmonizePanelId;
+harmonizeToggleButtons.forEach((button) => {
+  button.setAttribute("aria-controls", harmonizePanelId);
+});
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -392,7 +471,11 @@ function rgbToLab(rgb) {
   return { l: (116 * fy) - 16, a: 500 * (fx - fy), b: 200 * (fy - fz) };
 }
 
-function labToRgb(lab) {
+function deltaE(labA, labB) {
+  return Math.sqrt(((labA.l - labB.l) ** 2) + ((labA.a - labB.a) ** 2) + ((labA.b - labB.b) ** 2));
+}
+
+function labToRgbWithGamutInfo(lab) {
   const fy = (lab.l + 16) / 116;
   const fx = fy + (lab.a / 500);
   const fz = fy - (lab.b / 200);
@@ -406,14 +489,254 @@ function labToRgb(lab) {
   const linearG = (x * -0.969266) + (y * 1.8760108) + (z * 0.041556);
   const linearB = (x * 0.0556434) + (y * -0.2040259) + (z * 1.0572252);
   return {
-    r: linearToSrgb(clamp(linearR, 0, 1)),
-    g: linearToSrgb(clamp(linearG, 0, 1)),
-    b: linearToSrgb(clamp(linearB, 0, 1)),
+    rgb: {
+      r: linearToSrgb(clamp(linearR, 0, 1)),
+      g: linearToSrgb(clamp(linearG, 0, 1)),
+      b: linearToSrgb(clamp(linearB, 0, 1)),
+    },
+    clipped: linearR < 0 || linearR > 1 || linearG < 0 || linearG > 1 || linearB < 0 || linearB > 1,
   };
 }
 
-function deltaE(labA, labB) {
-  return Math.sqrt(((labA.l - labB.l) ** 2) + ((labA.a - labB.a) ** 2) + ((labA.b - labB.b) ** 2));
+function labToRgb(lab) {
+  return labToRgbWithGamutInfo(lab).rgb;
+}
+
+function labToLch(lab) {
+  const c = Math.sqrt((lab.a ** 2) + (lab.b ** 2));
+  const h = (Math.atan2(lab.b, lab.a) * 180 / Math.PI + 360) % 360;
+  return { l: lab.l, c, h };
+}
+
+function lchToLab(lch) {
+  const radians = (lch.h * Math.PI) / 180;
+  return {
+    l: lch.l,
+    a: lch.c * Math.cos(radians),
+    b: lch.c * Math.sin(radians),
+  };
+}
+
+function wrapHueDistance(value) {
+  return ((value + 180) % 360 + 360) % 360 - 180;
+}
+
+function getCircularHueDistance(left, right) {
+  return Math.abs(wrapHueDistance(left - right));
+}
+
+function interpolateHue(from, to, amount) {
+  return (from + wrapHueDistance(to - from) * amount + 360) % 360;
+}
+
+function median(values) {
+  if (!values.length) return 0;
+  const sorted = [...values].sort((left, right) => left - right);
+  const middle = Math.floor(sorted.length / 2);
+  if (sorted.length % 2) return sorted[middle];
+  return (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
+function clonePaletteColors(colors) {
+  return colors.map((color) => ({ ...color }));
+}
+
+function getHarmonyOffsets(selectedScheme) {
+  switch (selectedScheme) {
+    case "complementary":
+      return [0, 180];
+    case "split-complementary":
+      return [0, 150, 210];
+    case "triadic":
+      return [0, 120, 240];
+    case "tetradic":
+      return [0, 90, 180, 270];
+    case "monochromatic":
+      return [0];
+    case "analogous":
+    default:
+      return [0, 30, -30];
+  }
+}
+
+function getHarmonyTargets(anchorHue, scheme) {
+  return getHarmonyOffsets(scheme).map((offset) => (anchorHue + offset + 360) % 360);
+}
+
+function getNearestTargetHue(hue, targets) {
+  return targets.reduce((best, target) => {
+    const distance = getCircularHueDistance(hue, target);
+    if (!best || distance < best.distance) {
+      return { target, distance };
+    }
+    return best;
+  }, null);
+}
+
+function isNearNeutral(lch) {
+  return lch.c < HARMONIZE_MIN_NEUTRAL_CHROMA;
+}
+
+function limitLabDelta(sourceLab, targetLab, budget) {
+  const distance = deltaE(sourceLab, targetLab);
+  if (distance <= budget || distance === 0) {
+    return { lab: targetLab, limited: false };
+  }
+
+  const ratio = budget / distance;
+  return {
+    lab: {
+      l: sourceLab.l + (targetLab.l - sourceLab.l) * ratio,
+      a: sourceLab.a + (targetLab.a - sourceLab.a) * ratio,
+      b: sourceLab.b + (targetLab.b - sourceLab.b) * ratio,
+    },
+    limited: true,
+  };
+}
+
+function createHarmonizedColor(inputColor, rgb) {
+  return {
+    ...inputColor,
+    r: rgb.r,
+    g: rgb.g,
+    b: rgb.b,
+    hex: rgbToHex(rgb.r, rgb.g, rgb.b),
+  };
+}
+
+function improvePalette(colors, options = {}) {
+  if (!colors.length) {
+    return {
+      outputColors: [],
+      anchorId: null,
+      paletteMetrics: {
+        meanHarmonyErrorBefore: 0,
+        meanHarmonyErrorAfter: 0,
+        meanDeltaE: 0,
+      },
+      perColorMetrics: [],
+      warnings: [],
+    };
+  }
+
+  const scheme = HARMONIZE_SCHEMES.some((entry) => entry.id === options.scheme) ? options.scheme : HARMONIZE_DEFAULT_SCHEME;
+  const strength = clamp(Number(options.strength ?? HARMONIZE_DEFAULT_STRENGTH), 0, 100);
+  const t = strength / 100;
+  const hueSnapStrength = 0.28 + (0.72 * t);
+  const maxDelta = 4 + (14 * t);
+  const lockedIds = options.lockedIds instanceof Set ? options.lockedIds : new Set(options.lockedIds || []);
+  const records = colors.map((color) => {
+    const lab = rgbToLab(color);
+    const lch = labToLch(lab);
+    return {
+      color,
+      lab,
+      lch,
+      locked: lockedIds.has(color.id),
+      nearNeutral: isNearNeutral(lch),
+    };
+  });
+  const chromaticRecords = records.filter((record) => !record.nearNeutral);
+  const anchorRecord = records.find((record) => record.locked) || chromaticRecords.reduce((best, record) => {
+    if (!best || record.lch.c > best.lch.c) return record;
+    return best;
+  }, null) || records[0];
+  const anchorId = anchorRecord ? anchorRecord.color.id : null;
+  const targets = getHarmonyTargets(anchorRecord?.lch.h ?? 0, scheme);
+  const medianChroma = median(chromaticRecords.map((record) => record.lch.c)) || median(records.map((record) => record.lch.c));
+  const medianLightness = median(records.map((record) => record.lch.l));
+  const warnings = [];
+  let harmonyBeforeTotal = 0;
+  let harmonyAfterTotal = 0;
+  let harmonyCount = 0;
+  let deltaTotal = 0;
+
+  const perColorMetrics = records.map((record) => {
+    const nearestBefore = record.nearNeutral ? { distance: 0, target: record.lch.h } : getNearestTargetHue(record.lch.h, targets);
+    let nextLch = { ...record.lch };
+    const notes = [];
+
+    if (record.locked) {
+      notes.push("locked colour preserved");
+    } else {
+      if (!record.nearNeutral) {
+        nextLch.h = interpolateHue(record.lch.h, nearestBefore.target, hueSnapStrength);
+        notes.push(`moved toward ${scheme} harmony`);
+      }
+
+      const chromaWeight = record.nearNeutral ? 0.1 : 0.22;
+      nextLch.c = Math.max(0, record.lch.c + ((medianChroma - record.lch.c) * chromaWeight));
+      nextLch.l = clamp(record.lch.l + ((medianLightness - record.lch.l) * 0.18), 0, 100);
+    }
+
+    const limited = limitLabDelta(record.lab, lchToLab(nextLch), maxDelta);
+    let finalLab = limited.lab;
+    let gamutResult = labToRgbWithGamutInfo(finalLab);
+    if (gamutResult.clipped) {
+      finalLab = rgbToLab(gamutResult.rgb);
+      notes.push("clipped back into sRGB gamut");
+    }
+    const finalRgb = gamutResult.rgb;
+    const finalColor = createHarmonizedColor(record.color, finalRgb);
+    const finalLch = labToLch(rgbToLab(finalRgb));
+    const nearestAfter = record.nearNeutral ? { distance: 0 } : getNearestTargetHue(finalLch.h, targets);
+    const finalDelta = deltaE(record.lab, rgbToLab(finalRgb));
+    const changed = finalColor.hex !== record.color.hex;
+
+    if (limited.limited) {
+      notes.push("edit budget capped stronger harmonising");
+    }
+    if (!changed) {
+      notes.push(record.locked ? "no edit applied" : "change stayed within the original palette");
+    }
+    if (record.nearNeutral) {
+      notes.push("near-neutral hue preserved");
+    }
+
+    if (!record.nearNeutral) {
+      harmonyBeforeTotal += nearestBefore.distance;
+      harmonyAfterTotal += nearestAfter.distance;
+      harmonyCount += 1;
+    }
+    deltaTotal += finalDelta;
+
+    return {
+      inputHex: record.color.hex,
+      outputHex: finalColor.hex,
+      colorId: record.color.id,
+      locked: record.locked,
+      nearNeutral: record.nearNeutral,
+      anchor: record.color.id === anchorId,
+      changed,
+      deltaE: finalDelta,
+      harmonyErrorBefore: nearestBefore.distance,
+      harmonyErrorAfter: nearestAfter.distance,
+      notes,
+      outputColor: finalColor,
+    };
+  });
+
+  if (!chromaticRecords.length) {
+    warnings.push("The palette is mostly neutral, so harmonise can only make very subtle changes.");
+  }
+  if (perColorMetrics.some((entry) => entry.notes.includes("edit budget capped stronger harmonising"))) {
+    warnings.push("Some colours hit the edit budget before reaching the strongest harmony target.");
+  }
+  if (perColorMetrics.some((entry) => entry.notes.includes("clipped back into sRGB gamut"))) {
+    warnings.push("At least one preview colour was clipped to stay inside the sRGB display gamut.");
+  }
+
+  return {
+    outputColors: perColorMetrics.map((entry) => entry.outputColor),
+    anchorId,
+    paletteMetrics: {
+      meanHarmonyErrorBefore: harmonyCount ? harmonyBeforeTotal / harmonyCount : 0,
+      meanHarmonyErrorAfter: harmonyCount ? harmonyAfterTotal / harmonyCount : 0,
+      meanDeltaE: perColorMetrics.length ? deltaTotal / perColorMetrics.length : 0,
+    },
+    perColorMetrics,
+    warnings,
+  };
 }
 const INVENTORY_STORAGE_KEY = "colour-palette-owned-paints-v1";
 const IDEAL_SINGLE_PAINT_DISTANCE_THRESHOLD = 6.5;
@@ -773,6 +1096,17 @@ const state = {
   recipeRequest: null,
   ownedPaints: loadOwnedPaints(),
   inventoryDraft: [],
+  harmonize: {
+    isOpen: false,
+    baselineColors: [],
+    scheme: HARMONIZE_DEFAULT_SCHEME,
+    strength: HARMONIZE_DEFAULT_STRENGTH,
+    lockedIds: new Set(),
+    metrics: null,
+    warnings: [],
+    previewRaf: null,
+    lastTrigger: null,
+  },
 };
 
 const renderProfile = (() => {
@@ -1584,19 +1918,283 @@ function renderPalettePreview() {
 }
 
 function updatePaletteLabel() {
+  const sizeControlsDisabled = state.harmonize.isOpen;
   paletteSizeLabels.forEach((label) => {
     label.textContent = `Palette: ${state.paletteSize}`;
   });
   paletteMinusButtons.forEach((button) => {
-    button.disabled = state.paletteSize <= PALETTE_MIN;
+    button.disabled = sizeControlsDisabled || state.paletteSize <= PALETTE_MIN;
   });
   palettePlusButtons.forEach((button) => {
-    button.disabled = state.paletteSize >= PALETTE_MAX;
+    button.disabled = sizeControlsDisabled || state.paletteSize >= PALETTE_MAX;
   });
   paletteDrawerOpen.disabled = !state.colors.length;
+  harmonizeToggleButtons.forEach((button) => {
+    button.disabled = !state.colors.length;
+    button.setAttribute("aria-expanded", String(state.harmonize.isOpen));
+  });
   palettePreviewStatus.textContent = state.colors.length
-    ? `${state.colors.length} ${state.colors.length === 1 ? "colour" : "colours"} ready`
+    ? (state.harmonize.isOpen
+      ? `Previewing ${state.colors.length} ${state.colors.length === 1 ? "colour" : "colours"}`
+      : `${state.colors.length} ${state.colors.length === 1 ? "colour" : "colours"} ready`)
     : "Upload an image to build a palette.";
+}
+
+function formatMetricNumber(value, digits = 1) {
+  if (!Number.isFinite(value)) return "0";
+  return Number(value.toFixed(digits)).toString();
+}
+
+function clearHarmonizePreviewRaf() {
+  if (!state.harmonize.previewRaf) return;
+  cancelAnimationFrame(state.harmonize.previewRaf);
+  state.harmonize.previewRaf = null;
+}
+
+function getVisibleHarmonizeTrigger() {
+  if (state.harmonize.lastTrigger && state.harmonize.lastTrigger.isConnected && !state.harmonize.lastTrigger.hidden && state.harmonize.lastTrigger.offsetParent !== null) {
+    return state.harmonize.lastTrigger;
+  }
+  return harmonizeToggleButtons.find((button) => button.isConnected && !button.hidden && button.offsetParent !== null && !button.disabled) || null;
+}
+
+function focusHarmonizePrimaryControl() {
+  const selectedScheme = harmonizeSchemeButtons.find((button) => button.dataset.scheme === state.harmonize.scheme);
+  if (selectedScheme) {
+    selectedScheme.focus({ preventScroll: true });
+    return;
+  }
+  harmonizeStrength.focus({ preventScroll: true });
+}
+
+function renderHarmonizePanel() {
+  root.dataset.harmonizeOpen = state.harmonize.isOpen ? "true" : "false";
+  harmonizePanel.hidden = !state.harmonize.isOpen;
+  harmonizePanel.setAttribute("aria-hidden", String(!state.harmonize.isOpen));
+  harmonizeStrength.value = String(state.harmonize.strength);
+  harmonizeStrengthValue.textContent = `${state.harmonize.strength}%`;
+  harmonizeSchemeButtons.forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.scheme === state.harmonize.scheme));
+  });
+
+  if (!state.harmonize.isOpen) {
+    harmonizeMetrics.innerHTML = "";
+    harmonizeLockList.innerHTML = "";
+    harmonizeWarnings.hidden = true;
+    harmonizeWarnings.innerHTML = "";
+    harmonizeHelper.textContent = "The first locked colour becomes the anchor.";
+    return;
+  }
+
+  const metrics = state.harmonize.metrics;
+  const anchorMetric = metrics?.perColorMetrics.find((entry) => entry.anchor) || null;
+  harmonizeHelper.textContent = state.harmonize.lockedIds.size
+    ? `The first locked colour becomes the anchor. ${anchorMetric ? `${anchorMetric.outputHex} is currently anchoring this preview.` : ""}`.trim()
+    : `${anchorMetric ? `${anchorMetric.outputHex}` : "The most chromatic swatch"} is currently acting as the anchor.`;
+
+  if (metrics) {
+    harmonizeMetrics.innerHTML = `
+      <div class="palette-harmonize-metric">
+        <span>Harmony</span>
+        <strong>${formatMetricNumber(metrics.paletteMetrics.meanHarmonyErrorBefore)} -> ${formatMetricNumber(metrics.paletteMetrics.meanHarmonyErrorAfter)}</strong>
+      </div>
+      <div class="palette-harmonize-metric">
+        <span>Mean Delta</span>
+        <strong>${formatMetricNumber(metrics.paletteMetrics.meanDeltaE)}</strong>
+      </div>`;
+  } else {
+    harmonizeMetrics.innerHTML = `
+      <div class="palette-harmonize-metric">
+        <span>Harmony</span>
+        <strong>Preparing...</strong>
+      </div>
+      <div class="palette-harmonize-metric">
+        <span>Mean Delta</span>
+        <strong>--</strong>
+      </div>`;
+  }
+
+  const baselineById = new Map(state.harmonize.baselineColors.map((color) => [color.id, color]));
+  const metricById = new Map((metrics?.perColorMetrics || []).map((entry) => [entry.colorId, entry]));
+  harmonizeLockList.innerHTML = state.colors.map((color) => {
+    const baseline = baselineById.get(color.id) || color;
+    const metric = metricById.get(color.id);
+    const locked = state.harmonize.lockedIds.has(color.id);
+    const anchor = Boolean(metric?.anchor);
+    const changed = Boolean(metric?.changed);
+    const deltaLabel = metric ? `DeltaE ${formatMetricNumber(metric.deltaE, 2)}` : "Pending";
+    const transitionLabel = baseline.hex === color.hex ? baseline.hex : `${baseline.hex} -> ${color.hex}`;
+    return `
+      <div class="palette-harmonize-lock-item${locked ? " is-locked" : ""}${changed ? " is-changed" : ""}">
+        <span class="palette-harmonize-lock-swatch" style="--harmonize-swatch:${color.hex}"></span>
+        <div class="palette-harmonize-lock-copy">
+          <div class="palette-harmonize-lock-head">
+            <strong>${transitionLabel}</strong>
+            ${anchor ? '<span class="palette-harmonize-lock-flag">Anchor</span>' : ""}
+          </div>
+          <span>${deltaLabel}${metric?.nearNeutral ? " • Near-neutral" : ""}${locked ? " • Locked" : ""}</span>
+        </div>
+        <button class="palette-harmonize-lock-toggle" type="button" data-action="harmonize-lock" data-color-id="${color.id}" aria-pressed="${locked ? "true" : "false"}">${locked ? "Locked" : "Lock"}</button>
+      </div>`;
+  }).join("");
+
+  harmonizeWarnings.innerHTML = state.harmonize.warnings.map((warning) => `<li>${warning}</li>`).join("");
+  harmonizeWarnings.hidden = !state.harmonize.warnings.length;
+}
+
+function syncPreviewDrivenViews() {
+  updatePaletteLabel();
+  renderPalette();
+  syncSwatchTargetsFromColors();
+
+  if (!saveModal.classList.contains("hidden")) {
+    renderSavePreview();
+  }
+
+  if (!recipeModal.classList.contains("hidden")) {
+    state.recipeRequest = buildRecipeRequest(state.colors);
+    state.recipeResults = state.colors.map((color) => estimatePaintRecipe(color, state.recipeRequest));
+    renderRecipe();
+  } else {
+    state.recipeResults = [];
+    state.recipeRequest = null;
+  }
+}
+
+function applyHarmonizePreview() {
+  clearHarmonizePreviewRaf();
+  if (!state.harmonize.isOpen || !state.harmonize.baselineColors.length) {
+    return;
+  }
+
+  const preview = improvePalette(state.harmonize.baselineColors, {
+    scheme: state.harmonize.scheme,
+    strength: state.harmonize.strength,
+    lockedIds: state.harmonize.lockedIds,
+  });
+  state.harmonize.metrics = preview;
+  state.harmonize.warnings = preview.warnings;
+  state.colors = clonePaletteColors(preview.outputColors);
+  syncPreviewDrivenViews();
+  renderHarmonizePanel();
+}
+
+function scheduleHarmonizePreview() {
+  clearHarmonizePreviewRaf();
+  state.harmonize.previewRaf = requestAnimationFrame(() => {
+    state.harmonize.previewRaf = null;
+    applyHarmonizePreview();
+  });
+}
+
+function resetHarmonizeConfig() {
+  state.harmonize.scheme = HARMONIZE_DEFAULT_SCHEME;
+  state.harmonize.strength = HARMONIZE_DEFAULT_STRENGTH;
+  state.harmonize.lockedIds = new Set();
+  state.harmonize.metrics = null;
+  state.harmonize.warnings = [];
+}
+
+function closeHarmonizePanel(options = {}) {
+  const { restoreFocus = true, revertPreview = true } = options;
+  clearHarmonizePreviewRaf();
+  if (revertPreview && state.harmonize.baselineColors.length) {
+    state.colors = clonePaletteColors(state.harmonize.baselineColors);
+    syncPreviewDrivenViews();
+  }
+  state.harmonize.isOpen = false;
+  state.harmonize.baselineColors = [];
+  resetHarmonizeConfig();
+  renderHarmonizePanel();
+  updatePaletteLabel();
+
+  if (restoreFocus) {
+    const trigger = getVisibleHarmonizeTrigger();
+    if (trigger) {
+      requestAnimationFrame(() => {
+        trigger.focus({ preventScroll: true });
+      });
+    }
+  }
+}
+
+function openHarmonizePanel(trigger = null) {
+  if (!state.colors.length) {
+    return;
+  }
+
+  state.harmonize.lastTrigger = trigger;
+  state.harmonize.isOpen = true;
+  state.harmonize.baselineColors = clonePaletteColors(state.colors);
+  resetHarmonizeConfig();
+  renderHarmonizePanel();
+  updatePaletteLabel();
+  scheduleHarmonizePreview();
+  requestAnimationFrame(() => {
+    focusHarmonizePrimaryControl();
+  });
+}
+
+function toggleHarmonizePanel(trigger = null) {
+  if (state.harmonize.isOpen) {
+    closeHarmonizePanel();
+    return;
+  }
+
+  if (isRealMobileLayout() && !state.isPaletteDrawerOpen) {
+    openPaletteDrawer({ focusTarget: "harmonize" });
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        openHarmonizePanel(trigger);
+      });
+    });
+    return;
+  }
+
+  openHarmonizePanel(trigger);
+}
+
+function handleHarmonizeOutsidePointerDown(event) {
+  if (!state.harmonize.isOpen) {
+    return;
+  }
+
+  const target = event.target;
+  if (!(target instanceof Element)) {
+    return;
+  }
+
+  if (palettePanel.contains(target)) {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+  closeHarmonizePanel({ restoreFocus: false, revertPreview: true });
+}
+
+function applyHarmonizeChanges() {
+  clearHarmonizePreviewRaf();
+  state.harmonize.isOpen = false;
+  state.harmonize.baselineColors = [];
+  resetHarmonizeConfig();
+  renderHarmonizePanel();
+  updatePaletteLabel();
+  if (recipeModal.classList.contains("hidden")) {
+    state.recipeResults = [];
+    state.recipeRequest = null;
+  }
+}
+
+function resetHarmonizePreview() {
+  if (!state.harmonize.baselineColors.length) {
+    return;
+  }
+  state.colors = clonePaletteColors(state.harmonize.baselineColors);
+  resetHarmonizeConfig();
+  renderHarmonizePanel();
+  syncPreviewDrivenViews();
+  scheduleHarmonizePreview();
 }
 
 function shouldCollapseSettingsOnMobile() {
@@ -1624,6 +2222,9 @@ function syncLayoutState() {
   const mobileLayout = isRealMobileLayout();
   const collapsibleSettings = shouldCollapseSettingsOnMobile();
   if (mobileLayout !== state.wasMobileLayout) {
+    if (state.harmonize.isOpen) {
+      closeHarmonizePanel({ restoreFocus: false, revertPreview: true });
+    }
     state.wasMobileLayout = mobileLayout;
     state.isSettingsOpen = false;
   }
@@ -1680,7 +2281,8 @@ function schedulePaletteDrawerSettleRender() {
   }, PALETTE_DRAWER_SETTLE_DELAY_MS);
 }
 
-function openPaletteDrawer() {
+function openPaletteDrawer(options = {}) {
+  const { focusTarget = "close" } = options;
   if (!isRealMobileLayout() || !state.colors.length || state.isPaletteDrawerOpen) {
     return;
   }
@@ -1691,6 +2293,9 @@ function openPaletteDrawer() {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       renderPalette();
+      if (focusTarget === "harmonize") {
+        return;
+      }
       paletteDrawerClose.focus({ preventScroll: true });
     });
   });
@@ -1698,6 +2303,9 @@ function openPaletteDrawer() {
 
 function closePaletteDrawer({ restoreFocus = true } = {}) {
   clearPaletteDrawerSettleTimer();
+  if (state.harmonize.isOpen) {
+    closeHarmonizePanel({ restoreFocus: false, revertPreview: true });
+  }
   if (!state.isPaletteDrawerOpen) {
     syncLayoutState();
     return;
@@ -2949,6 +3557,7 @@ function exportConfiguredImage() {
 }
 
 function startPaletteDrag(event, id) {
+  if (state.harmonize.isOpen) return;
   if (!state.colors.length) return;
   event.preventDefault();
   event.stopPropagation();
@@ -3256,6 +3865,7 @@ function updateSwatchColor(swatch) {
   syncSwatchTargetsFromColors();
 }
 function startDrag(event, id) {
+  if (state.harmonize.isOpen) return;
   event.preventDefault();
   event.stopPropagation();
   state.dragId = id;
@@ -3353,6 +3963,9 @@ function endDrag() {
 
 function initializePalette() {
   closeSaveModal();
+  if (state.harmonize.isOpen) {
+    closeHarmonizePanel({ restoreFocus: false, revertPreview: false });
+  }
   state.colors = extractPalette(state.image, state.paletteSize);
   state.recipeResults = [];
   state.recipeRequest = null;
@@ -3363,6 +3976,7 @@ function initializePalette() {
     recalculatePercentages();
     renderRecipe();
     updatePaletteLabel();
+    renderHarmonizePanel();
     renderPalette();
     rebuildSwatches();
   });
@@ -3370,6 +3984,9 @@ function initializePalette() {
 
 function addPaletteColor() {
   if (!state.image || state.colors.length >= PALETTE_MAX) return;
+  if (state.harmonize.isOpen) {
+    closeHarmonizePanel({ restoreFocus: false, revertPreview: true });
+  }
   const candidates = extractPalette(state.image, PALETTE_MAX);
   const nextColor = candidates.find((candidate) => !state.colors.some((color) => colorDistance(color, candidate) < 24)) || candidates[state.colors.length];
   if (!nextColor) return;
@@ -3383,6 +4000,7 @@ function addPaletteColor() {
     recalculatePercentages();
     renderRecipe();
     updatePaletteLabel();
+    renderHarmonizePanel();
     renderPalette();
     rebuildSwatches();
   });
@@ -3390,6 +4008,9 @@ function addPaletteColor() {
 
 function removePaletteColor() {
   if (!state.image || state.colors.length <= PALETTE_MIN) return;
+  if (state.harmonize.isOpen) {
+    closeHarmonizePanel({ restoreFocus: false, revertPreview: true });
+  }
   state.colors.pop();
   state.recipeResults = [];
   state.paletteSize = state.colors.length;
@@ -3400,6 +4021,7 @@ function removePaletteColor() {
     recalculatePercentages();
     renderRecipe();
     updatePaletteLabel();
+    renderHarmonizePanel();
     renderPalette();
     rebuildSwatches();
   });
@@ -3408,6 +4030,9 @@ function removePaletteColor() {
 async function handleFile(file) {
   if (!file) return;
   clearImportWarning();
+  if (state.harmonize.isOpen) {
+    closeHarmonizePanel({ restoreFocus: false, revertPreview: false });
+  }
   if (isUnsupportedApplePhoto(file)) {
     showImportWarning("Apple photo format", "This image looks like HEIC or HEIF, which may not open here yet. In Photos, share or export it as JPEG or PNG, then try again.");
     return;
@@ -3488,6 +4113,59 @@ paletteMinusButtons.forEach((button) => {
 palettePlusButtons.forEach((button) => {
   button.addEventListener("click", addPaletteColor);
 });
+harmonizeToggleButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    toggleHarmonizePanel(button);
+  });
+});
+harmonizeSchemeButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    if (!state.harmonize.isOpen || state.harmonize.scheme === button.dataset.scheme) {
+      return;
+    }
+    state.harmonize.scheme = button.dataset.scheme || HARMONIZE_DEFAULT_SCHEME;
+    renderHarmonizePanel();
+    scheduleHarmonizePreview();
+  });
+});
+harmonizeStrength.addEventListener("input", () => {
+  if (!state.harmonize.isOpen) {
+    return;
+  }
+  state.harmonize.strength = clamp(Number(harmonizeStrength.value), 0, 100);
+  renderHarmonizePanel();
+  scheduleHarmonizePreview();
+});
+harmonizeLockList.addEventListener("click", (event) => {
+  const lockButton = event.target.closest('[data-action="harmonize-lock"]');
+  if (!lockButton || !state.harmonize.isOpen) {
+    return;
+  }
+  const { colorId } = lockButton.dataset;
+  if (!colorId) {
+    return;
+  }
+  if (state.harmonize.lockedIds.has(colorId)) {
+    state.harmonize.lockedIds.delete(colorId);
+  } else {
+    state.harmonize.lockedIds.add(colorId);
+  }
+  renderHarmonizePanel();
+  scheduleHarmonizePreview();
+});
+harmonizeClose.addEventListener("click", () => {
+  closeHarmonizePanel();
+});
+harmonizeCancel.addEventListener("click", () => {
+  closeHarmonizePanel();
+});
+harmonizeReset.addEventListener("click", () => {
+  resetHarmonizePreview();
+});
+harmonizeApply.addEventListener("click", () => {
+  applyHarmonizeChanges();
+});
+root.addEventListener("pointerdown", handleHarmonizeOutsidePointerDown, true);
 canvasWrap.addEventListener("dragover", (event) => event.preventDefault());
 canvasWrap.addEventListener("drop", async (event) => {
   event.preventDefault();
@@ -3499,6 +4177,30 @@ window.addEventListener("pointerup", endDrag);
 window.addEventListener("pointercancel", endDrag);
 window.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") {
+    return;
+  }
+
+  if (!saveModal.classList.contains("hidden")) {
+    event.preventDefault();
+    closeSaveModal();
+    return;
+  }
+
+  if (!inventoryModal.classList.contains("hidden")) {
+    event.preventDefault();
+    closeInventoryModal();
+    return;
+  }
+
+  if (!recipeModal.classList.contains("hidden")) {
+    event.preventDefault();
+    closeRecipeModal();
+    return;
+  }
+
+  if (state.harmonize.isOpen) {
+    event.preventDefault();
+    closeHarmonizePanel({ restoreFocus: true, revertPreview: true });
     return;
   }
 
@@ -3521,21 +4223,6 @@ window.addEventListener("keydown", (event) => {
         syncSwatchTargetsFromColors();
       });
     }
-    return;
-  }
-
-  if (!saveModal.classList.contains("hidden")) {
-    closeSaveModal();
-    return;
-  }
-
-  if (!inventoryModal.classList.contains("hidden")) {
-    closeInventoryModal();
-    return;
-  }
-
-  if (!recipeModal.classList.contains("hidden")) {
-    closeRecipeModal();
   }
 });
 if (recipeExport) {
@@ -3598,6 +4285,7 @@ window.addEventListener("resize", () => {
 });
 syncLayoutState();
 updatePaletteLabel();
+renderHarmonizePanel();
 state.inventoryDraft = clonePaintCollection(state.ownedPaints);
 renderInventoryList();
 renderPalettePreview();
