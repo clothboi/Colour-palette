@@ -1200,10 +1200,11 @@
 .webflow-palette-embed .inventory-modal-head,
 .webflow-palette-embed .save-modal-head {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: start;
   gap: 12px;
   margin-bottom: 12px;
+  padding-right: 52px;
 }
 
 .webflow-palette-embed .recipe-modal-head h2,
@@ -1221,10 +1222,10 @@
 .webflow-palette-embed .recipe-close,
 .webflow-palette-embed .save-close {
   position: absolute;
-  top: -46px;
-  right: 0;
-  width: 38px;
-  height: 38px;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
   border-radius: 11px;
   font-size: 1.12rem;
   cursor: pointer;

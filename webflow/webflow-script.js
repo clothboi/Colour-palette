@@ -97,7 +97,7 @@ ${getPaletteControlsMarkup()}
           <p class="recipe-modal-kicker">Colour mix study</p>
           <h2>Paint recipes</h2>
         </div>
-        <button class="recipe-close" type="button" data-action="recipe-close" aria-label="Close paint recipes">x</button>
+        <button class="recipe-close" type="button" data-action="recipe-close" aria-label="Close paint recipes">X</button>
       </div>
       <div data-role="recipe-content"></div>
     </div>
@@ -111,7 +111,7 @@ ${getPaletteControlsMarkup()}
           <p class="recipe-modal-kicker">Owned paint inventory</p>
           <h2>Paint setup</h2>
         </div>
-        <button class="recipe-close" type="button" data-action="inventory-close" aria-label="Close paint setup">x</button>
+        <button class="recipe-close" type="button" data-action="inventory-close" aria-label="Close paint setup">X</button>
       </div>
       <div class="inventory-modal-body">
         <p class="inventory-note">Add the tubes you own. Pigment codes are required, and the app will use the Williamsburg starter palette whenever no saved inventory is available.</p>
@@ -175,7 +175,7 @@ ${getPaletteControlsMarkup()}
           <p class="save-modal-kicker">Export study</p>
           <h2>Save image</h2>
         </div>
-        <button class="save-close" type="button" data-action="save-close" aria-label="Close save options">x</button>
+        <button class="save-close" type="button" data-action="save-close" aria-label="Close save options">X</button>
       </div>
       <div data-role="save-content" class="save-modal-content">
         <div class="save-controls">
