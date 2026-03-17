@@ -1504,15 +1504,23 @@ function refreshStageSize() {
   }
 
   const stageStyles = window.getComputedStyle(canvasStage);
+  const workspace = canvasStage.parentElement;
   const gap = parseFloat(stageStyles.rowGap || stageStyles.gap || "0") || 0;
   const paddingTop = parseFloat(stageStyles.paddingTop || "0") || 0;
   const paddingBottom = parseFloat(stageStyles.paddingBottom || "0") || 0;
+  const workspaceStyles = workspace ? window.getComputedStyle(workspace) : null;
+  const workspaceGap = workspaceStyles ? (parseFloat(workspaceStyles.columnGap || workspaceStyles.gap || "0") || 0) : 0;
+  const workspaceWidth = workspace ? (workspace.clientWidth || workspace.getBoundingClientRect().width || 0) : 0;
+  const paletteWidth = palettePanel ? (palettePanel.clientWidth || palettePanel.getBoundingClientRect().width || 0) : 0;
   const stageHeight = canvasStage.clientHeight || canvasStage.getBoundingClientRect().height || 0;
   const availableHeight = Math.max(
     320,
     Math.round(stageHeight - paddingTop - paddingBottom - controlHud.getBoundingClientRect().height - gap),
   );
-  const availableWidth = Math.max(280, Math.round(window.innerWidth - getPaletteFrameClearance()));
+  const availableWidth = Math.max(
+    280,
+    Math.round(workspaceWidth ? (workspaceWidth - paletteWidth - workspaceGap) : (window.innerWidth - getPaletteFrameClearance())),
+  );
 
   let frameWidth = availableWidth;
   let frameHeight = Math.round(frameWidth / imageRatio);
