@@ -1090,6 +1090,7 @@ const state = {
   paletteDragWidth: 0,
   paletteGrabOffsetY: 0,
   paletteDrawerSettleTimer: null,
+  paletteSettleRaf: null,
   recipeResults: [],
   recipeRequest: null,
   ownedPaints: loadOwnedPaints(),
@@ -2314,8 +2315,32 @@ function schedulePaletteDrawerSettleRender() {
     if (!state.isPaletteDrawerOpen || !isRealMobileLayout()) {
       return;
     }
-    renderPalette();
+    renderPalette({ skipSettle: true });
   }, PALETTE_DRAWER_SETTLE_DELAY_MS);
+}
+
+function clearPaletteSettleRender() {
+  if (!state.paletteSettleRaf) return;
+  cancelAnimationFrame(state.paletteSettleRaf);
+  state.paletteSettleRaf = null;
+}
+
+function schedulePaletteSettleRender() {
+  if (state.paletteDragId || state.dragId) {
+    return;
+  }
+  clearPaletteSettleRender();
+  let remainingFrames = 2;
+  const settle = () => {
+    if (remainingFrames > 0) {
+      remainingFrames -= 1;
+      state.paletteSettleRaf = requestAnimationFrame(settle);
+      return;
+    }
+    state.paletteSettleRaf = null;
+    renderPalette({ skipSettle: true });
+  };
+  state.paletteSettleRaf = requestAnimationFrame(settle);
 }
 
 function openPaletteDrawer(options = {}) {
@@ -3784,7 +3809,8 @@ async function copyHexCode(hex) {
   return copied;
 }
 
-function renderPalette() {
+function renderPalette(options = {}) {
+  const { skipSettle = false } = options;
   updatePaletteLayoutMode();
   renderPalettePreview();
   paletteList.innerHTML = '';
@@ -3800,6 +3826,9 @@ function renderPalette() {
       appendPaletteItems(columns[index], items, heightById, 0);
     });
     syncPaletteLockControls();
+    if (!skipSettle) {
+      schedulePaletteSettleRender();
+    }
     return;
   }
 
@@ -3830,6 +3859,9 @@ function renderPalette() {
   dragCard.style.width = `${state.paletteDragWidth}px`;
   paletteList.appendChild(dragCard);
   syncPaletteLockControls();
+  if (!skipSettle) {
+    schedulePaletteSettleRender();
+  }
 }
 
 function syncSwatchTargetsFromColors() {
