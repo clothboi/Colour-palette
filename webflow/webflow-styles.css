@@ -2239,7 +2239,6 @@
 .webflow-palette-embed[data-mobile-layout="true"] .mobile-palette-rail__copy {
   align-self: center;
   justify-content: center;
-  margin-right: 8px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .mobile-palette-rail__copy .palette-drawer-toggle__label {
