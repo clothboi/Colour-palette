@@ -26,10 +26,10 @@ function getPaletteControlsMarkup(extraClass = "") {
 function getMobilePaletteSummaryControlsMarkup() {
   return `
               <div class="mobile-palette-rail__header-row">
-                <div class="mobile-palette-rail__copy palette-drawer-toggle__copy">
-                  <span class="palette-drawer-toggle__label">Palette Rail</span>
-                  <span class="palette-drawer-toggle__status" data-role="palette-preview-status">Upload an image to build a palette.</span>
-                </div>
+                <button class="mobile-palette-rail__open palette-drawer-open" type="button" data-action="palette-drawer-open" aria-label="Open palette rail" aria-expanded="false">
+                  <span class="palette-drawer-open__label">Open Palette</span>
+                  <span class="palette-drawer-toggle__status" data-role="palette-preview-status" aria-hidden="true">Upload an image to build a palette.</span>
+                </button>
                 <div class="mobile-palette-rail__stepper palette-toolbar-stepper">
                   <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
                   <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
@@ -130,9 +130,6 @@ function getPaletteMarkup() {
 
       <aside class="palette-panel" data-role="palette-panel">
         <div class="mobile-palette-rail" data-role="mobile-palette-rail">
-          <button class="palette-drawer-open" type="button" data-action="palette-drawer-open" aria-label="Open reorder menu" aria-expanded="false">
-            <span class="palette-drawer-open__label">Open</span>
-          </button>
           <div class="mobile-palette-rail__surface palette-drawer-summary" data-role="palette-drawer-summary">
             <div class="mobile-palette-rail__top">
 ${getMobilePaletteSummaryControlsMarkup()}
