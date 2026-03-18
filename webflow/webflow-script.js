@@ -3313,7 +3313,7 @@ function getPaletteAvailableHeight() {
   const fittedHeight = desktopCandidates.length
     ? Math.min(...desktopCandidates)
     : Math.max(0, Math.round(listHeight));
-  return Math.max(0, Math.round(fittedHeight) - 4);
+  return Math.max(0, Math.round(fittedHeight));
 }
 
 function getPaletteHeightConfig() {
