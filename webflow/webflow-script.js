@@ -1,14 +1,32 @@
 ﻿(() => {
 const HARMONIZE_SCHEMES = [
-  { id: "analogous", label: "Analogous", description: "Keeps colours close to the anchor hue, using nearby angles for a calmer, more unified palette." },
-  { id: "complementary", label: "Complementary", description: "Pushes colours toward the hue opposite the anchor for stronger contrast and more visual tension." },
-  { id: "split-complementary", label: "Split Complementary", description: "Uses the two hues beside the complement, keeping contrast while feeling softer than a direct opposite." },
-  { id: "triadic", label: "Triadic", description: "Spreads colours around three evenly spaced hue targets for a balanced, lively palette." },
-  { id: "tetradic", label: "Tetradic", description: "Uses four broader hue targets around the wheel, creating the widest and most varied harmony set here." },
-  { id: "monochromatic", label: "Monochromatic", description: "Keeps everything near the anchor hue and harmonises mostly through lightness and chroma shifts." },
+  { id: "monochromatic", label: "Monochromatic", group: "Simple", description: "Shifts all colours toward a single hue using tints and shades for a unified result." },
+  { id: "analogous", label: "Analogous", group: "Simple", description: "Shifts colours toward neighbouring hues to create a smooth, cohesive flow." },
+  { id: "complementary", label: "Complementary", group: "Balanced Contrast", description: "Shifts colours toward opposing hues to create clear, high-impact contrast." },
+  { id: "split-complementary", label: "Split Complementary", group: "Balanced Contrast", description: "Shifts colours toward near-opposing hues to balance contrast with harmony." },
+  { id: "triadic", label: "Triadic", group: "Complex Harmony", description: "Shifts colours toward three evenly spaced hues for vibrant, balanced variation." },
+  { id: "tetradic", label: "Tetradic", group: "Complex Harmony", description: "Shifts colours toward two opposing hue pairs for rich, dynamic combinations." },
 ];
 const HARMONIZE_DEFAULT_SCHEME = "analogous";
 const HARMONIZE_DEFAULT_STRENGTH = 60;
+
+function getHarmonizeSchemeOptionsMarkup() {
+  const groups = [];
+  HARMONIZE_SCHEMES.forEach((scheme) => {
+    const existingGroup = groups.find((entry) => entry.label === scheme.group);
+    if (existingGroup) {
+      existingGroup.items.push(scheme);
+      return;
+    }
+    groups.push({
+      label: scheme.group,
+      items: [scheme],
+    });
+  });
+  return groups.map((group) => `                <optgroup label="${group.label}">
+${group.items.map((scheme) => `                  <option value="${scheme.id}"${scheme.id === HARMONIZE_DEFAULT_SCHEME ? " selected" : ""}>${scheme.label}</option>`).join("\n")}
+                </optgroup>`).join("\n");
+}
 
 function getPaletteControlsMarkup(extraClass = "") {
   const className = extraClass ? `palette-toolbar-controls ${extraClass}` : "palette-toolbar-controls";
@@ -52,7 +70,7 @@ function getHarmonizePanelMarkup() {
               <span class="palette-harmonize-label">Scheme</span>
               <div class="palette-harmonize-select-wrap">
                 <select class="palette-harmonize-select" data-role="harmonize-scheme-select" aria-label="Choose a harmony scheme">
-${HARMONIZE_SCHEMES.map((scheme) => `                <option value="${scheme.id}"${scheme.id === HARMONIZE_DEFAULT_SCHEME ? " selected" : ""}>${scheme.label}</option>`).join("\n")}
+${getHarmonizeSchemeOptionsMarkup()}
                 </select>
               </div>
             </div>
