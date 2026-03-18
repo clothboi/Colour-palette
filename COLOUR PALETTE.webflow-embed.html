@@ -2114,11 +2114,17 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .hud-bar {
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
 }
 
-.webflow-palette-embed[data-mobile-layout="true"] .hud-count {
-  text-align: right;
+.webflow-palette-embed[data-mobile-layout="true"] .hud-bar__group--center {
+  grid-column: 2;
+  justify-content: flex-end;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .hud-bar__group--status {
+  display: none;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .hud-buttons {
@@ -2216,12 +2222,29 @@
   min-width: 0;
 }
 
+.webflow-palette-embed[data-mobile-layout="true"] .mobile-palette-rail__top {
+  align-items: center;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .mobile-palette-rail__copy {
+  align-self: stretch;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .mobile-palette-rail__copy .palette-drawer-toggle__label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+}
+
 .webflow-palette-embed[data-mobile-layout="true"] .palette-button,
 .webflow-palette-embed[data-mobile-layout="true"] .palette-size-label {
   min-height: 42px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-harmonize-toggle {
+  width: 100%;
   min-height: 34px;
   padding: 8px 10px;
   font-size: 0.74rem;
