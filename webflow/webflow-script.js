@@ -48,13 +48,13 @@ function getHarmonizePanelMarkup() {
             </div>
           </div>
           <section class="palette-harmonize-section">
-            <div class="palette-harmonize-section-head">
+            <div class="palette-harmonize-section-head palette-harmonize-section-head--inline">
               <span class="palette-harmonize-label">Scheme</span>
-            </div>
-            <div class="palette-harmonize-select-wrap">
-              <select class="palette-harmonize-select" data-role="harmonize-scheme-select" aria-label="Choose a harmony scheme">
+              <div class="palette-harmonize-select-wrap">
+                <select class="palette-harmonize-select" data-role="harmonize-scheme-select" aria-label="Choose a harmony scheme">
 ${HARMONIZE_SCHEMES.map((scheme) => `                <option value="${scheme.id}"${scheme.id === HARMONIZE_DEFAULT_SCHEME ? " selected" : ""}>${scheme.label}</option>`).join("\n")}
-              </select>
+                </select>
+              </div>
             </div>
             <p class="palette-harmonize-subtle palette-harmonize-scheme-description" data-role="harmonize-scheme-description">${HARMONIZE_SCHEMES.find((scheme) => scheme.id === HARMONIZE_DEFAULT_SCHEME)?.description || ""}</p>
           </section>
@@ -537,6 +537,10 @@ function median(values) {
 
 function clonePaletteColors(colors) {
   return colors.map((color) => ({ ...color }));
+}
+
+function syncHarmonizeSourceColors(colors = state.colors) {
+  state.harmonize.sourceColors = clonePaletteColors(colors);
 }
 
 function getHarmonyOffsets(selectedScheme) {
@@ -1098,6 +1102,7 @@ const state = {
   harmonize: {
     isOpen: false,
     baselineColors: [],
+    sourceColors: [],
     scheme: HARMONIZE_DEFAULT_SCHEME,
     strength: HARMONIZE_DEFAULT_STRENGTH,
     lockedIds: new Set(),
@@ -1978,16 +1983,19 @@ function renderHarmonizePanel() {
   harmonizeStrengthValue.textContent = `${state.harmonize.strength}%`;
 
   if (!state.harmonize.isOpen) {
-    harmonizeHelper.textContent = "Use the palette rail locks to pin colours. The first locked colour becomes the anchor.";
+    harmonizeHelper.textContent = "Lock a palette colour to choose the anchor.";
     syncPaletteLockControls();
     return;
   }
 
   const metrics = state.harmonize.metrics;
   const anchorMetric = metrics?.perColorMetrics.find((entry) => entry.anchor) || null;
-  harmonizeHelper.textContent = state.harmonize.lockedIds.size
-    ? `Use the palette rail locks to pin colours. The first locked colour becomes the anchor. ${anchorMetric ? `${anchorMetric.outputHex} is currently anchoring this preview.` : ""}`.trim()
-    : `${anchorMetric ? `${anchorMetric.outputHex}` : "The most chromatic colour"} is currently acting as the anchor.`;
+  const anchorHex = anchorMetric?.outputHex || "";
+  if (anchorHex) {
+    harmonizeHelper.innerHTML = `<span class="palette-harmonize-helper-dot" style="--helper-dot:${anchorHex};"></span><span>${anchorHex} is currently anchoring this preview.</span>`;
+  } else {
+    harmonizeHelper.textContent = "Choose a scheme to preview the current anchor.";
+  }
   syncPaletteLockControls();
 }
 
@@ -2077,6 +2085,9 @@ function openHarmonizePanel(trigger = null) {
 
   state.harmonize.lastTrigger = trigger;
   state.harmonize.isOpen = true;
+  if (!state.harmonize.sourceColors.length) {
+    syncHarmonizeSourceColors(state.colors);
+  }
   state.harmonize.baselineColors = clonePaletteColors(state.colors);
   resetHarmonizeConfig();
   renderHarmonizePanel();
@@ -2188,6 +2199,9 @@ function applyHarmonizeChanges() {
   clearHarmonizePreviewRaf();
   state.harmonize.isOpen = false;
   state.harmonize.baselineColors = [];
+  if (!state.harmonize.sourceColors.length) {
+    syncHarmonizeSourceColors(state.colors);
+  }
   resetHarmonizeConfig();
   renderHarmonizePanel();
   updatePaletteLabel();
@@ -2199,10 +2213,10 @@ function applyHarmonizeChanges() {
 }
 
 function resetHarmonizePreview() {
-  if (!state.harmonize.baselineColors.length) {
+  if (!state.harmonize.sourceColors.length) {
     return;
   }
-  state.colors = clonePaletteColors(state.harmonize.baselineColors);
+  state.colors = clonePaletteColors(state.harmonize.sourceColors);
   resetHarmonizeConfig();
   renderHarmonizePanel();
   syncPreviewDrivenViews();
@@ -3700,6 +3714,7 @@ function commitPaletteOrder() {
   if (currentIndex < 0) return;
   const [moved] = state.colors.splice(currentIndex, 1);
   state.colors.splice(state.paletteDropIndex, 0, moved);
+  syncHarmonizeSourceColors();
 }
 
 function createPaletteCard(color, height) {
@@ -3968,6 +3983,7 @@ function updateSwatchColor(swatch) {
     renderDragLens(swatch);
   }
   recalculatePercentages();
+  syncHarmonizeSourceColors();
   renderPalette();
   syncSwatchTargetsFromColors();
 }
@@ -4074,6 +4090,7 @@ function initializePalette() {
     closeHarmonizePanel({ restoreFocus: false, revertPreview: false });
   }
   state.colors = extractPalette(state.image, state.paletteSize);
+  syncHarmonizeSourceColors();
   state.recipeResults = [];
   state.recipeRequest = null;
   updatePaletteLayoutMode();
@@ -4098,6 +4115,7 @@ function addPaletteColor() {
   const nextColor = candidates.find((candidate) => !state.colors.some((color) => colorDistance(color, candidate) < 24)) || candidates[state.colors.length];
   if (!nextColor) return;
   state.colors.push({ ...nextColor, id: `color-${state.colors.length + 1}` });
+  syncHarmonizeSourceColors();
   state.recipeResults = [];
   state.paletteSize = state.colors.length;
   updatePaletteLayoutMode();
@@ -4119,6 +4137,7 @@ function removePaletteColor() {
     closeHarmonizePanel({ restoreFocus: false, revertPreview: true });
   }
   state.colors.pop();
+  syncHarmonizeSourceColors();
   state.recipeResults = [];
   state.paletteSize = state.colors.length;
   updatePaletteLayoutMode();
