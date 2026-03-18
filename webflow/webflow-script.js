@@ -645,6 +645,7 @@ function improvePalette(colors, options = {}) {
   const hueSnapStrength = 0.28 + (0.72 * t);
   const maxDelta = 4 + (14 * t);
   const lockedIds = options.lockedIds instanceof Set ? options.lockedIds : new Set(options.lockedIds || []);
+  const preferredAnchorId = typeof options.anchorId === "string" ? options.anchorId : "";
   const records = colors.map((color) => {
     const lab = rgbToLab(color);
     const lch = labToLch(lab);
@@ -657,7 +658,7 @@ function improvePalette(colors, options = {}) {
     };
   });
   const chromaticRecords = records.filter((record) => !record.nearNeutral);
-  const anchorRecord = records.find((record) => record.locked) || chromaticRecords.reduce((best, record) => {
+  const anchorRecord = records.find((record) => record.color.id === preferredAnchorId) || records.find((record) => record.locked) || chromaticRecords.reduce((best, record) => {
     if (!best || record.lch.c > best.lch.c) return record;
     return best;
   }, null) || records[0];
@@ -2046,6 +2047,7 @@ function applyHarmonizePreview() {
     scheme: state.harmonize.scheme,
     strength: state.harmonize.strength,
     lockedIds: state.harmonize.lockedIds,
+    anchorId: getPrimaryLockedHarmonizeId(),
   });
   state.harmonize.metrics = preview;
   state.harmonize.warnings = preview.warnings;
@@ -2160,18 +2162,47 @@ function getHarmonizeAnchorId() {
     return null;
   }
 
-  if (state.harmonize.lockedIds.size) {
-    const lockedColor = state.colors.find((color) => state.harmonize.lockedIds.has(color.id));
-    if (lockedColor) {
-      return lockedColor.id;
-    }
+  const primaryLockedId = getPrimaryLockedHarmonizeId();
+  if (primaryLockedId) {
+    return primaryLockedId;
   }
 
   return state.harmonize.metrics?.anchorId || null;
 }
 
+function getPrimaryLockedHarmonizeId() {
+  for (const colorId of state.harmonize.lockedIds) {
+    if (state.colors.some((color) => color.id === colorId)) {
+      return colorId;
+    }
+  }
+  return null;
+}
+
+function getHarmonizeLockPresentation(colorId, hex = "") {
+  const anchorId = getPrimaryLockedHarmonizeId();
+  const locked = state.harmonize.lockedIds.has(colorId);
+  const isAnchor = colorId === anchorId;
+  const hasAnchor = Boolean(anchorId);
+  const label = isAnchor || !hasAnchor ? "Anchor" : "Lock";
+  const ariaLabel = isAnchor
+    ? `Unlock anchor ${hex} during harmonise`
+    : locked
+      ? `Unlock ${hex} during harmonise`
+      : hasAnchor
+        ? `Lock ${hex} during harmonise`
+        : `Anchor ${hex} during harmonise`;
+  const title = isAnchor
+    ? `${hex} is the harmonise anchor`
+    : locked
+      ? `${hex} is locked during harmonise`
+      : hasAnchor
+        ? `Lock ${hex} during harmonise`
+        : `Anchor ${hex} during harmonise`;
+  return { locked, isAnchor, label, ariaLabel, title };
+}
+
 function syncPaletteLockControls() {
-  const anchorId = getHarmonizeAnchorId();
   const cards = [...paletteList.querySelectorAll(".palette-card")];
   cards.forEach((card) => {
     const colorId = card.dataset.id;
@@ -2182,18 +2213,14 @@ function syncPaletteLockControls() {
 
     const color = state.colors.find((entry) => entry.id === colorId);
     const hex = color?.hex || "";
-    const locked = state.harmonize.lockedIds.has(colorId);
-    const isAnchor = colorId === anchorId;
-    card.dataset.harmonizeLocked = locked ? "true" : "false";
-    card.dataset.harmonizeAnchor = isAnchor ? "true" : "false";
+    const lockState = getHarmonizeLockPresentation(colorId, hex);
+    card.dataset.harmonizeLocked = lockState.locked ? "true" : "false";
+    card.dataset.harmonizeAnchor = lockState.isAnchor ? "true" : "false";
     lockButton.hidden = !state.harmonize.isOpen;
-    lockButton.setAttribute("aria-pressed", String(locked));
-    lockButton.setAttribute("aria-label", locked ? `Unlock ${hex} during harmonise` : `Lock ${hex} during harmonise`);
-    lockButton.title = isAnchor
-      ? `${hex} is the harmonise anchor`
-      : locked
-        ? `${hex} is locked during harmonise`
-        : `Lock ${hex} during harmonise`;
+    lockButton.textContent = lockState.label;
+    lockButton.setAttribute("aria-pressed", String(lockState.locked));
+    lockButton.setAttribute("aria-label", lockState.ariaLabel);
+    lockButton.title = lockState.title;
   });
 }
 
@@ -3737,14 +3764,7 @@ function commitPaletteOrder() {
 
 function createPaletteCard(color, height) {
   const card = document.createElement('div');
-  const locked = state.harmonize.lockedIds.has(color.id);
-  const isAnchor = color.id === getHarmonizeAnchorId();
-  const lockAriaLabel = locked ? `Unlock ${color.hex} during harmonise` : `Lock ${color.hex} during harmonise`;
-  const lockTitle = isAnchor
-    ? `${color.hex} is the harmonise anchor`
-    : locked
-      ? `${color.hex} is locked during harmonise`
-      : `Lock ${color.hex} during harmonise`;
+  const lockState = getHarmonizeLockPresentation(color.id, color.hex);
   card.className = 'palette-card';
   if (state.hoveredColorId === color.id) card.classList.add('hovered');
   card.style.setProperty('--card-color', color.hex);
@@ -3753,10 +3773,10 @@ function createPaletteCard(color, height) {
   const textColor = luminance(color.r, color.g, color.b) > 0.62 ? '#15171a' : '#f2efe8';
   card.style.color = textColor;
   card.dataset.id = color.id;
-  card.dataset.harmonizeLocked = locked ? "true" : "false";
-  card.dataset.harmonizeAnchor = isAnchor ? "true" : "false";
+  card.dataset.harmonizeLocked = lockState.locked ? "true" : "false";
+  card.dataset.harmonizeAnchor = lockState.isAnchor ? "true" : "false";
   card.addEventListener('pointerdown', (event) => startPaletteDrag(event, color.id));
-  card.innerHTML = `<div class="palette-meta"><div class="palette-line"><button class="palette-code palette-copy" type="button" data-copy-hex="${color.hex}" title="Copy"><strong>${color.hex}</strong></button><span class="percent-badge">${formatPercent(color.percent)}</span></div></div><button class="palette-card-lock" type="button" data-action="harmonize-lock-card" ${state.harmonize.isOpen ? "" : "hidden "}aria-pressed="${locked ? "true" : "false"}" aria-label="${lockAriaLabel}" title="${lockTitle}">Lock</button>`;
+  card.innerHTML = `<div class="palette-meta"><div class="palette-line"><button class="palette-code palette-copy" type="button" data-copy-hex="${color.hex}" title="Copy"><strong>${color.hex}</strong></button><span class="percent-badge">${formatPercent(color.percent)}</span></div></div><button class="palette-card-lock" type="button" data-action="harmonize-lock-card" ${state.harmonize.isOpen ? "" : "hidden "}aria-pressed="${lockState.locked ? "true" : "false"}" aria-label="${lockState.ariaLabel}" title="${lockState.title}">${lockState.label}</button>`;
   const copyButton = card.querySelector('[data-copy-hex]');
   const lockButton = card.querySelector('[data-action="harmonize-lock-card"]');
   if (copyButton) {

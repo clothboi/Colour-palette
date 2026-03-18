@@ -1149,6 +1149,13 @@
   background: #191c20;
 }
 
+.webflow-palette-embed .palette-harmonize-select optgroup {
+  color: #f2efe8;
+  background: #2e3339;
+  font-style: normal;
+  font-weight: 700;
+}
+
 .webflow-palette-embed .palette-harmonize-scheme-description {
   margin: 0;
 }
