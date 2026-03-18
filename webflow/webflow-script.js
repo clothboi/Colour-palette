@@ -3738,7 +3738,7 @@ function createPaletteCard(color, height) {
   card.dataset.harmonizeLocked = locked ? "true" : "false";
   card.dataset.harmonizeAnchor = isAnchor ? "true" : "false";
   card.addEventListener('pointerdown', (event) => startPaletteDrag(event, color.id));
-  card.innerHTML = `<div class="palette-meta"><div class="palette-line"><button class="palette-code palette-copy" type="button" data-copy-hex="${color.hex}" title="Copy"><strong>${color.hex}</strong></button><span class="percent-badge">${formatPercent(color.percent)}</span></div></div><button class="palette-card-lock" type="button" data-action="harmonize-lock-card" ${state.harmonize.isOpen ? "" : "hidden "}aria-pressed="${locked ? "true" : "false"}" aria-label="${lockAriaLabel}" title="${lockTitle}"></button>`;
+  card.innerHTML = `<div class="palette-meta"><div class="palette-line"><button class="palette-code palette-copy" type="button" data-copy-hex="${color.hex}" title="Copy"><strong>${color.hex}</strong></button><span class="percent-badge">${formatPercent(color.percent)}</span></div></div><button class="palette-card-lock" type="button" data-action="harmonize-lock-card" ${state.harmonize.isOpen ? "" : "hidden "}aria-pressed="${locked ? "true" : "false"}" aria-label="${lockAriaLabel}" title="${lockTitle}">Lock</button>`;
   const copyButton = card.querySelector('[data-copy-hex]');
   const lockButton = card.querySelector('[data-action="harmonize-lock-card"]');
   if (copyButton) {
