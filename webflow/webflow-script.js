@@ -3274,7 +3274,7 @@ function getPaletteAvailableHeight() {
     return Math.max(0, fittedHeight - 4);
   }
 
-  const desktopCandidates = [computedHeight, sheetHeight].filter((value) => value > 0);
+  const desktopCandidates = [computedHeight, sheetHeight, listHeight].filter((value) => value > 0);
   const fittedHeight = desktopCandidates.length
     ? Math.min(...desktopCandidates)
     : Math.max(0, Math.round(listHeight));
