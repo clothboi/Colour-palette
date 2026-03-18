@@ -296,7 +296,11 @@ ${getHarmonizePanelMarkup()}
               <button class="save-option-button" type="button" data-save-style="wheel">Colour wheel</button>
               <button class="save-option-button" type="button" data-save-style="gradient">Gradient map</button>
             </div>
-            <div class="save-style-settings">
+            <div class="save-style-settings" data-role="save-style-settings">
+              <label data-role="save-nodes-row" class="save-toggle" hidden>
+                <input data-role="save-strip-nodes" type="checkbox">
+                <span>Show nodes</span>
+              </label>
               <section class="save-style-inline" data-role="save-wheel-order-row" hidden>
                 <span class="save-style-label">Order</span>
                 <div class="save-option-row save-option-row-inline">
@@ -319,10 +323,6 @@ ${getHarmonizePanelMarkup()}
               <button class="save-option-button" type="button" data-save-size="4000">4k</button>
             </div>
           </section>
-          <label data-role="save-nodes-row" class="save-toggle">
-            <input data-role="save-strip-nodes" type="checkbox">
-            <span>Show nodes</span>
-          </label>
         </div>
         <div class="save-preview-shell">
           <canvas data-role="save-preview-canvas" aria-label="Export preview"></canvas>
@@ -421,6 +421,7 @@ function initPalette(root) {
   const savePreviewCanvas = root.querySelector('[data-role="save-preview-canvas"]');
   const savePreviewOverlay = root.querySelector('[data-role="save-preview-overlay"]');
   const savePreviewEmpty = root.querySelector('[data-role="save-preview-empty"]');
+  const saveStyleSettings = root.querySelector('[data-role="save-style-settings"]');
   const saveNodesRow = root.querySelector('[data-role="save-nodes-row"]');
   const saveStripNodes = root.querySelector('[data-role="save-strip-nodes"]');
   const saveWheelOrderRow = root.querySelector('[data-role="save-wheel-order-row"]');
@@ -431,7 +432,7 @@ function initPalette(root) {
   const saveExport = root.querySelector('[data-action="save-export-image"]');
   const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
   const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeSaturation || !harmonizeSaturationValue || !harmonizeBrightness || !harmonizeBrightnessValue || !harmonizeHelper || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewShell || !savePreviewCanvas || !savePreviewOverlay || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveWheelOrderRow || !saveWheelOrderButtons.length || !saveGradientRow || !saveGradientReset || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeSaturation || !harmonizeSaturationValue || !harmonizeBrightness || !harmonizeBrightnessValue || !harmonizeHelper || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewShell || !savePreviewCanvas || !savePreviewOverlay || !savePreviewEmpty || !saveStyleSettings || !saveNodesRow || !saveStripNodes || !saveWheelOrderRow || !saveWheelOrderButtons.length || !saveGradientRow || !saveGradientReset || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
     return;
   }
 
@@ -4033,6 +4034,7 @@ function syncSaveModalControls() {
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", active ? "true" : "false");
   });
+  saveStyleSettings.hidden = false;
   saveStripNodes.checked = state.saveExport.stripNodes;
   saveNodesRow.hidden = state.saveExport.layout === EXPORT_LAYOUT_WHEEL || state.saveExport.layout === EXPORT_LAYOUT_GRADIENT;
   saveWheelOrderRow.hidden = state.saveExport.layout !== EXPORT_LAYOUT_WHEEL;
