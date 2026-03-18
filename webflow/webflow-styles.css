@@ -760,10 +760,6 @@
   text-align: center;
 }
 
-.webflow-palette-embed .mobile-palette-rail__copy .palette-drawer-toggle__status {
-  display: none;
-}
-
 .webflow-palette-embed .mobile-palette-rail__toolbar {
   flex: 1 1 0;
   display: block;

@@ -28,7 +28,6 @@ function getMobilePaletteSummaryControlsMarkup() {
               <div class="mobile-palette-rail__header-row">
                 <button class="mobile-palette-rail__open palette-drawer-open" type="button" data-action="palette-drawer-open" aria-label="Open palette rail" aria-expanded="false">
                   <span class="palette-drawer-open__label">Open Palette</span>
-                  <span class="palette-drawer-toggle__status" data-role="palette-preview-status" aria-hidden="true">Upload an image to build a palette.</span>
                 </button>
                 <div class="mobile-palette-rail__stepper palette-toolbar-stepper">
                   <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
@@ -360,7 +359,7 @@ function initPalette(root) {
   const saveExport = root.querySelector('[data-action="save-export-image"]');
   const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
   const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !palettePreviewStatus || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeHelper || !harmonizeMetrics || !harmonizeWarnings || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeHelper || !harmonizeMetrics || !harmonizeWarnings || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
     return;
   }
 
@@ -1939,11 +1938,13 @@ function updatePaletteLabel() {
     button.disabled = !state.colors.length;
     button.setAttribute("aria-expanded", String(state.harmonize.isOpen));
   });
-  palettePreviewStatus.textContent = state.colors.length
-    ? (state.harmonize.isOpen
-      ? `Previewing ${state.colors.length} ${state.colors.length === 1 ? "colour" : "colours"}`
-      : `${state.colors.length} ${state.colors.length === 1 ? "colour" : "colours"} ready`)
-    : "Upload an image to build a palette.";
+  if (palettePreviewStatus) {
+    palettePreviewStatus.textContent = state.colors.length
+      ? (state.harmonize.isOpen
+        ? `Previewing ${state.colors.length} ${state.colors.length === 1 ? "colour" : "colours"}`
+        : `${state.colors.length} ${state.colors.length === 1 ? "colour" : "colours"} ready`)
+      : "Upload an image to build a palette.";
+  }
 }
 
 function formatMetricNumber(value, digits = 1) {
