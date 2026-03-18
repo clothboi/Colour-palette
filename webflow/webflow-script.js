@@ -150,7 +150,7 @@ function getPaletteMarkup() {
               <div class="hud-buttons">
                 <button class="recipe-button" type="button" data-action="paint-setup">Paint Setup</button>
                 <button class="recipe-button" type="button" data-action="recipe">Paint Recipe</button>
-                <button class="recipe-button" type="button" data-action="export-image">Save Image</button>
+                <button class="recipe-button" type="button" data-action="export-image">Export</button>
               </div>
               <label class="hud-slider">
                 <span>Blur</span>
@@ -278,13 +278,13 @@ ${getHarmonizePanelMarkup()}
   </div>
 
   <div data-role="save-modal" class="save-modal hidden" aria-hidden="true">
-    <div class="save-modal-panel" role="dialog" aria-modal="true" aria-label="Save image options">
+    <div class="save-modal-panel" role="dialog" aria-modal="true" aria-label="Export options">
       <div class="save-modal-head">
         <div>
           <p class="save-modal-kicker">Export study</p>
-          <h2>Save image</h2>
+          <h2>Export</h2>
         </div>
-        <button class="save-close" type="button" data-action="save-close" aria-label="Close save options">X</button>
+        <button class="save-close" type="button" data-action="save-close" aria-label="Close export options">X</button>
       </div>
       <div data-role="save-content" class="save-modal-content">
         <div class="save-controls">
@@ -293,6 +293,21 @@ ${getHarmonizePanelMarkup()}
             <div class="save-option-row">
               <button class="save-option-button" type="button" data-save-style="current">Default</button>
               <button class="save-option-button" type="button" data-save-style="strip">Swatches</button>
+              <button class="save-option-button" type="button" data-save-style="wheel">Colour wheel</button>
+              <button class="save-option-button" type="button" data-save-style="gradient">Gradient map</button>
+            </div>
+            <div class="save-style-settings">
+              <section class="save-style-inline" data-role="save-wheel-order-row" hidden>
+                <span class="save-style-label">Order</span>
+                <div class="save-option-row save-option-row-inline">
+                  <button class="save-option-button" type="button" data-save-wheel-order="palette">Palette order</button>
+                  <button class="save-option-button" type="button" data-save-wheel-order="hue">Hue order</button>
+                </div>
+              </section>
+              <section class="save-style-panel" data-role="save-gradient-row" hidden>
+                <p class="save-style-note">Gradient map node positions are export-only for this style.</p>
+                <button class="save-option-button save-option-button--secondary" type="button" data-action="save-gradient-reset">Reset nodes</button>
+              </section>
             </div>
           </section>
           <section class="save-control-group">
@@ -310,12 +325,13 @@ ${getHarmonizePanelMarkup()}
           </label>
         </div>
         <div class="save-preview-shell">
-          <canvas data-role="save-preview-canvas" aria-label="Save preview"></canvas>
+          <canvas data-role="save-preview-canvas" aria-label="Export preview"></canvas>
+          <div data-role="save-preview-overlay" class="save-preview-overlay" hidden></div>
           <p data-role="save-preview-empty" class="save-preview-empty" hidden></p>
         </div>
       </div>
     </div>
-    <button class="save-export" type="button" data-action="save-export-image">Save image</button>
+    <button class="save-export" type="button" data-action="save-export-image">Export</button>
   </div>`;
 }
 
@@ -401,15 +417,21 @@ function initPalette(root) {
   const inventorySave = root.querySelector('[data-action="inventory-save"]');
   const saveModal = root.querySelector('[data-role="save-modal"]');
   const saveContent = root.querySelector('[data-role="save-content"]');
+  const savePreviewShell = root.querySelector('.save-preview-shell');
   const savePreviewCanvas = root.querySelector('[data-role="save-preview-canvas"]');
+  const savePreviewOverlay = root.querySelector('[data-role="save-preview-overlay"]');
   const savePreviewEmpty = root.querySelector('[data-role="save-preview-empty"]');
   const saveNodesRow = root.querySelector('[data-role="save-nodes-row"]');
   const saveStripNodes = root.querySelector('[data-role="save-strip-nodes"]');
+  const saveWheelOrderRow = root.querySelector('[data-role="save-wheel-order-row"]');
+  const saveWheelOrderButtons = [...root.querySelectorAll('[data-save-wheel-order]')];
+  const saveGradientRow = root.querySelector('[data-role="save-gradient-row"]');
+  const saveGradientReset = root.querySelector('[data-action="save-gradient-reset"]');
   const saveClose = root.querySelector('[data-action="save-close"]');
   const saveExport = root.querySelector('[data-action="save-export-image"]');
   const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
   const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeSaturation || !harmonizeSaturationValue || !harmonizeBrightness || !harmonizeBrightnessValue || !harmonizeHelper || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeSaturation || !harmonizeSaturationValue || !harmonizeBrightness || !harmonizeBrightnessValue || !harmonizeHelper || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewShell || !savePreviewCanvas || !savePreviewOverlay || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveWheelOrderRow || !saveWheelOrderButtons.length || !saveGradientRow || !saveGradientReset || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
     return;
   }
 
@@ -432,12 +454,17 @@ const SAMPLE_GRID = 72;
 const PERCENTAGE_SAMPLE_LONG_EDGE = 96;
 const EXPORT_LAYOUT_CURRENT = "current";
 const EXPORT_LAYOUT_STRIP = "strip";
+const EXPORT_LAYOUT_WHEEL = "wheel";
+const EXPORT_LAYOUT_GRADIENT = "gradient";
+const EXPORT_WHEEL_ORDER_PALETTE = "palette";
+const EXPORT_WHEEL_ORDER_HUE = "hue";
 const EXPORT_DEFAULT_LONGEST_EDGE = 2000;
 const EXPORT_PREVIEW_LONGEST_EDGE = 1200;
 const EXPORT_SIZE_PRESETS = [1000, 2000, 3000, 4000];
 const SCROLL_LOCK_SWATCH_DRAG = "swatch-drag";
 const SCROLL_LOCK_PALETTE_DRAG = "palette-drag";
 const SCROLL_LOCK_PALETTE_DRAWER = "palette-drawer";
+const SCROLL_LOCK_SAVE_GRADIENT_DRAG = "save-gradient-drag";
 const PALETTE_PREVIEW_PLACEHOLDER_COUNT = 4;
 const PALETTE_DRAWER_SETTLE_DELAY_MS = 260;
 const HARMONIZE_MIN_NEUTRAL_CHROMA = 4;
@@ -1140,8 +1167,14 @@ const state = {
   paletteSize: DEFAULT_PALETTE_SIZE,
   saveExport: {
     layout: EXPORT_LAYOUT_CURRENT,
+    wheelOrder: EXPORT_WHEEL_ORDER_PALETTE,
     longestEdge: EXPORT_DEFAULT_LONGEST_EDGE,
     stripNodes: false,
+    gradientNodes: [],
+    gradientDragId: null,
+    gradientDragPointerId: null,
+    previewRaf: null,
+    noisePatternCanvas: null,
   },
   dpr: window.devicePixelRatio || 1,
   isSettingsOpen: false,
@@ -3584,6 +3617,147 @@ function getUniformPaletteHeights(count, availableHeight, gap = PALETTE_GAP) {
   return new Array(count).fill(cardHeight);
 }
 
+function normalizeExportLayout(layout) {
+  switch (layout) {
+    case EXPORT_LAYOUT_STRIP:
+    case EXPORT_LAYOUT_WHEEL:
+    case EXPORT_LAYOUT_GRADIENT:
+      return layout;
+    case EXPORT_LAYOUT_CURRENT:
+    default:
+      return EXPORT_LAYOUT_CURRENT;
+  }
+}
+
+function normalizeExportWheelOrder(order) {
+  return order === EXPORT_WHEEL_ORDER_HUE ? EXPORT_WHEEL_ORDER_HUE : EXPORT_WHEEL_ORDER_PALETTE;
+}
+
+function createSaveGradientNodeSnapshot() {
+  return state.colors.map((color) => ({
+    id: color.id,
+    x: clamp(typeof color.x === "number" ? color.x : 0.5, 0, 1),
+    y: clamp(typeof color.y === "number" ? color.y : 0.5, 0, 1),
+    percent: color.percent,
+    hex: color.hex,
+  }));
+}
+
+function seedSaveGradientNodesFromColors() {
+  state.saveExport.gradientNodes = createSaveGradientNodeSnapshot();
+  state.saveExport.gradientDragId = null;
+  state.saveExport.gradientDragPointerId = null;
+}
+
+function getMergedSaveGradientNodes() {
+  const colorById = new Map(state.colors.map((color) => [color.id, color]));
+  const hasMatchingNodeSet = state.saveExport.gradientNodes.length === state.colors.length
+    && state.saveExport.gradientNodes.every((node) => colorById.has(node.id));
+  if (!hasMatchingNodeSet) {
+    seedSaveGradientNodesFromColors();
+  }
+
+  return state.saveExport.gradientNodes.map((node) => {
+    const color = colorById.get(node.id);
+    return {
+      id: node.id,
+      x: clamp(typeof node.x === "number" ? node.x : 0.5, 0, 1),
+      y: clamp(typeof node.y === "number" ? node.y : 0.5, 0, 1),
+      percent: color ? color.percent : node.percent,
+      hex: color ? color.hex : node.hex,
+      r: color ? color.r : 0,
+      g: color ? color.g : 0,
+      b: color ? color.b : 0,
+    };
+  });
+}
+
+function getExportAspectCanvasDimensions(longestEdge = 1400) {
+  const sourceWidth = Math.max(1, state.sourceWidth || 1);
+  const sourceHeight = Math.max(1, state.sourceHeight || 1);
+  if (sourceWidth >= sourceHeight) {
+    return {
+      width: longestEdge,
+      height: Math.max(1, Math.round(longestEdge * (sourceHeight / sourceWidth))),
+    };
+  }
+
+  return {
+    width: Math.max(1, Math.round(longestEdge * (sourceWidth / sourceHeight))),
+    height: longestEdge,
+  };
+}
+
+function getAdjustedExportLchRgb(color, { lightnessShift = 0, chromaScale = 1, chromaShift = 0 } = {}) {
+  const sourceLab = rgbToLab(color);
+  const sourceLch = labToLch(sourceLab);
+  const adjustedLab = lchToLab({
+    l: clamp(sourceLch.l + lightnessShift, 0, 100),
+    c: Math.max(0, (sourceLch.c * chromaScale) + chromaShift),
+    h: sourceLch.h,
+  });
+  return labToRgbWithGamutInfo(adjustedLab).rgb;
+}
+
+function getExportWheelRingFill(color, ringIndex) {
+  if (ringIndex === 2) {
+    return color.hex;
+  }
+
+  const adjusted = ringIndex === 0
+    ? getAdjustedExportLchRgb(color, { lightnessShift: 18, chromaScale: 0.58, chromaShift: -4 })
+    : ringIndex === 1
+      ? getAdjustedExportLchRgb(color, { lightnessShift: 8, chromaScale: 0.88, chromaShift: -1 })
+      : getAdjustedExportLchRgb(color, { lightnessShift: -4, chromaScale: 1.18, chromaShift: 5 });
+  return rgbToHex(adjusted.r, adjusted.g, adjusted.b);
+}
+
+function getSortedWheelColors(order) {
+  const paletteOrder = state.colors.map((color, index) => {
+    const lch = labToLch(rgbToLab(color));
+    return {
+      color,
+      index,
+      hue: lch.h,
+      nearNeutral: isNearNeutral(lch),
+    };
+  });
+
+  if (normalizeExportWheelOrder(order) !== EXPORT_WHEEL_ORDER_HUE) {
+    return paletteOrder.map((entry) => entry.color);
+  }
+
+  const chromatic = paletteOrder
+    .filter((entry) => !entry.nearNeutral)
+    .sort((a, b) => a.hue - b.hue || a.index - b.index);
+  const neutrals = paletteOrder.filter((entry) => entry.nearNeutral);
+  return [...chromatic, ...neutrals].map((entry) => entry.color);
+}
+
+function createExportNoisePattern(size = 160) {
+  const noiseCanvas = document.createElement("canvas");
+  noiseCanvas.width = size;
+  noiseCanvas.height = size;
+  const noiseCtx = noiseCanvas.getContext("2d");
+  const imageData = noiseCtx.createImageData(size, size);
+  for (let index = 0; index < imageData.data.length; index += 4) {
+    const grain = 120 + Math.round((Math.random() - 0.5) * 44);
+    imageData.data[index] = grain;
+    imageData.data[index + 1] = grain;
+    imageData.data[index + 2] = grain;
+    imageData.data[index + 3] = 22 + Math.round(Math.random() * 30);
+  }
+  noiseCtx.putImageData(imageData, 0, 0);
+  return noiseCanvas;
+}
+
+function getExportNoisePatternCanvas() {
+  if (!state.saveExport.noisePatternCanvas) {
+    state.saveExport.noisePatternCanvas = createExportNoisePattern();
+  }
+  return state.saveExport.noisePatternCanvas;
+}
+
 function buildCurrentExportBaseCanvas(options) {
   const showNodes = Boolean(options?.stripNodes);
   const imageWidth = 1100;
@@ -3685,15 +3859,154 @@ function buildStripExportBaseCanvas(options) {
   return exportCanvas;
 }
 
+function buildWheelExportBaseCanvas(options) {
+  const orderedColors = getSortedWheelColors(options?.wheelOrder);
+  const exportCanvas = document.createElement("canvas");
+  const size = 1400;
+  const center = size / 2;
+  const radius = 600;
+  const ringFractions = [0.18, 0.22, 0.34, 0.26];
+  const totalPercent = orderedColors.reduce((sum, color) => sum + color.percent, 0) || orderedColors.length || 1;
+  const exportCtx = exportCanvas.getContext("2d");
+  exportCanvas.width = size;
+  exportCanvas.height = size;
+
+  const background = exportCtx.createRadialGradient(center, center, radius * 0.08, center, center, radius * 1.15);
+  background.addColorStop(0, "#262a30");
+  background.addColorStop(1, "#111417");
+  exportCtx.fillStyle = background;
+  exportCtx.fillRect(0, 0, size, size);
+
+  let startAngle = -Math.PI / 2;
+  orderedColors.forEach((color) => {
+    const sweep = ((color.percent || (100 / orderedColors.length)) / totalPercent) * Math.PI * 2;
+    const endAngle = startAngle + sweep;
+    let innerRadius = 0;
+
+    ringFractions.forEach((fraction, ringIndex) => {
+      const outerRadius = innerRadius + (radius * fraction);
+      exportCtx.beginPath();
+      exportCtx.moveTo(center + (Math.cos(startAngle) * innerRadius), center + (Math.sin(startAngle) * innerRadius));
+      exportCtx.arc(center, center, outerRadius, startAngle, endAngle);
+      exportCtx.lineTo(center + (Math.cos(endAngle) * innerRadius), center + (Math.sin(endAngle) * innerRadius));
+      if (innerRadius > 0) {
+        exportCtx.arc(center, center, innerRadius, endAngle, startAngle, true);
+      } else {
+        exportCtx.lineTo(center, center);
+      }
+      exportCtx.closePath();
+      exportCtx.fillStyle = getExportWheelRingFill(color, ringIndex);
+      exportCtx.fill();
+      exportCtx.lineWidth = 5;
+      exportCtx.strokeStyle = "rgba(248, 246, 242, 0.96)";
+      exportCtx.lineJoin = "round";
+      exportCtx.lineCap = "round";
+      exportCtx.stroke();
+      innerRadius = outerRadius;
+    });
+
+    startAngle = endAngle;
+  });
+
+  exportCtx.beginPath();
+  exportCtx.arc(center, center, 7, 0, Math.PI * 2);
+  exportCtx.fillStyle = "rgba(255, 255, 255, 0.96)";
+  exportCtx.fill();
+
+  return exportCanvas;
+}
+
+function buildGradientExportBaseCanvas(options) {
+  const { width, height } = getExportAspectCanvasDimensions(1400);
+  const exportCanvas = document.createElement("canvas");
+  exportCanvas.width = width;
+  exportCanvas.height = height;
+  const exportCtx = exportCanvas.getContext("2d");
+  const minDimension = Math.min(width, height);
+  const nodes = getMergedSaveGradientNodes();
+
+  const background = exportCtx.createLinearGradient(0, 0, width, height);
+  background.addColorStop(0, "#17191c");
+  background.addColorStop(0.45, "#121417");
+  background.addColorStop(1, "#1b2025");
+  exportCtx.fillStyle = background;
+  exportCtx.fillRect(0, 0, width, height);
+
+  const vignette = exportCtx.createRadialGradient(width * 0.5, height * 0.42, minDimension * 0.08, width * 0.5, height * 0.5, minDimension * 0.8);
+  vignette.addColorStop(0, "rgba(255,255,255,0.06)");
+  vignette.addColorStop(1, "rgba(0,0,0,0.24)");
+  exportCtx.fillStyle = vignette;
+  exportCtx.fillRect(0, 0, width, height);
+
+  const blobCanvas = document.createElement("canvas");
+  blobCanvas.width = width;
+  blobCanvas.height = height;
+  const blobCtx = blobCanvas.getContext("2d");
+  const totalPercent = Math.max(1, nodes.reduce((sum, node) => sum + (node.percent || 0), 0));
+
+  nodes.forEach((node) => {
+    const percentWeight = clamp((node.percent || 0) / totalPercent, 0.04, 0.9);
+    const radius = minDimension * (0.18 + (0.46 * Math.sqrt(percentWeight)));
+    const x = node.x * width;
+    const y = node.y * height;
+    const glow = blobCtx.createRadialGradient(x, y, 0, x, y, radius);
+    glow.addColorStop(0, `rgba(${node.r}, ${node.g}, ${node.b}, 0.96)`);
+    glow.addColorStop(0.38, `rgba(${node.r}, ${node.g}, ${node.b}, 0.72)`);
+    glow.addColorStop(0.72, `rgba(${node.r}, ${node.g}, ${node.b}, 0.28)`);
+    glow.addColorStop(1, `rgba(${node.r}, ${node.g}, ${node.b}, 0)`);
+    blobCtx.fillStyle = glow;
+    blobCtx.beginPath();
+    blobCtx.arc(x, y, radius, 0, Math.PI * 2);
+    blobCtx.fill();
+  });
+
+  exportCtx.save();
+  exportCtx.globalCompositeOperation = "screen";
+  exportCtx.filter = `blur(${Math.max(28, Math.round(minDimension * 0.06))}px) saturate(118%)`;
+  exportCtx.drawImage(blobCanvas, 0, 0);
+  exportCtx.restore();
+
+  exportCtx.save();
+  exportCtx.globalCompositeOperation = "screen";
+  exportCtx.globalAlpha = 0.32;
+  exportCtx.filter = `blur(${Math.max(10, Math.round(minDimension * 0.018))}px)`;
+  exportCtx.drawImage(blobCanvas, 0, 0);
+  exportCtx.restore();
+
+  const noisePatternCanvas = getExportNoisePatternCanvas();
+  const pattern = exportCtx.createPattern(noisePatternCanvas, "repeat");
+  if (pattern) {
+    exportCtx.save();
+    exportCtx.globalAlpha = 0.12;
+    exportCtx.globalCompositeOperation = "soft-light";
+    exportCtx.fillStyle = pattern;
+    exportCtx.fillRect(0, 0, width, height);
+    exportCtx.restore();
+  }
+
+  exportCtx.save();
+  exportCtx.fillStyle = "rgba(8, 10, 12, 0.1)";
+  exportCtx.fillRect(0, 0, width, height);
+  exportCtx.restore();
+
+  return exportCanvas;
+}
+
 function buildExportCanvas(options = state.saveExport) {
   const exportOptions = {
-    layout: options?.layout || EXPORT_LAYOUT_CURRENT,
+    layout: normalizeExportLayout(options?.layout),
+    wheelOrder: normalizeExportWheelOrder(options?.wheelOrder),
     longestEdge: options?.longestEdge || EXPORT_DEFAULT_LONGEST_EDGE,
     stripNodes: Boolean(options?.stripNodes),
+    gradientNodes: options?.gradientNodes || [],
   };
   const baseCanvas = exportOptions.layout === EXPORT_LAYOUT_STRIP
     ? buildStripExportBaseCanvas(exportOptions)
-    : buildCurrentExportBaseCanvas(exportOptions);
+    : exportOptions.layout === EXPORT_LAYOUT_WHEEL
+      ? buildWheelExportBaseCanvas(exportOptions)
+      : exportOptions.layout === EXPORT_LAYOUT_GRADIENT
+        ? buildGradientExportBaseCanvas(exportOptions)
+        : buildCurrentExportBaseCanvas(exportOptions);
   return scaleCanvasToLongestEdge(baseCanvas, exportOptions.longestEdge);
 }
 
@@ -3710,27 +4023,120 @@ function syncSaveModalControls() {
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", active ? "true" : "false");
   });
+  saveWheelOrderButtons.forEach((button) => {
+    const active = button.dataset.saveWheelOrder === state.saveExport.wheelOrder;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", active ? "true" : "false");
+  });
   saveSizeButtons.forEach((button) => {
     const active = Number(button.dataset.saveSize) === state.saveExport.longestEdge;
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", active ? "true" : "false");
   });
   saveStripNodes.checked = state.saveExport.stripNodes;
-  saveNodesRow.hidden = false;
+  saveNodesRow.hidden = state.saveExport.layout === EXPORT_LAYOUT_WHEEL || state.saveExport.layout === EXPORT_LAYOUT_GRADIENT;
+  saveWheelOrderRow.hidden = state.saveExport.layout !== EXPORT_LAYOUT_WHEEL;
+  saveGradientRow.hidden = state.saveExport.layout !== EXPORT_LAYOUT_GRADIENT;
 }
 
 function resetSaveExportState() {
   state.saveExport.layout = EXPORT_LAYOUT_CURRENT;
+  state.saveExport.wheelOrder = EXPORT_WHEEL_ORDER_PALETTE;
   state.saveExport.longestEdge = EXPORT_DEFAULT_LONGEST_EDGE;
   state.saveExport.stripNodes = false;
+  seedSaveGradientNodesFromColors();
   syncSaveModalControls();
+}
+
+function getSavePreviewOverlayBounds() {
+  if (savePreviewCanvas.hidden) {
+    return null;
+  }
+  const shellRect = savePreviewShell.getBoundingClientRect();
+  const canvasRect = savePreviewCanvas.getBoundingClientRect();
+  if (!canvasRect.width || !canvasRect.height) {
+    return null;
+  }
+  return {
+    left: canvasRect.left,
+    top: canvasRect.top,
+    width: canvasRect.width,
+    height: canvasRect.height,
+    offsetLeft: canvasRect.left - shellRect.left,
+    offsetTop: canvasRect.top - shellRect.top,
+  };
+}
+
+function clearSavePreviewRaf() {
+  if (!state.saveExport.previewRaf) {
+    return;
+  }
+  cancelAnimationFrame(state.saveExport.previewRaf);
+  state.saveExport.previewRaf = null;
+}
+
+function scheduleSavePreviewRender() {
+  if (state.saveExport.previewRaf) {
+    return;
+  }
+  state.saveExport.previewRaf = requestAnimationFrame(() => {
+    state.saveExport.previewRaf = null;
+    renderSavePreview();
+  });
+}
+
+function renderSavePreviewOverlay() {
+  savePreviewOverlay.innerHTML = "";
+  savePreviewOverlay.hidden = true;
+  savePreviewOverlay.style.left = "";
+  savePreviewOverlay.style.top = "";
+  savePreviewOverlay.style.width = "";
+  savePreviewOverlay.style.height = "";
+
+  if (state.saveExport.layout !== EXPORT_LAYOUT_GRADIENT || saveModal.classList.contains("hidden") || savePreviewCanvas.hidden) {
+    return;
+  }
+
+  const bounds = getSavePreviewOverlayBounds();
+  if (!bounds) {
+    return;
+  }
+
+  savePreviewOverlay.hidden = false;
+  savePreviewOverlay.style.left = `${bounds.offsetLeft}px`;
+  savePreviewOverlay.style.top = `${bounds.offsetTop}px`;
+  savePreviewOverlay.style.width = `${bounds.width}px`;
+  savePreviewOverlay.style.height = `${bounds.height}px`;
+  const fragment = document.createDocumentFragment();
+
+  getMergedSaveGradientNodes().forEach((node) => {
+    const handle = document.createElement("button");
+    handle.className = "save-preview-node";
+    handle.type = "button";
+    handle.dataset.nodeId = node.id;
+    handle.setAttribute("aria-label", `${node.hex} export node`);
+    handle.title = `${node.hex} export node`;
+    handle.style.left = `${node.x * bounds.width}px`;
+    handle.style.top = `${node.y * bounds.height}px`;
+    handle.style.setProperty("--node-color", node.hex);
+    if (state.saveExport.gradientDragId === node.id) {
+      handle.classList.add("active");
+    }
+    handle.addEventListener("pointerdown", (event) => {
+      startSaveGradientNodeDrag(event, node.id);
+    });
+    fragment.appendChild(handle);
+  });
+
+  savePreviewOverlay.appendChild(fragment);
 }
 
 function renderSavePreview() {
   if (!state.image || !state.colors.length) {
     savePreviewCanvas.hidden = true;
     savePreviewEmpty.hidden = false;
-    savePreviewEmpty.textContent = "Upload an image first to preview save options.";
+    savePreviewEmpty.textContent = "Upload an image first to preview export options.";
+    renderSavePreviewOverlay();
     return;
   }
 
@@ -3743,30 +4149,87 @@ function renderSavePreview() {
   previewCtx.drawImage(previewCanvas, 0, 0, savePreviewCanvas.width, savePreviewCanvas.height);
   savePreviewCanvas.hidden = false;
   savePreviewEmpty.hidden = true;
+  requestAnimationFrame(() => {
+    renderSavePreviewOverlay();
+  });
 }
 
 function closeSaveModal() {
   if (!saveModal) return;
+  clearSavePreviewRaf();
+  endSaveGradientNodeDrag();
+  savePreviewOverlay.innerHTML = "";
+  savePreviewOverlay.hidden = true;
   saveModal.classList.add("hidden");
   saveModal.setAttribute("aria-hidden", "true");
 }
 
 function openSaveModal() {
   if (!state.image || !state.colors.length) {
-    showImportWarning("Save options", "Upload an image first to preview and save export layouts.");
+    showImportWarning("Export options", "Upload an image first to preview and export layouts.");
     return;
   }
   closeRecipeModal();
   resetSaveExportState();
-  renderSavePreview();
   saveModal.classList.remove("hidden");
   saveModal.setAttribute("aria-hidden", "false");
+  renderSavePreview();
 }
 
 function exportConfiguredImage() {
   if (!state.image || !state.colors.length) return;
   const exportCanvas = buildExportCanvas(state.saveExport);
   downloadCanvas(exportCanvas, "color-study");
+}
+
+function updateSaveGradientNodeFromClientPosition(clientX, clientY) {
+  const bounds = getSavePreviewOverlayBounds();
+  if (!bounds || !state.saveExport.gradientDragId) {
+    return;
+  }
+
+  const node = state.saveExport.gradientNodes.find((entry) => entry.id === state.saveExport.gradientDragId);
+  if (!node) {
+    return;
+  }
+
+  node.x = clamp((clientX - bounds.left) / Math.max(1, bounds.width), 0, 1);
+  node.y = clamp((clientY - bounds.top) / Math.max(1, bounds.height), 0, 1);
+}
+
+function startSaveGradientNodeDrag(event, id) {
+  if (state.saveExport.layout !== EXPORT_LAYOUT_GRADIENT || saveModal.classList.contains("hidden")) {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+  state.saveExport.gradientDragId = id;
+  state.saveExport.gradientDragPointerId = event.pointerId ?? null;
+  lockPageScroll(SCROLL_LOCK_SAVE_GRADIENT_DRAG);
+  updateSaveGradientNodeFromClientPosition(event.clientX, event.clientY);
+  scheduleSavePreviewRender();
+}
+
+function handleSaveGradientNodeDrag(event) {
+  if (!state.saveExport.gradientDragId) {
+    return;
+  }
+
+  event.preventDefault();
+  updateSaveGradientNodeFromClientPosition(event.clientX, event.clientY);
+  scheduleSavePreviewRender();
+}
+
+function endSaveGradientNodeDrag() {
+  if (!state.saveExport.gradientDragId) {
+    return;
+  }
+
+  state.saveExport.gradientDragId = null;
+  state.saveExport.gradientDragPointerId = null;
+  unlockPageScroll(SCROLL_LOCK_SAVE_GRADIENT_DRAG);
+  renderSavePreviewOverlay();
 }
 
 function startPaletteDrag(event, id) {
@@ -4414,8 +4877,11 @@ canvasWrap.addEventListener("drop", async (event) => {
   await handleFile(file);
 });
 window.addEventListener("pointermove", handleDrag, { passive: false });
+window.addEventListener("pointermove", handleSaveGradientNodeDrag, { passive: false });
 window.addEventListener("pointerup", endDrag);
+window.addEventListener("pointerup", endSaveGradientNodeDrag);
 window.addEventListener("pointercancel", endDrag);
+window.addEventListener("pointercancel", endSaveGradientNodeDrag);
 window.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") {
     return;
@@ -4490,7 +4956,14 @@ if (saveModal) {
 }
 saveStyleButtons.forEach((button) => {
   button.addEventListener("click", () => {
-    state.saveExport.layout = button.dataset.saveStyle === EXPORT_LAYOUT_STRIP ? EXPORT_LAYOUT_STRIP : EXPORT_LAYOUT_CURRENT;
+    state.saveExport.layout = normalizeExportLayout(button.dataset.saveStyle);
+    syncSaveModalControls();
+    renderSavePreview();
+  });
+});
+saveWheelOrderButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    state.saveExport.wheelOrder = normalizeExportWheelOrder(button.dataset.saveWheelOrder);
     syncSaveModalControls();
     renderSavePreview();
   });
@@ -4507,6 +4980,10 @@ saveSizeButtons.forEach((button) => {
 saveStripNodes.addEventListener("change", () => {
   state.saveExport.stripNodes = Boolean(saveStripNodes.checked);
   syncSaveModalControls();
+  renderSavePreview();
+});
+saveGradientReset.addEventListener("click", () => {
+  seedSaveGradientNodesFromColors();
   renderSavePreview();
 });
 saveExport.addEventListener("click", exportConfiguredImage);
