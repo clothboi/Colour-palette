@@ -1138,41 +1138,6 @@
   width: 100%;
 }
 
-.webflow-palette-embed .palette-harmonize-metrics {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.webflow-palette-embed .palette-harmonize-metric {
-  display: grid;
-  gap: 6px;
-  padding: 10px 12px;
-  border: 1px solid var(--glass-surface-border);
-  border-radius: 12px;
-  background: var(--glass-surface-bg-soft);
-}
-
-.webflow-palette-embed .palette-harmonize-metric span {
-  color: var(--muted);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.webflow-palette-embed .palette-harmonize-warnings {
-  display: grid;
-  gap: 6px;
-  margin: 0;
-  padding-left: 18px;
-  color: var(--muted);
-  font-size: 0.78rem;
-}
-
-.webflow-palette-embed .palette-harmonize-warnings[hidden] {
-  display: none !important;
-}
-
 .webflow-palette-embed .palette-harmonize-actions {
   display: flex;
   gap: 8px;
@@ -2277,10 +2242,6 @@
 .webflow-palette-embed[data-mobile-layout="true"] .palette-harmonize-head {
   justify-content: end;
   gap: 0;
-}
-
-.webflow-palette-embed[data-mobile-layout="true"] .palette-harmonize-metrics {
-  grid-template-columns: 1fr;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-harmonize-actions {

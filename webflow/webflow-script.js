@@ -66,10 +66,6 @@ ${HARMONIZE_SCHEMES.map((scheme) => `                <option value="${scheme.id}
             <input class="palette-harmonize-slider" data-role="harmonize-strength" type="range" min="0" max="100" step="1" value="${HARMONIZE_DEFAULT_STRENGTH}">
           </label>
           <p class="palette-harmonize-helper" data-role="harmonize-helper">Use the palette rail locks to pin colours. The first locked colour becomes the anchor.</p>
-          <section class="palette-harmonize-section">
-            <div class="palette-harmonize-metrics" data-role="harmonize-metrics"></div>
-          </section>
-          <ul class="palette-harmonize-warnings" data-role="harmonize-warnings" hidden></ul>
           <div class="palette-harmonize-actions">
             <button class="palette-harmonize-action" type="button" data-action="harmonize-reset">Reset</button>
             <button class="palette-harmonize-action" type="button" data-action="harmonize-cancel">Cancel</button>
@@ -323,8 +319,6 @@ function initPalette(root) {
   const harmonizeStrength = root.querySelector('[data-role="harmonize-strength"]');
   const harmonizeStrengthValue = root.querySelector('[data-role="harmonize-strength-value"]');
   const harmonizeHelper = root.querySelector('[data-role="harmonize-helper"]');
-  const harmonizeMetrics = root.querySelector('[data-role="harmonize-metrics"]');
-  const harmonizeWarnings = root.querySelector('[data-role="harmonize-warnings"]');
   const harmonizeReset = root.querySelector('[data-action="harmonize-reset"]');
   const harmonizeCancel = root.querySelector('[data-action="harmonize-cancel"]');
   const harmonizeApply = root.querySelector('[data-action="harmonize-apply"]');
@@ -359,7 +353,7 @@ function initPalette(root) {
   const saveExport = root.querySelector('[data-action="save-export-image"]');
   const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
   const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeHelper || !harmonizeMetrics || !harmonizeWarnings || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeHelper || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
     return;
   }
 
@@ -1984,9 +1978,6 @@ function renderHarmonizePanel() {
   harmonizeStrengthValue.textContent = `${state.harmonize.strength}%`;
 
   if (!state.harmonize.isOpen) {
-    harmonizeMetrics.innerHTML = "";
-    harmonizeWarnings.hidden = true;
-    harmonizeWarnings.innerHTML = "";
     harmonizeHelper.textContent = "Use the palette rail locks to pin colours. The first locked colour becomes the anchor.";
     syncPaletteLockControls();
     return;
@@ -1997,31 +1988,6 @@ function renderHarmonizePanel() {
   harmonizeHelper.textContent = state.harmonize.lockedIds.size
     ? `Use the palette rail locks to pin colours. The first locked colour becomes the anchor. ${anchorMetric ? `${anchorMetric.outputHex} is currently anchoring this preview.` : ""}`.trim()
     : `${anchorMetric ? `${anchorMetric.outputHex}` : "The most chromatic colour"} is currently acting as the anchor.`;
-
-  if (metrics) {
-    harmonizeMetrics.innerHTML = `
-      <div class="palette-harmonize-metric">
-        <span>Harmony</span>
-        <strong>${formatMetricNumber(metrics.paletteMetrics.meanHarmonyErrorBefore)} -> ${formatMetricNumber(metrics.paletteMetrics.meanHarmonyErrorAfter)}</strong>
-      </div>
-      <div class="palette-harmonize-metric">
-        <span>Mean Delta</span>
-        <strong>${formatMetricNumber(metrics.paletteMetrics.meanDeltaE)}</strong>
-      </div>`;
-  } else {
-    harmonizeMetrics.innerHTML = `
-      <div class="palette-harmonize-metric">
-        <span>Harmony</span>
-        <strong>Preparing...</strong>
-      </div>
-      <div class="palette-harmonize-metric">
-        <span>Mean Delta</span>
-        <strong>--</strong>
-      </div>`;
-  }
-
-  harmonizeWarnings.innerHTML = state.harmonize.warnings.map((warning) => `<li>${warning}</li>`).join("");
-  harmonizeWarnings.hidden = !state.harmonize.warnings.length;
   syncPaletteLockControls();
 }
 
