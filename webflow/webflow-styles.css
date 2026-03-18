@@ -1005,9 +1005,8 @@
 .webflow-palette-embed .palette-harmonize-panel {
   display: grid;
   gap: 12px;
-  max-height: min(48vh, 520px);
-  overflow-x: hidden;
-  overflow-y: auto;
+  max-height: none;
+  overflow: visible;
   padding: 14px;
   border: 1px solid var(--glass-surface-border);
   border-radius: 16px;
@@ -1100,7 +1099,7 @@
 
 .webflow-palette-embed .palette-harmonize-section-head--inline {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
 }
 
@@ -2301,17 +2300,7 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-harmonize-panel {
-  max-height: min(50vh, 520px);
   padding: 12px;
-}
-
-.webflow-palette-embed[data-mobile-layout="true"] .palette-harmonize-section-head--inline {
-  column-gap: 10px;
-  grid-template-columns: 52px minmax(0, 1fr);
-}
-
-.webflow-palette-embed[data-mobile-layout="true"] .palette-harmonize-scheme-description {
-  margin-left: 62px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-harmonize-head > div {

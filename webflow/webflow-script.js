@@ -73,7 +73,6 @@ function getHarmonizePanelMarkup() {
             </div>
             <div class="palette-harmonize-card-body">
               <div class="palette-harmonize-section-head palette-harmonize-section-head--inline">
-                <span class="palette-harmonize-label">Choose scheme</span>
                 <div class="palette-harmonize-select-wrap">
                   <select class="palette-harmonize-select" data-role="harmonize-scheme-select" aria-label="Choose a harmony scheme">
 ${getHarmonizeSchemeOptionsMarkup()}
