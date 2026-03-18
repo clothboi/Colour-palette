@@ -4580,10 +4580,10 @@ function resetHarmonizePreview() {
     return;
   }
   state.colors = clonePaletteColors(state.harmonize.sourceColors);
+  state.harmonize.baselineColors = clonePaletteColors(state.harmonize.sourceColors);
   resetHarmonizeConfig();
   renderHarmonizePanel();
   syncPreviewDrivenViews();
-  scheduleHarmonizePreview();
 }
 
 function shouldCollapseSettingsOnMobile() {
