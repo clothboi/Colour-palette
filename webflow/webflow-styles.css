@@ -679,12 +679,16 @@
 }
 
 .webflow-palette-embed .mobile-palette-rail .palette-drawer-open {
+  position: absolute;
+  top: -39px;
+  left: 50%;
+  z-index: 3;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: auto;
-  min-width: 0;
-  min-height: 42px;
+  width: var(--mobile-rail-button-width);
+  min-width: var(--mobile-rail-button-width);
+  height: var(--mobile-rail-button-height);
   padding: 0 14px;
   border: 1px solid var(--glass-button-border);
   border-radius: 999px;
@@ -695,12 +699,14 @@
   box-shadow: var(--glass-button-shadow);
   -webkit-backdrop-filter: blur(28px) saturate(180%);
   backdrop-filter: blur(28px) saturate(180%);
+  transform: translateX(-50%);
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
 }
 
 .webflow-palette-embed .mobile-palette-rail .palette-drawer-open:disabled {
   opacity: 0.38;
   cursor: default;
+  transform: translateX(-50%);
 }
 
 .webflow-palette-embed .mobile-palette-rail .palette-drawer-open__label {
@@ -712,6 +718,37 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+}
+
+.webflow-palette-embed .mobile-palette-rail::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--mobile-rail-tab-lift) * -1);
+  left: 50%;
+  width: var(--mobile-rail-tab-width);
+  height: var(--mobile-rail-tab-height);
+  transform: translateX(-50%);
+  border: 1px solid var(--glass-surface-border);
+  border-bottom: 0;
+  border-radius: var(--mobile-rail-tab-radius) var(--mobile-rail-tab-radius) 0 0;
+  background: var(--glass-surface-bg);
+  box-shadow: var(--glass-surface-shadow);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.webflow-palette-embed .mobile-palette-rail::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: calc(var(--mobile-rail-tab-width) + 6px);
+  height: 20px;
+  transform: translateX(-50%);
+  background: rgba(16, 18, 22, 0.78);
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .webflow-palette-embed .mobile-palette-rail__surface {
@@ -779,10 +816,6 @@
   min-width: 0;
 }
 
-.webflow-palette-embed .mobile-palette-rail__open {
-  align-self: center;
-}
-
 .webflow-palette-embed .mobile-palette-rail__harmonize {
   width: 100%;
 }
@@ -838,7 +871,7 @@
 
 .webflow-palette-embed .mobile-palette-rail .palette-drawer-open:not(:disabled):hover,
 .webflow-palette-embed .mobile-palette-rail .palette-drawer-open:not(:disabled):focus-visible {
-  transform: translateY(-1px);
+  transform: translate(-50%, -1px);
   border-color: rgba(255, 255, 255, 0.26);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06) 42%, rgba(28, 31, 37, 0.1)),
@@ -846,7 +879,7 @@
 }
 
 .webflow-palette-embed .mobile-palette-rail .palette-drawer-open:active:not(:disabled) {
-  transform: translateY(1px);
+  transform: translate(-50%, 1px);
 }
 
 .webflow-palette-embed .palette-drawer-toggle__label {
@@ -2065,7 +2098,7 @@
   min-width: 0;
   min-height: 0;
   height: 100%;
-  padding-bottom: var(--palette-drawer-collapsed-height);
+  padding-bottom: calc(var(--palette-drawer-collapsed-height) + 10px);
   --frame-width: min(100%, calc(100vw - 20px));
 }
 
