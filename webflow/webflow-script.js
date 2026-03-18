@@ -23,6 +23,22 @@ function getPaletteControlsMarkup(extraClass = "") {
                 </div>`;
 }
 
+function getMobilePaletteSummaryControlsMarkup() {
+  return `
+              <div class="mobile-palette-rail__header-row">
+                <div class="mobile-palette-rail__copy palette-drawer-toggle__copy">
+                  <span class="palette-drawer-toggle__label">Palette Rail</span>
+                  <span class="palette-drawer-toggle__status" data-role="palette-preview-status">Upload an image to build a palette.</span>
+                </div>
+                <div class="mobile-palette-rail__stepper palette-toolbar-stepper">
+                  <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
+                  <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
+                  <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
+                </div>
+              </div>
+              <button class="palette-harmonize-toggle mobile-palette-rail__harmonize" type="button" data-action="toggle-harmonize" aria-expanded="false">Harmonise</button>`;
+}
+
 function getHarmonizePanelMarkup() {
   return `
         <section class="palette-harmonize-panel" data-role="harmonize-panel" hidden aria-hidden="true">
@@ -119,13 +135,7 @@ function getPaletteMarkup() {
           </button>
           <div class="mobile-palette-rail__surface palette-drawer-summary" data-role="palette-drawer-summary">
             <div class="mobile-palette-rail__top">
-              <div class="mobile-palette-rail__copy palette-drawer-toggle__copy">
-                <span class="palette-drawer-toggle__label">Palette Rail</span>
-                <span class="palette-drawer-toggle__status" data-role="palette-preview-status">Upload an image to build a palette.</span>
-              </div>
-              <div class="mobile-palette-rail__toolbar palette-toolbar">
-${getPaletteControlsMarkup("mobile-palette-rail__toolbar-controls")}
-              </div>
+${getMobilePaletteSummaryControlsMarkup()}
             </div>
             <span class="mobile-palette-rail__preview palette-preview-list" data-role="palette-preview-list" aria-hidden="true"></span>
           </div>

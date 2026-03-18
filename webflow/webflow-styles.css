@@ -769,10 +769,17 @@
 }
 
 .webflow-palette-embed .mobile-palette-rail__top {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
+  display: grid;
+  gap: var(--mobile-rail-gap);
   margin: 0;
+  min-width: 0;
+}
+
+.webflow-palette-embed .mobile-palette-rail__header-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--mobile-rail-gap);
+  align-items: center;
   min-width: 0;
 }
 
@@ -802,6 +809,14 @@
 }
 
 .webflow-palette-embed .mobile-palette-rail__toolbar .palette-toolbar-controls {
+  width: 100%;
+}
+
+.webflow-palette-embed .mobile-palette-rail__stepper {
+  min-width: 0;
+}
+
+.webflow-palette-embed .mobile-palette-rail__harmonize {
   width: 100%;
 }
 
@@ -2220,12 +2235,8 @@
   min-width: 0;
 }
 
-.webflow-palette-embed[data-mobile-layout="true"] .mobile-palette-rail__top {
-  align-items: center;
-}
-
 .webflow-palette-embed[data-mobile-layout="true"] .mobile-palette-rail__copy {
-  align-self: stretch;
+  align-self: center;
   justify-content: center;
   margin-right: 8px;
 }
@@ -2234,6 +2245,10 @@
   display: inline-flex;
   align-items: center;
   min-height: 42px;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .mobile-palette-rail__header-row {
+  align-items: center;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-button,

@@ -771,10 +771,17 @@
 }
 
 .webflow-palette-embed .mobile-palette-rail__top {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
+  display: grid;
+  gap: var(--mobile-rail-gap);
   margin: 0;
+  min-width: 0;
+}
+
+.webflow-palette-embed .mobile-palette-rail__header-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--mobile-rail-gap);
+  align-items: center;
   min-width: 0;
 }
 
@@ -804,6 +811,14 @@
 }
 
 .webflow-palette-embed .mobile-palette-rail__toolbar .palette-toolbar-controls {
+  width: 100%;
+}
+
+.webflow-palette-embed .mobile-palette-rail__stepper {
+  min-width: 0;
+}
+
+.webflow-palette-embed .mobile-palette-rail__harmonize {
   width: 100%;
 }
 
@@ -2222,12 +2237,8 @@
   min-width: 0;
 }
 
-.webflow-palette-embed[data-mobile-layout="true"] .mobile-palette-rail__top {
-  align-items: center;
-}
-
 .webflow-palette-embed[data-mobile-layout="true"] .mobile-palette-rail__copy {
-  align-self: stretch;
+  align-self: center;
   justify-content: center;
   margin-right: 8px;
 }
@@ -2236,6 +2247,10 @@
   display: inline-flex;
   align-items: center;
   min-height: 42px;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .mobile-palette-rail__header-row {
+  align-items: center;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-button,
@@ -2395,6 +2410,22 @@ function getPaletteControlsMarkup(extraClass = "") {
                 </div>`;
 }
 
+function getMobilePaletteSummaryControlsMarkup() {
+  return `
+              <div class="mobile-palette-rail__header-row">
+                <div class="mobile-palette-rail__copy palette-drawer-toggle__copy">
+                  <span class="palette-drawer-toggle__label">Palette Rail</span>
+                  <span class="palette-drawer-toggle__status" data-role="palette-preview-status">Upload an image to build a palette.</span>
+                </div>
+                <div class="mobile-palette-rail__stepper palette-toolbar-stepper">
+                  <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
+                  <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
+                  <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
+                </div>
+              </div>
+              <button class="palette-harmonize-toggle mobile-palette-rail__harmonize" type="button" data-action="toggle-harmonize" aria-expanded="false">Harmonise</button>`;
+}
+
 function getHarmonizePanelMarkup() {
   return `
         <section class="palette-harmonize-panel" data-role="harmonize-panel" hidden aria-hidden="true">
@@ -2491,13 +2522,7 @@ function getPaletteMarkup() {
           </button>
           <div class="mobile-palette-rail__surface palette-drawer-summary" data-role="palette-drawer-summary">
             <div class="mobile-palette-rail__top">
-              <div class="mobile-palette-rail__copy palette-drawer-toggle__copy">
-                <span class="palette-drawer-toggle__label">Palette Rail</span>
-                <span class="palette-drawer-toggle__status" data-role="palette-preview-status">Upload an image to build a palette.</span>
-              </div>
-              <div class="mobile-palette-rail__toolbar palette-toolbar">
-${getPaletteControlsMarkup("mobile-palette-rail__toolbar-controls")}
-              </div>
+${getMobilePaletteSummaryControlsMarkup()}
             </div>
             <span class="mobile-palette-rail__preview palette-preview-list" data-role="palette-preview-list" aria-hidden="true"></span>
           </div>
