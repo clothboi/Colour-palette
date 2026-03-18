@@ -67,7 +67,7 @@ function getHarmonizePanelMarkup() {
           </div>
           <section class="palette-harmonize-section">
             <div class="palette-harmonize-section-head palette-harmonize-section-head--inline">
-              <span class="palette-harmonize-label">Scheme</span>
+              <span class="palette-harmonize-label">Choose scheme</span>
               <div class="palette-harmonize-select-wrap">
                 <select class="palette-harmonize-select" data-role="harmonize-scheme-select" aria-label="Choose a harmony scheme">
 ${getHarmonizeSchemeOptionsMarkup()}
@@ -2155,6 +2155,24 @@ function handleHarmonizeOutsidePointerDown(event) {
   event.preventDefault();
   event.stopPropagation();
   closeHarmonizePanel({ restoreFocus: false, revertPreview: true });
+}
+
+function handleSettingsOutsidePointerDown(event) {
+  if (!state.isSettingsOpen || !isRealMobileLayout() || !shouldCollapseSettingsOnMobile()) {
+    return;
+  }
+
+  const target = event.target;
+  if (!(target instanceof Element)) {
+    return;
+  }
+
+  if (hudSettingsPanel.contains(target) || settingsToggle.contains(target)) {
+    return;
+  }
+
+  state.isSettingsOpen = false;
+  syncLayoutState();
 }
 
 function getHarmonizeAnchorId() {
@@ -4312,6 +4330,7 @@ harmonizeApply.addEventListener("click", () => {
   applyHarmonizeChanges();
 });
 root.addEventListener("pointerdown", handleHarmonizeOutsidePointerDown, true);
+root.addEventListener("pointerdown", handleSettingsOutsidePointerDown, true);
 canvasWrap.addEventListener("dragover", (event) => event.preventDefault());
 canvasWrap.addEventListener("drop", async (event) => {
   event.preventDefault();
