@@ -1058,6 +1058,41 @@
   gap: 10px;
 }
 
+.webflow-palette-embed .palette-harmonize-card {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--glass-surface-border);
+  border-radius: 14px;
+  background: var(--glass-surface-bg-soft);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 18px rgba(0, 0, 0, 0.12);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+  backdrop-filter: blur(18px) saturate(145%);
+}
+
+.webflow-palette-embed .palette-harmonize-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.webflow-palette-embed .palette-harmonize-card-title {
+  margin: 0;
+  color: var(--muted-strong);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.webflow-palette-embed .palette-harmonize-card-body {
+  display: grid;
+  gap: 10px;
+}
+
 .webflow-palette-embed .palette-harmonize-section-head {
   display: flex;
   justify-content: space-between;
@@ -1094,7 +1129,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin: -2px 0 0;
+  margin: 0;
 }
 
 .webflow-palette-embed .palette-harmonize-helper-dot {
@@ -1180,6 +1215,7 @@
   display: flex;
   gap: 8px;
   justify-content: flex-end;
+  width: 100%;
 }
 
 .webflow-palette-embed:not([data-mobile-layout="true"]) .palette-harmonize-actions {
@@ -2348,7 +2384,6 @@
 .webflow-palette-embed[data-mobile-layout="true"] .palette-card-lock {
   right: 8px;
 }
-
 </style>
 <script>
 (() => {
@@ -2362,6 +2397,8 @@ const HARMONIZE_SCHEMES = [
 ];
 const HARMONIZE_DEFAULT_SCHEME = "analogous";
 const HARMONIZE_DEFAULT_STRENGTH = 60;
+const HARMONIZE_DEFAULT_SATURATION = 0;
+const HARMONIZE_DEFAULT_BRIGHTNESS = 0;
 
 function getHarmonizeSchemeOptionsMarkup() {
   const groups = [];
@@ -2418,30 +2455,63 @@ function getHarmonizePanelMarkup() {
               <h3>Harmonise palette</h3>
             </div>
           </div>
-          <section class="palette-harmonize-section">
-            <div class="palette-harmonize-section-head palette-harmonize-section-head--inline">
-              <span class="palette-harmonize-label">Choose scheme</span>
-              <div class="palette-harmonize-select-wrap">
-                <select class="palette-harmonize-select" data-role="harmonize-scheme-select" aria-label="Choose a harmony scheme">
+          <section class="palette-harmonize-card">
+            <div class="palette-harmonize-card-head">
+              <h4 class="palette-harmonize-card-title">Colour scheme</h4>
+            </div>
+            <div class="palette-harmonize-card-body">
+              <div class="palette-harmonize-section-head palette-harmonize-section-head--inline">
+                <span class="palette-harmonize-label">Choose scheme</span>
+                <div class="palette-harmonize-select-wrap">
+                  <select class="palette-harmonize-select" data-role="harmonize-scheme-select" aria-label="Choose a harmony scheme">
 ${getHarmonizeSchemeOptionsMarkup()}
-                </select>
+                  </select>
+                </div>
+              </div>
+              <p class="palette-harmonize-subtle palette-harmonize-scheme-description" data-role="harmonize-scheme-description">${HARMONIZE_SCHEMES.find((scheme) => scheme.id === HARMONIZE_DEFAULT_SCHEME)?.description || ""}</p>
+            </div>
+          </section>
+          <section class="palette-harmonize-card">
+            <div class="palette-harmonize-card-head">
+              <h4 class="palette-harmonize-card-title">Palette balance</h4>
+            </div>
+            <div class="palette-harmonize-card-body">
+              <label class="palette-harmonize-section palette-harmonize-range">
+                <div class="palette-harmonize-section-head">
+                  <span class="palette-harmonize-label">Strength</span>
+                  <strong class="palette-harmonize-value" data-role="harmonize-strength-value">${HARMONIZE_DEFAULT_STRENGTH}%</strong>
+                </div>
+                <input class="palette-harmonize-slider" data-role="harmonize-strength" type="range" min="0" max="100" step="1" value="${HARMONIZE_DEFAULT_STRENGTH}">
+              </label>
+              <label class="palette-harmonize-section palette-harmonize-range">
+                <div class="palette-harmonize-section-head">
+                  <span class="palette-harmonize-label">Saturation</span>
+                  <strong class="palette-harmonize-value" data-role="harmonize-saturation-value">0%</strong>
+                </div>
+                <input class="palette-harmonize-slider" data-role="harmonize-saturation" type="range" min="-100" max="100" step="1" value="${HARMONIZE_DEFAULT_SATURATION}">
+              </label>
+              <label class="palette-harmonize-section palette-harmonize-range">
+                <div class="palette-harmonize-section-head">
+                  <span class="palette-harmonize-label">Brightness</span>
+                  <strong class="palette-harmonize-value" data-role="harmonize-brightness-value">0%</strong>
+                </div>
+                <input class="palette-harmonize-slider" data-role="harmonize-brightness" type="range" min="-100" max="100" step="1" value="${HARMONIZE_DEFAULT_BRIGHTNESS}">
+              </label>
+            </div>
+          </section>
+          <section class="palette-harmonize-card">
+            <div class="palette-harmonize-card-head">
+              <h4 class="palette-harmonize-card-title">Anchor and settings</h4>
+            </div>
+            <div class="palette-harmonize-card-body">
+              <p class="palette-harmonize-helper" data-role="harmonize-helper">Use the palette rail locks to pin colours. The first locked colour becomes the anchor.</p>
+              <div class="palette-harmonize-actions">
+                <button class="palette-harmonize-action" type="button" data-action="harmonize-reset">Reset</button>
+                <button class="palette-harmonize-action" type="button" data-action="harmonize-cancel">Cancel</button>
+                <button class="palette-harmonize-action palette-harmonize-action--primary" type="button" data-action="harmonize-apply">Apply</button>
               </div>
             </div>
-            <p class="palette-harmonize-subtle palette-harmonize-scheme-description" data-role="harmonize-scheme-description">${HARMONIZE_SCHEMES.find((scheme) => scheme.id === HARMONIZE_DEFAULT_SCHEME)?.description || ""}</p>
           </section>
-          <label class="palette-harmonize-section palette-harmonize-range">
-            <div class="palette-harmonize-section-head">
-              <span class="palette-harmonize-label">Strength</span>
-              <strong class="palette-harmonize-value" data-role="harmonize-strength-value">${HARMONIZE_DEFAULT_STRENGTH}%</strong>
-            </div>
-            <input class="palette-harmonize-slider" data-role="harmonize-strength" type="range" min="0" max="100" step="1" value="${HARMONIZE_DEFAULT_STRENGTH}">
-          </label>
-          <p class="palette-harmonize-helper" data-role="harmonize-helper">Use the palette rail locks to pin colours. The first locked colour becomes the anchor.</p>
-          <div class="palette-harmonize-actions">
-            <button class="palette-harmonize-action" type="button" data-action="harmonize-reset">Reset</button>
-            <button class="palette-harmonize-action" type="button" data-action="harmonize-cancel">Cancel</button>
-            <button class="palette-harmonize-action palette-harmonize-action--primary" type="button" data-action="harmonize-apply">Apply</button>
-          </div>
         </section>`;
 }
 
@@ -2689,6 +2759,10 @@ function initPalette(root) {
   const harmonizeSchemeDescription = root.querySelector('[data-role="harmonize-scheme-description"]');
   const harmonizeStrength = root.querySelector('[data-role="harmonize-strength"]');
   const harmonizeStrengthValue = root.querySelector('[data-role="harmonize-strength-value"]');
+  const harmonizeSaturation = root.querySelector('[data-role="harmonize-saturation"]');
+  const harmonizeSaturationValue = root.querySelector('[data-role="harmonize-saturation-value"]');
+  const harmonizeBrightness = root.querySelector('[data-role="harmonize-brightness"]');
+  const harmonizeBrightnessValue = root.querySelector('[data-role="harmonize-brightness-value"]');
   const harmonizeHelper = root.querySelector('[data-role="harmonize-helper"]');
   const harmonizeReset = root.querySelector('[data-action="harmonize-reset"]');
   const harmonizeCancel = root.querySelector('[data-action="harmonize-cancel"]');
@@ -2724,7 +2798,7 @@ function initPalette(root) {
   const saveExport = root.querySelector('[data-action="save-export-image"]');
   const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
   const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeHelper || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeSaturation || !harmonizeSaturationValue || !harmonizeBrightness || !harmonizeBrightnessValue || !harmonizeHelper || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewCanvas || !savePreviewEmpty || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
     return;
   }
 
@@ -2994,7 +3068,11 @@ function improvePalette(colors, options = {}) {
 
   const scheme = HARMONIZE_SCHEMES.some((entry) => entry.id === options.scheme) ? options.scheme : HARMONIZE_DEFAULT_SCHEME;
   const strength = clamp(Number(options.strength ?? HARMONIZE_DEFAULT_STRENGTH), 0, 100);
+  const saturation = clamp(Number(options.saturation ?? HARMONIZE_DEFAULT_SATURATION), -100, 100);
+  const brightness = clamp(Number(options.brightness ?? HARMONIZE_DEFAULT_BRIGHTNESS), -100, 100);
   const t = strength / 100;
+  const satT = saturation / 100;
+  const brightT = brightness / 100;
   const hueSnapStrength = 0.28 + (0.72 * t);
   const maxDelta = 4 + (14 * t);
   const lockedIds = options.lockedIds instanceof Set ? options.lockedIds : new Set(options.lockedIds || []);
@@ -3041,6 +3119,9 @@ function improvePalette(colors, options = {}) {
       const chromaWeight = record.nearNeutral ? 0.1 : 0.22;
       nextLch.c = Math.max(0, record.lch.c + ((medianChroma - record.lch.c) * chromaWeight));
       nextLch.l = clamp(record.lch.l + ((medianLightness - record.lch.l) * 0.18), 0, 100);
+      const saturationWeight = record.nearNeutral ? 0.2 : 1;
+      nextLch.c = Math.max(0, nextLch.c * (1 + ((0.8 * satT) * saturationWeight)));
+      nextLch.l = clamp(nextLch.l + (20 * brightT), 0, 100);
     }
 
     const limited = limitLabDelta(record.lab, lchToLab(nextLch), maxDelta);
@@ -3477,6 +3558,8 @@ const state = {
     sourceColors: [],
     scheme: HARMONIZE_DEFAULT_SCHEME,
     strength: HARMONIZE_DEFAULT_STRENGTH,
+    saturation: HARMONIZE_DEFAULT_SATURATION,
+    brightness: HARMONIZE_DEFAULT_BRIGHTNESS,
     lockedIds: new Set(),
     metrics: null,
     warnings: [],
@@ -4327,6 +4410,11 @@ function getHarmonizeSchemeDefinition(schemeId) {
   return HARMONIZE_SCHEMES.find((entry) => entry.id === schemeId) || HARMONIZE_SCHEMES.find((entry) => entry.id === HARMONIZE_DEFAULT_SCHEME) || HARMONIZE_SCHEMES[0];
 }
 
+function formatHarmonizeAdjustmentValue(value) {
+  const numeric = clamp(Number(value) || 0, -100, 100);
+  return `${numeric > 0 ? "+" : ""}${numeric}%`;
+}
+
 function clearHarmonizePreviewRaf() {
   if (!state.harmonize.previewRaf) return;
   cancelAnimationFrame(state.harmonize.previewRaf);
@@ -4353,6 +4441,10 @@ function renderHarmonizePanel() {
   harmonizeSchemeDescription.textContent = selectedScheme.description;
   harmonizeStrength.value = String(state.harmonize.strength);
   harmonizeStrengthValue.textContent = `${state.harmonize.strength}%`;
+  harmonizeSaturation.value = String(state.harmonize.saturation);
+  harmonizeSaturationValue.textContent = formatHarmonizeAdjustmentValue(state.harmonize.saturation);
+  harmonizeBrightness.value = String(state.harmonize.brightness);
+  harmonizeBrightnessValue.textContent = formatHarmonizeAdjustmentValue(state.harmonize.brightness);
 
   if (!state.harmonize.isOpen) {
     harmonizeHelper.textContent = "Lock a palette colour to choose the anchor.";
@@ -4399,6 +4491,8 @@ function applyHarmonizePreview() {
   const preview = improvePalette(state.harmonize.baselineColors, {
     scheme: state.harmonize.scheme,
     strength: state.harmonize.strength,
+    saturation: state.harmonize.saturation,
+    brightness: state.harmonize.brightness,
     lockedIds: state.harmonize.lockedIds,
     anchorId: getPrimaryLockedHarmonizeId(),
   });
@@ -4420,6 +4514,8 @@ function scheduleHarmonizePreview() {
 function resetHarmonizeConfig() {
   state.harmonize.scheme = HARMONIZE_DEFAULT_SCHEME;
   state.harmonize.strength = HARMONIZE_DEFAULT_STRENGTH;
+  state.harmonize.saturation = HARMONIZE_DEFAULT_SATURATION;
+  state.harmonize.brightness = HARMONIZE_DEFAULT_BRIGHTNESS;
   state.harmonize.lockedIds = new Set();
   state.harmonize.metrics = null;
   state.harmonize.warnings = [];
@@ -6673,6 +6769,22 @@ harmonizeStrength.addEventListener("input", () => {
   renderHarmonizePanel();
   scheduleHarmonizePreview();
 });
+harmonizeSaturation.addEventListener("input", () => {
+  if (!state.harmonize.isOpen) {
+    return;
+  }
+  state.harmonize.saturation = clamp(Number(harmonizeSaturation.value), -100, 100);
+  renderHarmonizePanel();
+  scheduleHarmonizePreview();
+});
+harmonizeBrightness.addEventListener("input", () => {
+  if (!state.harmonize.isOpen) {
+    return;
+  }
+  state.harmonize.brightness = clamp(Number(harmonizeBrightness.value), -100, 100);
+  renderHarmonizePanel();
+  scheduleHarmonizePreview();
+});
 harmonizeCancel.addEventListener("click", () => {
   closeHarmonizePanel();
 });
@@ -6822,7 +6934,4 @@ if (document.readyState === "loading") {
   boot();
 }
 })();
-
-
-
 </script>
