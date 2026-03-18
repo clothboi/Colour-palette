@@ -2104,7 +2104,7 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .control-hud__panel {
-  padding: 12px 14px;
+  padding: 14px 16px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"][data-settings-mode="overlay"] .control-hud {
@@ -2140,6 +2140,7 @@
 
 .webflow-palette-embed[data-mobile-layout="true"] .hud-buttons {
   grid-template-columns: 1fr;
+  gap: 10px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .inventory-grid {
