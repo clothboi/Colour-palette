@@ -6226,7 +6226,7 @@ function getExportWheelRingFill(color, ringIndex) {
       ? 0.6
       : 0.4;
   const adjusted = getAdjustedExportLchRgb(color, {
-    lightnessShift: ringIndex === 0 ? 8 : ringIndex === 1 ? 4 : 0,
+    lightnessShift: ringIndex === 2 ? 10 : ringIndex === 1 ? 20 : 30,
     chromaScale: saturationScale,
   });
   return rgbToHex(adjusted.r, adjusted.g, adjusted.b);
