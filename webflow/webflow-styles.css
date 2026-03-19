@@ -1855,8 +1855,8 @@
 
 .webflow-palette-embed .save-style-settings--overlay {
   position: absolute;
-  top: 14px;
-  left: 0;
+  top: 5px;
+  left: 4px;
   z-index: 2;
 }
 
@@ -2387,10 +2387,6 @@
 
 .webflow-palette-embed[data-mobile-layout="true"] .save-modal-content {
   padding: 0;
-}
-
-.webflow-palette-embed[data-mobile-layout="true"] .save-style-settings--overlay {
-  top: 0;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .canvas-wrap {

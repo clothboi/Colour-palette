@@ -3518,23 +3518,27 @@ function updatePaletteLayoutMode() {
   paletteList.classList.toggle("single-column", layout === "single");
 }
 
-function drawExportSwatchNodes(context, imageX, imageY, imageWidth, imageHeight) {
+function drawExportSwatchNodes(context, imageX, imageY, imageWidth, imageHeight, options = {}) {
   const bounds = getImageBounds();
   const scaleX = imageWidth / Math.max(1, state.sourceWidth);
   const scaleY = imageHeight / Math.max(1, state.sourceHeight);
+  const nodeScale = Math.max(0.5, Number(options.nodeScale) || 1);
+  const innerRadius = 18 * nodeScale;
+  const outerRadius = 20 * nodeScale;
+  const strokeWidth = 2 * Math.max(1, Math.min(nodeScale, 1.6));
   state.colors.forEach((color) => {
     const x = imageX + ((bounds.x + (color.x * bounds.width)) * scaleX);
     const y = imageY + ((bounds.y + (color.y * bounds.height)) * scaleY);
     context.beginPath();
-    context.arc(x, y, 18, 0, Math.PI * 2);
+    context.arc(x, y, innerRadius, 0, Math.PI * 2);
     context.fillStyle = color.hex;
     context.fill();
-    context.lineWidth = 2;
+    context.lineWidth = strokeWidth;
     context.strokeStyle = "rgba(10, 10, 10, 0.9)";
     context.stroke();
     context.beginPath();
-    context.arc(x, y, 20, 0, Math.PI * 2);
-    context.lineWidth = 2;
+    context.arc(x, y, outerRadius, 0, Math.PI * 2);
+    context.lineWidth = strokeWidth;
     context.strokeStyle = "rgba(255,255,255,0.26)";
     context.stroke();
   });
@@ -3826,7 +3830,7 @@ function buildStripExportBaseCanvas(options) {
   exportCtx.drawImage(canvas, 0, 0, imageWidth, imageHeight);
 
   if (showNodes) {
-    drawExportSwatchNodes(exportCtx, 0, 0, imageWidth, imageHeight);
+    drawExportSwatchNodes(exportCtx, 0, 0, imageWidth, imageHeight, { nodeScale: 1.6 });
   }
 
   state.colors.forEach((color, index) => {
