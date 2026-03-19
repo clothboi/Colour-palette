@@ -292,24 +292,22 @@ ${getHarmonizePanelMarkup()}
         <button class="save-close" type="button" data-action="save-close" aria-label="Close export options">X</button>
       </div>
       <div data-role="save-content" class="save-modal-content">
-        <div class="save-workspace">
-          <div class="save-controls">
-            <div class="save-style-settings" data-role="save-style-settings">
-              <label data-role="save-nodes-row" class="save-toggle" hidden>
-                <input data-role="save-strip-nodes" type="checkbox">
-                <span>Show nodes</span>
-              </label>
-              <section class="save-style-panel" data-role="save-gradient-row" hidden>
-                <p class="save-style-note">Gradient map node positions are export-only for this style.</p>
-                <button class="save-option-button save-option-button--secondary" type="button" data-action="save-gradient-reset">Reset nodes</button>
-              </section>
-            </div>
+        <div class="save-controls">
+          <div class="save-style-settings" data-role="save-style-settings">
+            <label data-role="save-nodes-row" class="save-toggle" hidden>
+              <input data-role="save-strip-nodes" type="checkbox">
+              <span>Show nodes</span>
+            </label>
+            <section class="save-style-panel" data-role="save-gradient-row" hidden>
+              <p class="save-style-note">Gradient map node positions are export-only for this style.</p>
+              <button class="save-option-button save-option-button--secondary" type="button" data-action="save-gradient-reset">Reset nodes</button>
+            </section>
           </div>
-          <div class="save-preview-shell">
-            <canvas data-role="save-preview-canvas" aria-label="Export preview"></canvas>
-            <div data-role="save-preview-overlay" class="save-preview-overlay" hidden></div>
-            <p data-role="save-preview-empty" class="save-preview-empty" hidden></p>
-          </div>
+        </div>
+        <div class="save-preview-shell">
+          <canvas data-role="save-preview-canvas" aria-label="Export preview"></canvas>
+          <div data-role="save-preview-overlay" class="save-preview-overlay" hidden></div>
+          <p data-role="save-preview-empty" class="save-preview-empty" hidden></p>
         </div>
         <section class="save-control-group save-control-group--sizes">
           <span class="save-control-label">Size</span>

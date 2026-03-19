@@ -1770,26 +1770,10 @@
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
-  overflow: hidden;
-}
-
-.webflow-palette-embed .save-workspace {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
   gap: 14px;
-  min-height: 0;
   overflow: auto;
   padding: 14px;
   padding-right: 8px;
-  border: 1px solid var(--glass-surface-border);
-  border-radius: 16px;
-  background: var(--glass-surface-bg-soft);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 8px 18px rgba(0, 0, 0, 0.12);
-  -webkit-backdrop-filter: blur(18px) saturate(145%);
-  backdrop-filter: blur(18px) saturate(145%);
 }
 
 .webflow-palette-embed .save-controls {
@@ -2321,13 +2305,13 @@
   flex-basis: calc(100% - 48px);
 }
 
-.webflow-palette-embed[data-mobile-layout="true"] .save-workspace {
-  padding: 12px;
-  padding-right: 6px;
-}
-
 .webflow-palette-embed[data-mobile-layout="true"] .save-preview-shell {
   min-height: 220px;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .save-modal-content {
+  padding: 12px;
+  padding-right: 6px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .canvas-wrap {
@@ -2819,24 +2803,22 @@ ${getHarmonizePanelMarkup()}
         <button class="save-close" type="button" data-action="save-close" aria-label="Close export options">X</button>
       </div>
       <div data-role="save-content" class="save-modal-content">
-        <div class="save-workspace">
-          <div class="save-controls">
-            <div class="save-style-settings" data-role="save-style-settings">
-              <label data-role="save-nodes-row" class="save-toggle" hidden>
-                <input data-role="save-strip-nodes" type="checkbox">
-                <span>Show nodes</span>
-              </label>
-              <section class="save-style-panel" data-role="save-gradient-row" hidden>
-                <p class="save-style-note">Gradient map node positions are export-only for this style.</p>
-                <button class="save-option-button save-option-button--secondary" type="button" data-action="save-gradient-reset">Reset nodes</button>
-              </section>
-            </div>
+        <div class="save-controls">
+          <div class="save-style-settings" data-role="save-style-settings">
+            <label data-role="save-nodes-row" class="save-toggle" hidden>
+              <input data-role="save-strip-nodes" type="checkbox">
+              <span>Show nodes</span>
+            </label>
+            <section class="save-style-panel" data-role="save-gradient-row" hidden>
+              <p class="save-style-note">Gradient map node positions are export-only for this style.</p>
+              <button class="save-option-button save-option-button--secondary" type="button" data-action="save-gradient-reset">Reset nodes</button>
+            </section>
           </div>
-          <div class="save-preview-shell">
-            <canvas data-role="save-preview-canvas" aria-label="Export preview"></canvas>
-            <div data-role="save-preview-overlay" class="save-preview-overlay" hidden></div>
-            <p data-role="save-preview-empty" class="save-preview-empty" hidden></p>
-          </div>
+        </div>
+        <div class="save-preview-shell">
+          <canvas data-role="save-preview-canvas" aria-label="Export preview"></canvas>
+          <div data-role="save-preview-overlay" class="save-preview-overlay" hidden></div>
+          <p data-role="save-preview-empty" class="save-preview-empty" hidden></p>
         </div>
         <section class="save-control-group save-control-group--sizes">
           <span class="save-control-label">Size</span>
