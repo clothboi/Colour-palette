@@ -171,6 +171,17 @@ ${getHarmonizeRailActionsMarkup()}
         </section>`;
 }
 
+function getMobileHarmonizeFooterMarkup() {
+  return `
+        <section class="palette-harmonize-mobile-footer" data-role="harmonize-mobile-footer" hidden aria-hidden="true">
+          <div class="palette-harmonize-actions">
+            <button class="palette-harmonize-action" type="button" data-action="harmonize-reset">Reset</button>
+            <button class="palette-harmonize-action" type="button" data-action="harmonize-cancel">Cancel</button>
+            <button class="palette-harmonize-action palette-harmonize-action--primary" type="button" data-action="harmonize-apply">Apply</button>
+          </div>
+        </section>`;
+}
+
 function getPaletteMarkup() {
   return `
   <main class="app-shell">
@@ -243,6 +254,7 @@ ${getMobileHarmonizePanelMarkup()}
         <div class="palette-drawer-sheet" data-role="palette-drawer-sheet" aria-hidden="false">
           <div data-role="palette-list" class="palette-list"></div>
         </div>
+${getMobileHarmonizeFooterMarkup()}
       </aside>
     </section>
   </main>
@@ -418,6 +430,7 @@ function initPalette(root) {
   const paletteSizeLabels = [...root.querySelectorAll('[data-role="palette-size-label"]')];
   const harmonizeRailPanel = root.querySelector('[data-role="harmonize-rail-panel"]');
   const harmonizeMobilePanel = root.querySelector('[data-role="harmonize-mobile-panel"]');
+  const harmonizeMobileFooter = root.querySelector('[data-role="harmonize-mobile-footer"]');
   const harmonizeSchemeSelects = [...root.querySelectorAll('[data-role="harmonize-scheme-select"]')];
   const harmonizeSchemeDescriptions = [...root.querySelectorAll('[data-role="harmonize-scheme-description"]')];
   const harmonizeStrengthInputs = [...root.querySelectorAll('[data-role="harmonize-strength"]')];
@@ -467,7 +480,7 @@ function initPalette(root) {
   const saveExport = root.querySelector('[data-action="save-export-image"]');
   const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
   const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !harmonizeStage || !harmonizeRailPanel || !harmonizeMobilePanel || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizeSchemeSelects.length || !harmonizeSchemeDescriptions.length || !harmonizeStrengthInputs.length || !harmonizeStrengthValues.length || !harmonizeSaturationInputs.length || !harmonizeSaturationValues.length || !harmonizeBrightnessInputs.length || !harmonizeBrightnessValues.length || !harmonizeStatuses.length || !harmonizeHelpers.length || !hudStatus || !harmonizeResetButtons.length || !harmonizeCancelButtons.length || !harmonizeApplyButtons.length || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewShell || !savePreviewCanvas || !savePreviewOverlay || !savePreviewCaption || !savePreviewEmpty || !saveStyleSettings || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !harmonizeStage || !harmonizeRailPanel || !harmonizeMobilePanel || !harmonizeMobileFooter || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizeSchemeSelects.length || !harmonizeSchemeDescriptions.length || !harmonizeStrengthInputs.length || !harmonizeStrengthValues.length || !harmonizeSaturationInputs.length || !harmonizeSaturationValues.length || !harmonizeBrightnessInputs.length || !harmonizeBrightnessValues.length || !harmonizeStatuses.length || !harmonizeHelpers.length || !hudStatus || !harmonizeResetButtons.length || !harmonizeCancelButtons.length || !harmonizeApplyButtons.length || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewShell || !savePreviewCanvas || !savePreviewOverlay || !savePreviewCaption || !savePreviewEmpty || !saveStyleSettings || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
     return;
   }
 
@@ -2207,12 +2220,15 @@ function renderHarmonizePanel() {
   const showDesktopStage = state.harmonize.isOpen && !isMobile;
   const showDesktopRailPanel = false;
   const showMobilePanel = state.harmonize.isOpen && isMobile;
+  const showMobileFooter = state.harmonize.isOpen && isMobile;
   harmonizeStage.hidden = !showDesktopStage;
   harmonizeStage.setAttribute("aria-hidden", String(!showDesktopStage));
   harmonizeRailPanel.hidden = !showDesktopRailPanel;
   harmonizeRailPanel.setAttribute("aria-hidden", String(!showDesktopRailPanel));
   harmonizeMobilePanel.hidden = !showMobilePanel;
   harmonizeMobilePanel.setAttribute("aria-hidden", String(!showMobilePanel));
+  harmonizeMobileFooter.hidden = !showMobileFooter;
+  harmonizeMobileFooter.setAttribute("aria-hidden", String(!showMobileFooter));
   const selectedScheme = getHarmonizeSchemeDefinition(state.harmonize.scheme);
   harmonizeSchemeSelects.forEach((select) => {
     select.value = selectedScheme.id;
