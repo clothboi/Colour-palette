@@ -1803,8 +1803,7 @@
   min-height: 0;
   gap: 14px;
   overflow: auto;
-  padding: 14px;
-  padding-right: 8px;
+  padding: 0;
 }
 
 .webflow-palette-embed .save-control-group,
@@ -1948,7 +1947,7 @@
   min-height: 0;
   min-height: 260px;
   height: auto;
-  padding: 14px;
+  padding: 0;
   border: 0;
   background: transparent;
   box-shadow: none;
@@ -2389,8 +2388,11 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .save-modal-content {
-  padding: 12px;
-  padding-right: 6px;
+  padding: 0;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .save-style-settings--overlay {
+  top: 0;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .canvas-wrap {
