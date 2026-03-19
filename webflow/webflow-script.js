@@ -3691,9 +3691,7 @@ function getExportWheelRingFill(color, ringIndex) {
     ? getAdjustedExportLchRgb(color, { lightnessShift: 18, chromaScale: 0.58, chromaShift: -4 })
     : ringIndex === 1
       ? getAdjustedExportLchRgb(color, { lightnessShift: 8, chromaScale: 0.88, chromaShift: -1 })
-      : ringIndex === 3
-        ? getAdjustedExportLchRgb(color, { lightnessShift: -4, chromaScale: 1.18, chromaShift: 5 })
-        : getAdjustedExportLchRgb(color, { lightnessShift: -9, chromaScale: 1.24, chromaShift: 8 });
+      : getAdjustedExportLchRgb(color, { lightnessShift: -4, chromaScale: 1.18, chromaShift: 5 });
   return rgbToHex(adjusted.r, adjusted.g, adjusted.b);
 }
 
@@ -3832,7 +3830,8 @@ function buildWheelExportBaseCanvas() {
   const size = 1400;
   const center = size / 2;
   const radius = 600;
-  const ringFractions = [0.2, 0.2, 0.2, 0.2, 0.2];
+  const hollowFraction = 0.2;
+  const ringFractions = [0.2, 0.2, 0.2, 0.2];
   const totalPercent = orderedColors.reduce((sum, color) => sum + color.percent, 0) || orderedColors.length || 1;
   const exportCtx = exportCanvas.getContext("2d");
   exportCanvas.width = size;
@@ -3848,7 +3847,7 @@ function buildWheelExportBaseCanvas() {
   orderedColors.forEach((color) => {
     const sweep = ((color.percent || (100 / orderedColors.length)) / totalPercent) * Math.PI * 2;
     const endAngle = startAngle + sweep;
-    let innerRadius = 0;
+    let innerRadius = radius * hollowFraction;
 
     ringFractions.forEach((fraction, ringIndex) => {
       const outerRadius = innerRadius + (radius * fraction);
@@ -3874,6 +3873,14 @@ function buildWheelExportBaseCanvas() {
 
     startAngle = endAngle;
   });
+
+  exportCtx.beginPath();
+  exportCtx.arc(center, center, radius * hollowFraction, 0, Math.PI * 2);
+  exportCtx.fillStyle = "#111417";
+  exportCtx.fill();
+  exportCtx.lineWidth = 5;
+  exportCtx.strokeStyle = "rgba(248, 246, 242, 0.96)";
+  exportCtx.stroke();
 
   return exportCanvas;
 }
