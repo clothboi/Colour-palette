@@ -570,29 +570,8 @@
 }
 
 .webflow-palette-embed .harmonize-stage-exit {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 36px;
-  padding: 8px 14px;
-  border: 1px solid var(--glass-button-border);
-  border-radius: 999px;
-  background: var(--glass-button-bg);
-  color: var(--text);
-  font: inherit;
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  cursor: pointer;
-  box-shadow: var(--glass-button-shadow);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  backdrop-filter: blur(28px) saturate(180%);
-  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
-}
-
-.webflow-palette-embed .harmonize-stage-exit:hover {
-  transform: translateY(-1px);
+  min-width: 40px;
+  min-height: 40px;
 }
 
 .webflow-palette-embed .harmonize-stage-grid {
@@ -611,6 +590,10 @@
 }
 
 .webflow-palette-embed:not([data-mobile-layout="true"])[data-harmonize-open="true"] .canvas-wrap {
+  display: none;
+}
+
+.webflow-palette-embed:not([data-mobile-layout="true"])[data-harmonize-open="true"] .control-hud__panel--actions {
   display: none;
 }
 
@@ -3040,7 +3023,7 @@ function getDesktopHarmonizeStageMarkup() {
                 <p class="palette-harmonize-subtle">Shape the palette here while the palette rail stays live on the right.</p>
               </div>
               <div class="harmonize-stage-status">
-                <button class="harmonize-stage-exit" type="button" data-action="harmonize-cancel" aria-label="Exit harmonise preview">Exit</button>
+                <button class="recipe-close harmonize-stage-exit" type="button" data-action="harmonize-cancel" aria-label="Exit harmonise preview">X</button>
               </div>
             </div>
             <div class="harmonize-stage-grid">
@@ -6528,6 +6511,16 @@ function getPaletteHeightConfig() {
       singleMinHeight: MOBILE_HARMONIZE_SINGLE_MIN_HEIGHT,
       twoColumnPreferredMinHeight: MOBILE_HARMONIZE_TWO_COLUMN_TARGET_MIN_HEIGHT,
       twoColumnFloorHeight: MOBILE_HARMONIZE_TWO_COLUMN_FLOOR_HEIGHT,
+      useUniformHeights: true,
+    };
+  }
+
+  if (!isRealMobileLayout() && state.harmonize.isOpen) {
+    return {
+      gap: PALETTE_GAP,
+      singleMinHeight: PALETTE_SINGLE_MIN_HEIGHT,
+      twoColumnPreferredMinHeight: PALETTE_TWO_COLUMN_TARGET_MIN_HEIGHT,
+      twoColumnFloorHeight: PALETTE_TWO_COLUMN_FLOOR_HEIGHT,
       useUniformHeights: true,
     };
   }

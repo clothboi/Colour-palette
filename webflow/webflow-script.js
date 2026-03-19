@@ -138,7 +138,7 @@ function getDesktopHarmonizeStageMarkup() {
                 <p class="palette-harmonize-subtle">Shape the palette here while the palette rail stays live on the right.</p>
               </div>
               <div class="harmonize-stage-status">
-                <button class="harmonize-stage-exit" type="button" data-action="harmonize-cancel" aria-label="Exit harmonise preview">Exit</button>
+                <button class="recipe-close harmonize-stage-exit" type="button" data-action="harmonize-cancel" aria-label="Exit harmonise preview">X</button>
               </div>
             </div>
             <div class="harmonize-stage-grid">
@@ -3626,6 +3626,16 @@ function getPaletteHeightConfig() {
       singleMinHeight: MOBILE_HARMONIZE_SINGLE_MIN_HEIGHT,
       twoColumnPreferredMinHeight: MOBILE_HARMONIZE_TWO_COLUMN_TARGET_MIN_HEIGHT,
       twoColumnFloorHeight: MOBILE_HARMONIZE_TWO_COLUMN_FLOOR_HEIGHT,
+      useUniformHeights: true,
+    };
+  }
+
+  if (!isRealMobileLayout() && state.harmonize.isOpen) {
+    return {
+      gap: PALETTE_GAP,
+      singleMinHeight: PALETTE_SINGLE_MIN_HEIGHT,
+      twoColumnPreferredMinHeight: PALETTE_TWO_COLUMN_TARGET_MIN_HEIGHT,
+      twoColumnFloorHeight: PALETTE_TWO_COLUMN_FLOOR_HEIGHT,
       useUniformHeights: true,
     };
   }
