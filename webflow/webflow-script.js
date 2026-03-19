@@ -281,7 +281,6 @@ ${getHarmonizePanelMarkup()}
     <div class="save-modal-panel" role="dialog" aria-modal="true" aria-label="Export options">
       <div class="save-modal-head">
         <div>
-          <p class="save-modal-kicker">Export study</p>
           <h2>Export</h2>
         </div>
         <button class="save-close" type="button" data-action="save-close" aria-label="Close export options">X</button>
