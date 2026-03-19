@@ -2862,6 +2862,9 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"][data-harmonize-open="true"] .palette-harmonize-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
   padding: 0;
   border: 0;
   background: none;
@@ -2875,7 +2878,7 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"][data-harmonize-open="true"] .palette-harmonize-card--scheme .palette-harmonize-card-body {
-  gap: 8px;
+  gap: 6px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"][data-harmonize-open="true"] .palette-harmonize-card--scheme .palette-harmonize-select-wrap {
@@ -2898,14 +2901,14 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"][data-harmonize-open="true"] .palette-harmonize-card--scheme .palette-harmonize-select {
-  min-height: 42px;
-  padding-left: 126px;
+  min-height: 40px;
+  padding-left: 122px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"][data-harmonize-open="true"] .palette-harmonize-card {
-  gap: 8px;
-  padding: 10px;
-  border-radius: 14px;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 12px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"][data-harmonize-open="true"] .palette-harmonize-card-title,
@@ -2915,36 +2918,36 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"][data-harmonize-open="true"] .palette-harmonize-card-body {
-  gap: 8px;
-}
-
-.webflow-palette-embed[data-mobile-layout="true"][data-harmonize-open="true"] .palette-harmonize-section {
   gap: 6px;
 }
 
+.webflow-palette-embed[data-mobile-layout="true"][data-harmonize-open="true"] .palette-harmonize-section {
+  gap: 4px;
+}
+
 .webflow-palette-embed[data-mobile-layout="true"][data-harmonize-open="true"] .palette-harmonize-section-head {
-  gap: 10px;
+  gap: 8px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"][data-harmonize-open="true"] .palette-harmonize-value {
-  font-size: 0.78rem;
+  font-size: 0.74rem;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"][data-harmonize-open="true"] .palette-harmonize-subtle {
-  font-size: 0.74rem;
-  line-height: 1.3;
+  font-size: 0.72rem;
+  line-height: 1.24;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"][data-harmonize-open="true"] .palette-harmonize-scheme-description {
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   overflow: hidden;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"][data-harmonize-open="true"] .palette-harmonize-range::after {
-  bottom: 7px;
-  height: 10px;
+  bottom: 6px;
+  height: 8px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"][data-harmonize-open="true"] .palette-card-lock {
@@ -2975,9 +2978,9 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"][data-harmonize-open="true"] .palette-harmonize-mobile-footer .palette-harmonize-action {
-  min-height: 36px;
-  padding: 8px 10px;
-  font-size: 0.72rem;
+  min-height: 34px;
+  padding: 7px 8px;
+  font-size: 0.7rem;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"][data-palette-drawer-open="true"] .palette-toolbar-head {
@@ -5207,17 +5210,17 @@ function syncPrimaryActionState() {
 function syncHudStatus() {
   let statusText = "Upload an image to begin";
   if (!saveModal.classList.contains("hidden")) {
-    statusText = `Export Â· ${getExportLayoutMeta(state.saveExport.layout).label}`;
+    statusText = `Export Ã‚Â· ${getExportLayoutMeta(state.saveExport.layout).label}`;
   } else if (!inventoryModal.classList.contains("hidden")) {
-    statusText = `Paint setup Â· ${state.ownedPaints.length} saved`;
+    statusText = `Paint setup Ã‚Â· ${state.ownedPaints.length} saved`;
   } else if (!recipeModal.classList.contains("hidden")) {
     statusText = state.recipeResults.length
-      ? `Paint recipe Â· ${state.recipeResults.length} mix${state.recipeResults.length === 1 ? "" : "es"}`
+      ? `Paint recipe Ã‚Â· ${state.recipeResults.length} mix${state.recipeResults.length === 1 ? "" : "es"}`
       : "Paint recipe";
   } else if (state.harmonize.isOpen) {
     const lockedCount = getHarmonizeLockedCount();
     statusText = lockedCount
-      ? `Harmonise preview Â· ${lockedCount} locked`
+      ? `Harmonise preview Ã‚Â· ${lockedCount} locked`
       : "Harmonise preview";
   } else if (state.image && state.colors.length) {
     statusText = `Palette ${state.colors.length} ready`;
@@ -5308,7 +5311,7 @@ function renderHarmonizePanel() {
   const anchorHex = anchorMetric?.outputHex || "";
   const lockedCount = getHarmonizeLockedCount();
   const statusText = lockedCount
-    ? `Previewing changes Â· ${lockedCount} locked`
+    ? `Previewing changes Ã‚Â· ${lockedCount} locked`
     : "Previewing changes";
   harmonizeStatuses.forEach((status) => {
     status.textContent = statusText;
