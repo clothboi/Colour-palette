@@ -304,21 +304,21 @@ ${getHarmonizePanelMarkup()}
                 <button class="save-option-button save-option-button--secondary" type="button" data-action="save-gradient-reset">Reset nodes</button>
               </section>
             </div>
-            <section class="save-control-group save-control-group--sizes">
-              <span class="save-control-label">Size</span>
-              <div class="save-option-row save-option-row-sizes">
-                <button class="save-option-button" type="button" data-save-size="1000">1k</button>
-                <button class="save-option-button" type="button" data-save-size="2000">2k</button>
-                <button class="save-option-button" type="button" data-save-size="3000">3k</button>
-                <button class="save-option-button" type="button" data-save-size="4000">4k</button>
-              </div>
-            </section>
           </div>
           <div class="save-preview-shell">
             <canvas data-role="save-preview-canvas" aria-label="Export preview"></canvas>
             <div data-role="save-preview-overlay" class="save-preview-overlay" hidden></div>
             <p data-role="save-preview-empty" class="save-preview-empty" hidden></p>
           </div>
+          <section class="save-control-group save-control-group--sizes">
+            <span class="save-control-label">Size</span>
+            <div class="save-option-row save-option-row-sizes">
+              <button class="save-option-button" type="button" data-save-size="1000">1k</button>
+              <button class="save-option-button" type="button" data-save-size="2000">2k</button>
+              <button class="save-option-button" type="button" data-save-size="3000">3k</button>
+              <button class="save-option-button" type="button" data-save-size="4000">4k</button>
+            </div>
+          </section>
         </div>
       </div>
     </div>
