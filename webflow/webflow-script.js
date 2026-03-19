@@ -3622,9 +3622,11 @@ function getPaletteAvailableHeight() {
 
   if (isRealMobileLayout() && state.isPaletteDrawerOpen) {
     const mobileCandidates = [computedHeight, sheetHeight, listHeight].filter((value) => value > 0);
-    const fittedHeight = mobileCandidates.length
-      ? Math.min(...mobileCandidates)
-      : Math.max(0, Math.round(computedHeight || sheetHeight || listHeight));
+    const fittedHeight = computedHeight > 0
+      ? computedHeight
+      : (mobileCandidates.length
+        ? Math.max(...mobileCandidates)
+        : Math.max(0, Math.round(sheetHeight || listHeight)));
     return Math.max(0, fittedHeight - 4);
   }
 

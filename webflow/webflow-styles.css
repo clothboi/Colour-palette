@@ -2780,7 +2780,10 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-drawer-sheet {
+  display: flex;
+  flex-direction: column;
   flex: 1 1 auto;
+  min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -3006,17 +3009,20 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
   overflow-y: hidden;
-  align-content: start;
+  align-content: stretch;
   touch-action: pan-y;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-column {
   min-height: 0;
-  height: auto;
+  height: 100%;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .palette-card {
