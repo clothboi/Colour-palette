@@ -2,6 +2,10 @@
 <style>
 .webflow-palette-embed {
   --bg: #17191c;
+  --surface-base: rgba(10, 12, 15, 0.52);
+  --surface-panel: rgba(16, 18, 22, 0.72);
+  --surface-panel-strong: rgba(12, 14, 17, 0.84);
+  --surface-interactive: rgba(34, 36, 41, 0.22);
   --panel: rgba(255, 255, 255, 0.055);
   --panel-strong: rgba(12, 14, 17, 0.72);
   --panel-solid: rgba(15, 17, 20, 0.86);
@@ -10,30 +14,39 @@
   --text: #f6f2ea;
   --muted: rgba(246, 242, 234, 0.68);
   --muted-strong: rgba(246, 242, 234, 0.82);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --radius-control: 12px;
+  --radius-card: 16px;
+  --radius-panel: 22px;
   --shadow: 0 18px 36px rgba(0, 0, 0, 0.24);
   --shadow-soft: 0 10px 28px rgba(0, 0, 0, 0.2);
   --accent: rgba(158, 188, 223, 0.92);
   --glass-surface-bg:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03) 36%, rgba(13, 15, 19, 0.2)),
-    rgba(16, 18, 22, 0.72);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.028) 34%, rgba(13, 15, 19, 0.22)),
+    var(--surface-panel);
   --glass-surface-bg-soft:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.025) 36%, rgba(13, 15, 19, 0.16)),
-    rgba(19, 21, 25, 0.52);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02) 36%, rgba(13, 15, 19, 0.16)),
+    rgba(18, 20, 24, 0.48);
   --glass-surface-border: rgba(255, 255, 255, 0.12);
   --glass-surface-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 14px 30px rgba(0, 0, 0, 0.22);
+    0 14px 30px rgba(0, 0, 0, 0.18);
   --glass-button-border: rgba(255, 255, 255, 0.18);
   --glass-button-bg:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04) 42%, rgba(24, 26, 31, 0.08)),
-    rgba(34, 36, 41, 0.22);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.03) 42%, rgba(24, 26, 31, 0.08)),
+    var(--surface-interactive);
   --glass-button-bg-strong:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06) 42%, rgba(24, 26, 31, 0.1)),
-    rgba(40, 42, 48, 0.28);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05) 42%, rgba(24, 26, 31, 0.1)),
+    rgba(38, 40, 46, 0.28);
   --glass-button-highlight-border: rgba(158, 188, 223, 0.58);
   --glass-button-highlight-bg:
     linear-gradient(180deg, rgba(158, 188, 223, 0.22), rgba(158, 188, 223, 0.08)),
-    rgba(36, 40, 48, 0.24);
+    rgba(30, 34, 40, 0.24);
   --glass-button-shadow:
     0 10px 24px rgba(0, 0, 0, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.16),
@@ -183,9 +196,22 @@
 .webflow-palette-embed .control-hud__panel {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 14px 16px;
-  border-radius: 16px;
+  gap: var(--space-2);
+  padding: 12px 14px;
+  border-radius: var(--radius-card);
+}
+
+.webflow-palette-embed .control-hud__panel--bar {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015) 44%, rgba(14, 16, 19, 0.18)),
+    rgba(18, 20, 24, 0.52);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 12px 24px rgba(0, 0, 0, 0.14);
+}
+
+.webflow-palette-embed .control-hud__panel--actions {
+  background: var(--glass-surface-bg-soft);
 }
 
 .webflow-palette-embed .hud-bar {
@@ -237,6 +263,14 @@
 .webflow-palette-embed .hud-count {
   white-space: nowrap;
   text-align: right;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 12, 15, 0.28);
 }
 
 .webflow-palette-embed .hud-settings-panel[hidden] {
@@ -250,13 +284,17 @@
 .webflow-palette-embed .hud-actions {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 10px;
+  gap: var(--space-3);
   align-items: center;
 }
 .webflow-palette-embed .hud-buttons {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: rgba(11, 13, 16, 0.26);
 }
 
 .webflow-palette-embed .hud-buttons .recipe-button {
@@ -343,6 +381,11 @@
   white-space: nowrap;
 }
 
+.webflow-palette-embed .recipe-button.active {
+  border-color: var(--glass-button-highlight-border);
+  background: var(--glass-button-highlight-bg);
+}
+
 .webflow-palette-embed .hud-settings-toggle {
   display: none;
   align-items: center;
@@ -398,10 +441,16 @@
   z-index: 2;
   width: var(--frame-width);
   max-width: 100%;
-  padding: 10px 44px 10px 12px;
+  padding: 12px 44px 12px 14px;
   border-color: rgba(236, 193, 121, 0.24);
-  background: rgba(66, 49, 20, 0.34);
+  background:
+    linear-gradient(180deg, rgba(236, 193, 121, 0.14), rgba(236, 193, 121, 0.04)),
+    rgba(54, 40, 19, 0.54);
   color: #efe4ce;
+  border-radius: 14px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 14px 24px rgba(0, 0, 0, 0.18);
 }
 
 .webflow-palette-embed .import-warning.hidden,
@@ -451,15 +500,15 @@
   max-height: var(--frame-height);
   min-height: 320px;
   aspect-ratio: var(--image-ratio, 900 / 1350);
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 24px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0)),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.12)),
-    rgba(14, 16, 19, 0.84);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0)),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.16)),
+    rgba(10, 12, 15, 0.92);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    var(--shadow);
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 26px 54px rgba(0, 0, 0, 0.28);
 }
 
 .webflow-palette-embed canvas {
@@ -468,6 +517,7 @@
   display: block;
   width: 100%;
   height: 100%;
+  border-radius: 18px;
 }
 
 .webflow-palette-embed .canvas-wrap::after {
@@ -565,10 +615,10 @@
 .webflow-palette-embed .swatch {
   position: absolute;
   z-index: 2;
-  width: 28px;
-  height: 28px;
-  margin-left: -14px;
-  margin-top: -14px;
+  width: 30px;
+  height: 30px;
+  margin-left: -15px;
+  margin-top: -15px;
   border-radius: 50%;
   border: 1px solid rgba(10, 10, 10, 0.9);
   background: var(--swatch-color);
@@ -579,7 +629,7 @@
   pointer-events: auto;
   touch-action: none;
   isolation: isolate;
-  transition: transform 120ms ease, box-shadow 120ms ease;
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
 }
 
 .webflow-palette-embed .swatch::after {
@@ -663,10 +713,23 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-3);
   padding: 14px;
-  border-radius: 20px;
+  border-radius: var(--radius-panel);
   min-width: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0) 34%),
+    var(--surface-base);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 22px 40px rgba(0, 0, 0, 0.22);
+}
+
+.webflow-palette-embed .swatch:hover {
+  border-color: rgba(255, 255, 255, 0.56);
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.3),
+    0 12px 28px rgba(0, 0, 0, 0.32);
 }
 
 .webflow-palette-embed .mobile-palette-rail {
@@ -888,6 +951,10 @@
 
 .webflow-palette-embed:not([data-mobile-layout="true"]) .palette-drawer-sheet {
   height: 100%;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: rgba(10, 12, 15, 0.22);
 }
 
 .webflow-palette-embed:not([data-mobile-layout="true"]) .palette-list,
@@ -898,14 +965,15 @@
 
 .webflow-palette-embed .palette-toolbar {
   display: grid;
-  gap: 10px;
+  gap: var(--space-3);
 }
 
 .webflow-palette-embed .palette-toolbar-head {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
-  gap: 10px;
+  gap: var(--space-2);
   align-items: center;
+  padding: 2px 0 0;
 }
 
 .webflow-palette-embed .palette-drawer-close {
@@ -1006,16 +1074,17 @@
 
 .webflow-palette-embed .palette-harmonize-panel {
   display: grid;
-  gap: 12px;
+  gap: var(--space-3);
   max-height: none;
   overflow: visible;
   padding: 14px;
-  border: 1px solid var(--glass-surface-border);
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(22, 25, 29, 0.98), rgba(13, 15, 18, 0.96));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-card);
+  background:
+    linear-gradient(180deg, rgba(24, 27, 31, 0.98), rgba(14, 16, 19, 0.98));
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 16px 34px rgba(0, 0, 0, 0.26);
+    0 18px 32px rgba(0, 0, 0, 0.24);
   -webkit-backdrop-filter: blur(26px) saturate(145%);
   backdrop-filter: blur(26px) saturate(145%);
 }
@@ -1061,14 +1130,18 @@
   display: grid;
   gap: 10px;
   padding: 12px;
-  border: 1px solid var(--glass-surface-border);
-  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-card);
   background: var(--glass-surface-bg-soft);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
     0 8px 18px rgba(0, 0, 0, 0.12);
   -webkit-backdrop-filter: blur(18px) saturate(145%);
   backdrop-filter: blur(18px) saturate(145%);
+}
+
+.webflow-palette-embed .palette-harmonize-card:last-child {
+  margin-top: auto;
 }
 
 .webflow-palette-embed .palette-harmonize-card-head {
@@ -1127,8 +1200,9 @@
 .webflow-palette-embed .palette-harmonize-helper {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-3);
   margin: 0;
+  flex-wrap: wrap;
 }
 
 .webflow-palette-embed .palette-harmonize-helper-dot {
@@ -1139,6 +1213,23 @@
   background: var(--helper-dot, #f2efe8);
   border: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.webflow-palette-embed .palette-harmonize-helper-tag,
+.webflow-palette-embed .palette-harmonize-status {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(12, 14, 17, 0.32);
+  color: var(--muted-strong);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .webflow-palette-embed .palette-harmonize-select-wrap {
@@ -1210,9 +1301,25 @@
   width: 100%;
 }
 
+.webflow-palette-embed .palette-harmonize-range {
+  position: relative;
+}
+
+.webflow-palette-embed .palette-harmonize-range::after {
+  content: "";
+  position: absolute;
+  left: calc(50% - 1px);
+  bottom: 8px;
+  width: 2px;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(246, 242, 234, 0.38);
+  pointer-events: none;
+}
+
 .webflow-palette-embed .palette-harmonize-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--space-3);
   justify-content: flex-end;
   width: 100%;
 }
@@ -1268,17 +1375,23 @@
   display: grid;
   align-content: start;
   justify-items: start;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 12px;
+  border-radius: 12px;
   overflow: hidden;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   cursor: grab;
   touch-action: none;
-  transition: transform 140ms ease, box-shadow 140ms ease;
+  transition: transform 140ms ease, box-shadow 140ms ease, opacity 140ms ease;
 }
 
 .webflow-palette-embed[data-harmonize-open="true"] .palette-card {
   padding-right: 72px;
+  opacity: 0.86;
+}
+
+.webflow-palette-embed[data-harmonize-open="true"] .palette-card[data-harmonize-locked="true"],
+.webflow-palette-embed[data-harmonize-open="true"] .palette-card[data-harmonize-anchor="true"] {
+  opacity: 1;
 }
 
 .webflow-palette-embed .palette-card::after {
@@ -1383,16 +1496,42 @@
   display: grid;
   gap: 5px;
   justify-items: start;
+  width: 100%;
 }
 
 .webflow-palette-embed .palette-line {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 5px 8px;
-  border-radius: 8px;
-  background: rgba(34, 36, 40, 0.62);
+  flex-wrap: wrap;
+  padding: 6px 9px;
+  border-radius: 10px;
+  background: rgba(22, 24, 28, 0.58);
   color: #f2efe8;
+}
+
+.webflow-palette-embed .palette-card-state {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(11, 13, 16, 0.28);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.webflow-palette-embed .palette-card[data-harmonize-locked="true"] .palette-card-state {
+  border-color: rgba(158, 188, 223, 0.3);
+  background: rgba(158, 188, 223, 0.16);
+}
+
+.webflow-palette-embed .palette-card[data-harmonize-anchor="true"] .palette-card-state {
+  border-color: rgba(244, 241, 233, 0.34);
+  background: rgba(244, 241, 233, 0.16);
 }
 
 .webflow-palette-embed .palette-code {
@@ -1538,10 +1677,11 @@
 .webflow-palette-embed .save-modal-panel {
   width: var(--save-modal-width);
   max-height: calc(min(82vh, 960px) - var(--save-modal-footer-height) - var(--save-modal-stack-gap));
+  border-radius: 22px;
 }
 
 .webflow-palette-embed:not([data-mobile-layout="true"]) .save-modal-panel {
-  max-height: calc(min(88vh, 1080px) - var(--save-modal-footer-height) - var(--save-modal-stack-gap));
+  max-height: calc(min(92vh, 1180px) - var(--save-modal-footer-height) - var(--save-modal-stack-gap));
 }
 
 .webflow-palette-embed:not([data-mobile-layout="true"]) .save-modal-head {
@@ -1580,7 +1720,7 @@
   display: flex;
   flex: 1 1 100%;
   min-width: 0;
-  padding: 8px;
+  padding: 10px;
   border: 1px solid var(--glass-surface-border);
   border-radius: 16px;
   background: var(--glass-surface-bg-soft);
@@ -1595,6 +1735,7 @@
   max-width: 920px;
   width: 100%;
   justify-self: center;
+  margin: 0 auto;
 }
 
 .webflow-palette-embed .save-modal-tabs {
@@ -1801,9 +1942,12 @@
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
-  gap: 14px;
+  gap: var(--space-3);
   overflow: auto;
-  padding: 0;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background: rgba(8, 10, 13, 0.26);
 }
 
 .webflow-palette-embed .save-control-group,
@@ -1957,7 +2101,40 @@
 }
 
 .webflow-palette-embed:not([data-mobile-layout="true"]) .save-preview-shell {
-  min-height: clamp(520px, 62vh, 760px);
+  min-height: clamp(560px, 68vh, 820px);
+}
+
+.webflow-palette-embed .save-preview-caption {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+  max-width: min(280px, calc(100% - 180px));
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(11, 13, 16, 0.42);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 10px 22px rgba(0, 0, 0, 0.14);
+  text-align: right;
+  pointer-events: none;
+}
+
+.webflow-palette-embed .save-preview-caption strong {
+  color: var(--text);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.webflow-palette-embed .save-preview-caption span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
 }
 
 .webflow-palette-embed .save-preview-shell canvas {
@@ -2387,6 +2564,13 @@
   min-height: 320px;
 }
 
+.webflow-palette-embed[data-mobile-layout="true"] .save-preview-caption {
+  top: 8px;
+  right: 8px;
+  max-width: min(180px, calc(100% - 120px));
+  padding: 8px 10px;
+}
+
 .webflow-palette-embed[data-mobile-layout="true"] .save-modal-content {
   padding: 0;
 }
@@ -2703,6 +2887,7 @@ ${getHarmonizeSchemeOptionsMarkup()}
               <h4 class="palette-harmonize-card-title">Anchor and settings</h4>
             </div>
             <div class="palette-harmonize-card-body">
+              <div class="palette-harmonize-status" data-role="harmonize-status">Previewing changes</div>
               <p class="palette-harmonize-helper" data-role="harmonize-helper">Use the palette rail locks to pin colours. The first locked colour becomes the anchor.</p>
               <div class="palette-harmonize-actions">
                 <button class="palette-harmonize-action" type="button" data-action="harmonize-reset">Reset</button>
@@ -2729,7 +2914,7 @@ function getPaletteMarkup() {
                 <button class="hud-settings-toggle" type="button" data-action="toggle-settings" aria-expanded="false" hidden>Settings</button>
               </div>
               <div class="hud-bar__group hud-bar__group--status">
-                <span class="hud-count">Studio blur map</span>
+                <span class="hud-count" data-role="hud-status">Upload an image to begin</span>
               </div>
             </div>
           </div>
@@ -2883,6 +3068,7 @@ ${getHarmonizePanelMarkup()}
       </div>
       <div data-role="save-content" class="save-modal-content">
         <div class="save-preview-shell">
+          <div class="save-preview-caption" data-role="save-preview-caption"></div>
           <div class="save-style-settings save-style-settings--overlay" data-role="save-style-settings">
             <label data-role="save-nodes-row" class="save-toggle" hidden>
               <input data-role="save-strip-nodes" type="checkbox">
@@ -2963,7 +3149,9 @@ function initPalette(root) {
   const harmonizeSaturationValue = root.querySelector('[data-role="harmonize-saturation-value"]');
   const harmonizeBrightness = root.querySelector('[data-role="harmonize-brightness"]');
   const harmonizeBrightnessValue = root.querySelector('[data-role="harmonize-brightness-value"]');
+  const harmonizeStatus = root.querySelector('[data-role="harmonize-status"]');
   const harmonizeHelper = root.querySelector('[data-role="harmonize-helper"]');
+  const hudStatus = root.querySelector('[data-role="hud-status"]');
   const harmonizeReset = root.querySelector('[data-action="harmonize-reset"]');
   const harmonizeCancel = root.querySelector('[data-action="harmonize-cancel"]');
   const harmonizeApply = root.querySelector('[data-action="harmonize-apply"]');
@@ -2993,6 +3181,7 @@ function initPalette(root) {
   const savePreviewShell = root.querySelector('.save-preview-shell');
   const savePreviewCanvas = root.querySelector('[data-role="save-preview-canvas"]');
   const savePreviewOverlay = root.querySelector('[data-role="save-preview-overlay"]');
+  const savePreviewCaption = root.querySelector('[data-role="save-preview-caption"]');
   const savePreviewEmpty = root.querySelector('[data-role="save-preview-empty"]');
   const saveStyleSettings = root.querySelector('[data-role="save-style-settings"]');
   const saveNodesRow = root.querySelector('[data-role="save-nodes-row"]');
@@ -3001,7 +3190,7 @@ function initPalette(root) {
   const saveExport = root.querySelector('[data-action="save-export-image"]');
   const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
   const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeSaturation || !harmonizeSaturationValue || !harmonizeBrightness || !harmonizeBrightnessValue || !harmonizeHelper || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewShell || !savePreviewCanvas || !savePreviewOverlay || !savePreviewEmpty || !saveStyleSettings || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeSaturation || !harmonizeSaturationValue || !harmonizeBrightness || !harmonizeBrightnessValue || !harmonizeStatus || !harmonizeHelper || !hudStatus || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewShell || !savePreviewCanvas || !savePreviewOverlay || !savePreviewCaption || !savePreviewEmpty || !saveStyleSettings || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
     return;
   }
 
@@ -3031,6 +3220,24 @@ const EXPORT_PREVIEW_LONGEST_EDGE = 1200;
 const EXPORT_SIZE_PRESETS = [1000, 2000, 3000, 4000];
 const EXPORT_GRADIENT_INFLUENCE_MIN = 0.35;
 const EXPORT_GRADIENT_INFLUENCE_MAX = 2.5;
+const EXPORT_LAYOUT_META = {
+  [EXPORT_LAYOUT_CURRENT]: {
+    label: "Default",
+    caption: "Original blur study with your live node layout.",
+  },
+  [EXPORT_LAYOUT_STRIP]: {
+    label: "Swatches",
+    caption: "Blur study paired with a stacked swatch strip.",
+  },
+  [EXPORT_LAYOUT_WHEEL]: {
+    label: "Colour wheel",
+    caption: "Palette slices with concentric tone bands.",
+  },
+  [EXPORT_LAYOUT_GRADIENT]: {
+    label: "Gradient map",
+    caption: "Drag nodes and influence rings to shape the field.",
+  },
+};
 const SCROLL_LOCK_SWATCH_DRAG = "swatch-drag";
 const SCROLL_LOCK_PALETTE_DRAG = "palette-drag";
 const SCROLL_LOCK_PALETTE_DRAWER = "palette-drawer";
@@ -4630,6 +4837,59 @@ function formatHarmonizeAdjustmentValue(value) {
   return `${numeric > 0 ? "+" : ""}${numeric}%`;
 }
 
+function getExportLayoutMeta(layout) {
+  return EXPORT_LAYOUT_META[normalizeExportLayout(layout)] || EXPORT_LAYOUT_META[EXPORT_LAYOUT_CURRENT];
+}
+
+function getHarmonizeLockedCount() {
+  let count = 0;
+  state.harmonize.lockedIds.forEach((colorId) => {
+    if (state.colors.some((color) => color.id === colorId)) {
+      count += 1;
+    }
+  });
+  return count;
+}
+
+function syncPrimaryActionState() {
+  const activeAction = !inventoryModal.classList.contains("hidden")
+    ? "paint-setup"
+    : !recipeModal.classList.contains("hidden")
+      ? "recipe"
+      : !saveModal.classList.contains("hidden")
+        ? "export"
+        : "";
+  root.dataset.activeAction = activeAction;
+  paintSetupButton.classList.toggle("active", activeAction === "paint-setup");
+  recipeButton.classList.toggle("active", activeAction === "recipe");
+  imageExportButton.classList.toggle("active", activeAction === "export");
+  paintSetupButton.setAttribute("aria-pressed", String(activeAction === "paint-setup"));
+  recipeButton.setAttribute("aria-pressed", String(activeAction === "recipe"));
+  imageExportButton.setAttribute("aria-pressed", String(activeAction === "export"));
+}
+
+function syncHudStatus() {
+  let statusText = "Upload an image to begin";
+  if (!saveModal.classList.contains("hidden")) {
+    statusText = `Export · ${getExportLayoutMeta(state.saveExport.layout).label}`;
+  } else if (!inventoryModal.classList.contains("hidden")) {
+    statusText = `Paint setup · ${state.ownedPaints.length} saved`;
+  } else if (!recipeModal.classList.contains("hidden")) {
+    statusText = state.recipeResults.length
+      ? `Paint recipe · ${state.recipeResults.length} mix${state.recipeResults.length === 1 ? "" : "es"}`
+      : "Paint recipe";
+  } else if (state.harmonize.isOpen) {
+    const lockedCount = getHarmonizeLockedCount();
+    statusText = lockedCount
+      ? `Harmonise preview · ${lockedCount} locked`
+      : "Harmonise preview";
+  } else if (state.image && state.colors.length) {
+    statusText = `Palette ${state.colors.length} ready`;
+  }
+  hudStatus.textContent = statusText;
+  syncPrimaryActionState();
+}
+
 function clearHarmonizePreviewRaf() {
   if (!state.harmonize.previewRaf) return;
   cancelAnimationFrame(state.harmonize.previewRaf);
@@ -4662,7 +4922,9 @@ function renderHarmonizePanel() {
   harmonizeBrightnessValue.textContent = formatHarmonizeAdjustmentValue(state.harmonize.brightness);
 
   if (!state.harmonize.isOpen) {
-    harmonizeHelper.textContent = "Lock a palette colour to choose the anchor.";
+    harmonizeStatus.textContent = "Previewing changes";
+    harmonizeHelper.textContent = "Lock a colour to set the anchor.";
+    syncHudStatus();
     syncPaletteLockControls();
     return;
   }
@@ -4670,11 +4932,16 @@ function renderHarmonizePanel() {
   const metrics = state.harmonize.metrics;
   const anchorMetric = metrics?.perColorMetrics.find((entry) => entry.anchor) || null;
   const anchorHex = anchorMetric?.outputHex || "";
+  const lockedCount = getHarmonizeLockedCount();
+  harmonizeStatus.textContent = lockedCount
+    ? `Previewing changes · ${lockedCount} locked`
+    : "Previewing changes";
   if (anchorHex) {
-    harmonizeHelper.innerHTML = `<span class="palette-harmonize-helper-dot" style="--helper-dot:${anchorHex};"></span><span>${anchorHex} is currently anchoring this preview.</span>`;
+    harmonizeHelper.innerHTML = `<span class="palette-harmonize-helper-dot" style="--helper-dot:${anchorHex};"></span><span>${anchorHex}</span><span class="palette-harmonize-helper-tag">Anchor</span>`;
   } else {
-    harmonizeHelper.textContent = "Choose a scheme to preview the current anchor.";
+    harmonizeHelper.textContent = "Lock a colour to set the anchor.";
   }
+  syncHudStatus();
   syncPaletteLockControls();
 }
 
@@ -5172,11 +5439,13 @@ function openInventoryModal() {
   resetInventoryForm();
   inventoryModal.classList.remove("hidden");
   inventoryModal.setAttribute("aria-hidden", "false");
+  syncHudStatus();
 }
 
 function closeInventoryModal() {
   inventoryModal.classList.add("hidden");
   inventoryModal.setAttribute("aria-hidden", "true");
+  syncHudStatus();
 }
 
 function validateInventoryFormDraft() {
@@ -5285,12 +5554,14 @@ function showRecipeMessage(message) {
   recipeModal.classList.remove("hidden");
   recipeModal.setAttribute("aria-hidden", "false");
   recipeContent.innerHTML = `<p class="recipe-empty">${message}</p>`;
+  syncHudStatus();
 }
 
 function closeRecipeModal() {
   if (!recipeModal) return;
   recipeModal.classList.add("hidden");
   recipeModal.setAttribute("aria-hidden", "true");
+  syncHudStatus();
 }
 
 function drawRoundedRect(context, x, y, width, height, radius, fill) {
@@ -5651,6 +5922,7 @@ function renderRecipe() {
   recipeModal.classList.remove("hidden");
   recipeModal.setAttribute("aria-hidden", "false");
   recipeContent.innerHTML = buildRecipeCardsMarkup();
+  syncHudStatus();
 }
 
 
@@ -6599,6 +6871,9 @@ function syncSaveModalControls() {
   saveStyleSettings.hidden = false;
   saveStripNodes.checked = state.saveExport.stripNodes;
   saveNodesRow.hidden = state.saveExport.layout === EXPORT_LAYOUT_WHEEL || state.saveExport.layout === EXPORT_LAYOUT_GRADIENT;
+  const layoutMeta = getExportLayoutMeta(state.saveExport.layout);
+  savePreviewCaption.innerHTML = `<strong>${layoutMeta.label}</strong><span>${layoutMeta.caption}</span>`;
+  syncHudStatus();
 }
 
 function resetSaveExportState() {
@@ -6757,6 +7032,7 @@ function closeSaveModal() {
   savePreviewOverlay.hidden = true;
   saveModal.classList.add("hidden");
   saveModal.setAttribute("aria-hidden", "true");
+  syncHudStatus();
 }
 
 function openSaveModal() {
@@ -6768,6 +7044,7 @@ function openSaveModal() {
   resetSaveExportState();
   saveModal.classList.remove("hidden");
   saveModal.setAttribute("aria-hidden", "false");
+  syncHudStatus();
   renderSavePreview();
 }
 
@@ -6954,7 +7231,10 @@ function createPaletteCard(color, height) {
   card.dataset.harmonizeLocked = lockState.locked ? "true" : "false";
   card.dataset.harmonizeAnchor = lockState.isAnchor ? "true" : "false";
   card.addEventListener('pointerdown', (event) => startPaletteDrag(event, color.id));
-  card.innerHTML = `<div class="palette-meta"><div class="palette-line"><button class="palette-code palette-copy" type="button" data-copy-hex="${color.hex}" title="Copy"><strong>${color.hex}</strong></button><span class="percent-badge">${formatPercent(color.percent)}</span></div></div><button class="palette-card-lock" type="button" data-action="harmonize-lock-card" ${state.harmonize.isOpen ? "" : "hidden "}aria-pressed="${lockState.locked ? "true" : "false"}" aria-label="${lockState.ariaLabel}" title="${lockState.title}">${lockState.label}</button>`;
+  const stateBadge = state.harmonize.isOpen && (lockState.isAnchor || lockState.locked)
+    ? `<span class="palette-card-state">${lockState.isAnchor ? "Anchor" : "Locked"}</span>`
+    : "";
+  card.innerHTML = `<div class="palette-meta"><div class="palette-line"><button class="palette-code palette-copy" type="button" data-copy-hex="${color.hex}" title="Copy"><strong>${color.hex}</strong></button><span class="percent-badge">${formatPercent(color.percent)}</span>${stateBadge}</div></div><button class="palette-card-lock" type="button" data-action="harmonize-lock-card" ${state.harmonize.isOpen ? "" : "hidden "}aria-pressed="${lockState.locked ? "true" : "false"}" aria-label="${lockState.ariaLabel}" title="${lockState.title}">${lockState.label}</button>`;
   const copyButton = card.querySelector('[data-copy-hex]');
   const lockButton = card.querySelector('[data-action="harmonize-lock-card"]');
   if (copyButton) {
@@ -7018,6 +7298,7 @@ function renderPalette(options = {}) {
   const { skipSettle = false } = options;
   updatePaletteLayoutMode();
   renderPalettePreview();
+  syncHudStatus();
   paletteList.innerHTML = '';
   const heightById = getPaletteHeightMap();
   const columns = Array.from({ length: isTwoColumnPalette() ? 2 : 1 }, (_, index) => {
@@ -7634,6 +7915,7 @@ state.inventoryDraft = clonePaintCollection(state.ownedPaints);
 renderInventoryList();
 renderPalettePreview();
 syncSaveModalControls();
+syncHudStatus();
 }
 
 function boot() {
@@ -7651,5 +7933,3 @@ if (document.readyState === "loading") {
 
 
 </script>
-
-

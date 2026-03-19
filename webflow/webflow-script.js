@@ -115,6 +115,7 @@ ${getHarmonizeSchemeOptionsMarkup()}
               <h4 class="palette-harmonize-card-title">Anchor and settings</h4>
             </div>
             <div class="palette-harmonize-card-body">
+              <div class="palette-harmonize-status" data-role="harmonize-status">Previewing changes</div>
               <p class="palette-harmonize-helper" data-role="harmonize-helper">Use the palette rail locks to pin colours. The first locked colour becomes the anchor.</p>
               <div class="palette-harmonize-actions">
                 <button class="palette-harmonize-action" type="button" data-action="harmonize-reset">Reset</button>
@@ -141,7 +142,7 @@ function getPaletteMarkup() {
                 <button class="hud-settings-toggle" type="button" data-action="toggle-settings" aria-expanded="false" hidden>Settings</button>
               </div>
               <div class="hud-bar__group hud-bar__group--status">
-                <span class="hud-count">Studio blur map</span>
+                <span class="hud-count" data-role="hud-status">Upload an image to begin</span>
               </div>
             </div>
           </div>
@@ -295,6 +296,7 @@ ${getHarmonizePanelMarkup()}
       </div>
       <div data-role="save-content" class="save-modal-content">
         <div class="save-preview-shell">
+          <div class="save-preview-caption" data-role="save-preview-caption"></div>
           <div class="save-style-settings save-style-settings--overlay" data-role="save-style-settings">
             <label data-role="save-nodes-row" class="save-toggle" hidden>
               <input data-role="save-strip-nodes" type="checkbox">
@@ -375,7 +377,9 @@ function initPalette(root) {
   const harmonizeSaturationValue = root.querySelector('[data-role="harmonize-saturation-value"]');
   const harmonizeBrightness = root.querySelector('[data-role="harmonize-brightness"]');
   const harmonizeBrightnessValue = root.querySelector('[data-role="harmonize-brightness-value"]');
+  const harmonizeStatus = root.querySelector('[data-role="harmonize-status"]');
   const harmonizeHelper = root.querySelector('[data-role="harmonize-helper"]');
+  const hudStatus = root.querySelector('[data-role="hud-status"]');
   const harmonizeReset = root.querySelector('[data-action="harmonize-reset"]');
   const harmonizeCancel = root.querySelector('[data-action="harmonize-cancel"]');
   const harmonizeApply = root.querySelector('[data-action="harmonize-apply"]');
@@ -405,6 +409,7 @@ function initPalette(root) {
   const savePreviewShell = root.querySelector('.save-preview-shell');
   const savePreviewCanvas = root.querySelector('[data-role="save-preview-canvas"]');
   const savePreviewOverlay = root.querySelector('[data-role="save-preview-overlay"]');
+  const savePreviewCaption = root.querySelector('[data-role="save-preview-caption"]');
   const savePreviewEmpty = root.querySelector('[data-role="save-preview-empty"]');
   const saveStyleSettings = root.querySelector('[data-role="save-style-settings"]');
   const saveNodesRow = root.querySelector('[data-role="save-nodes-row"]');
@@ -413,7 +418,7 @@ function initPalette(root) {
   const saveExport = root.querySelector('[data-action="save-export-image"]');
   const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
   const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeSaturation || !harmonizeSaturationValue || !harmonizeBrightness || !harmonizeBrightnessValue || !harmonizeHelper || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewShell || !savePreviewCanvas || !savePreviewOverlay || !savePreviewEmpty || !saveStyleSettings || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeSaturation || !harmonizeSaturationValue || !harmonizeBrightness || !harmonizeBrightnessValue || !harmonizeStatus || !harmonizeHelper || !hudStatus || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewShell || !savePreviewCanvas || !savePreviewOverlay || !savePreviewCaption || !savePreviewEmpty || !saveStyleSettings || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
     return;
   }
 
@@ -443,6 +448,24 @@ const EXPORT_PREVIEW_LONGEST_EDGE = 1200;
 const EXPORT_SIZE_PRESETS = [1000, 2000, 3000, 4000];
 const EXPORT_GRADIENT_INFLUENCE_MIN = 0.35;
 const EXPORT_GRADIENT_INFLUENCE_MAX = 2.5;
+const EXPORT_LAYOUT_META = {
+  [EXPORT_LAYOUT_CURRENT]: {
+    label: "Default",
+    caption: "Original blur study with your live node layout.",
+  },
+  [EXPORT_LAYOUT_STRIP]: {
+    label: "Swatches",
+    caption: "Blur study paired with a stacked swatch strip.",
+  },
+  [EXPORT_LAYOUT_WHEEL]: {
+    label: "Colour wheel",
+    caption: "Palette slices with concentric tone bands.",
+  },
+  [EXPORT_LAYOUT_GRADIENT]: {
+    label: "Gradient map",
+    caption: "Drag nodes and influence rings to shape the field.",
+  },
+};
 const SCROLL_LOCK_SWATCH_DRAG = "swatch-drag";
 const SCROLL_LOCK_PALETTE_DRAG = "palette-drag";
 const SCROLL_LOCK_PALETTE_DRAWER = "palette-drawer";
@@ -2042,6 +2065,59 @@ function formatHarmonizeAdjustmentValue(value) {
   return `${numeric > 0 ? "+" : ""}${numeric}%`;
 }
 
+function getExportLayoutMeta(layout) {
+  return EXPORT_LAYOUT_META[normalizeExportLayout(layout)] || EXPORT_LAYOUT_META[EXPORT_LAYOUT_CURRENT];
+}
+
+function getHarmonizeLockedCount() {
+  let count = 0;
+  state.harmonize.lockedIds.forEach((colorId) => {
+    if (state.colors.some((color) => color.id === colorId)) {
+      count += 1;
+    }
+  });
+  return count;
+}
+
+function syncPrimaryActionState() {
+  const activeAction = !inventoryModal.classList.contains("hidden")
+    ? "paint-setup"
+    : !recipeModal.classList.contains("hidden")
+      ? "recipe"
+      : !saveModal.classList.contains("hidden")
+        ? "export"
+        : "";
+  root.dataset.activeAction = activeAction;
+  paintSetupButton.classList.toggle("active", activeAction === "paint-setup");
+  recipeButton.classList.toggle("active", activeAction === "recipe");
+  imageExportButton.classList.toggle("active", activeAction === "export");
+  paintSetupButton.setAttribute("aria-pressed", String(activeAction === "paint-setup"));
+  recipeButton.setAttribute("aria-pressed", String(activeAction === "recipe"));
+  imageExportButton.setAttribute("aria-pressed", String(activeAction === "export"));
+}
+
+function syncHudStatus() {
+  let statusText = "Upload an image to begin";
+  if (!saveModal.classList.contains("hidden")) {
+    statusText = `Export · ${getExportLayoutMeta(state.saveExport.layout).label}`;
+  } else if (!inventoryModal.classList.contains("hidden")) {
+    statusText = `Paint setup · ${state.ownedPaints.length} saved`;
+  } else if (!recipeModal.classList.contains("hidden")) {
+    statusText = state.recipeResults.length
+      ? `Paint recipe · ${state.recipeResults.length} mix${state.recipeResults.length === 1 ? "" : "es"}`
+      : "Paint recipe";
+  } else if (state.harmonize.isOpen) {
+    const lockedCount = getHarmonizeLockedCount();
+    statusText = lockedCount
+      ? `Harmonise preview · ${lockedCount} locked`
+      : "Harmonise preview";
+  } else if (state.image && state.colors.length) {
+    statusText = `Palette ${state.colors.length} ready`;
+  }
+  hudStatus.textContent = statusText;
+  syncPrimaryActionState();
+}
+
 function clearHarmonizePreviewRaf() {
   if (!state.harmonize.previewRaf) return;
   cancelAnimationFrame(state.harmonize.previewRaf);
@@ -2074,7 +2150,9 @@ function renderHarmonizePanel() {
   harmonizeBrightnessValue.textContent = formatHarmonizeAdjustmentValue(state.harmonize.brightness);
 
   if (!state.harmonize.isOpen) {
-    harmonizeHelper.textContent = "Lock a palette colour to choose the anchor.";
+    harmonizeStatus.textContent = "Previewing changes";
+    harmonizeHelper.textContent = "Lock a colour to set the anchor.";
+    syncHudStatus();
     syncPaletteLockControls();
     return;
   }
@@ -2082,11 +2160,16 @@ function renderHarmonizePanel() {
   const metrics = state.harmonize.metrics;
   const anchorMetric = metrics?.perColorMetrics.find((entry) => entry.anchor) || null;
   const anchorHex = anchorMetric?.outputHex || "";
+  const lockedCount = getHarmonizeLockedCount();
+  harmonizeStatus.textContent = lockedCount
+    ? `Previewing changes · ${lockedCount} locked`
+    : "Previewing changes";
   if (anchorHex) {
-    harmonizeHelper.innerHTML = `<span class="palette-harmonize-helper-dot" style="--helper-dot:${anchorHex};"></span><span>${anchorHex} is currently anchoring this preview.</span>`;
+    harmonizeHelper.innerHTML = `<span class="palette-harmonize-helper-dot" style="--helper-dot:${anchorHex};"></span><span>${anchorHex}</span><span class="palette-harmonize-helper-tag">Anchor</span>`;
   } else {
-    harmonizeHelper.textContent = "Choose a scheme to preview the current anchor.";
+    harmonizeHelper.textContent = "Lock a colour to set the anchor.";
   }
+  syncHudStatus();
   syncPaletteLockControls();
 }
 
@@ -2584,11 +2667,13 @@ function openInventoryModal() {
   resetInventoryForm();
   inventoryModal.classList.remove("hidden");
   inventoryModal.setAttribute("aria-hidden", "false");
+  syncHudStatus();
 }
 
 function closeInventoryModal() {
   inventoryModal.classList.add("hidden");
   inventoryModal.setAttribute("aria-hidden", "true");
+  syncHudStatus();
 }
 
 function validateInventoryFormDraft() {
@@ -2697,12 +2782,14 @@ function showRecipeMessage(message) {
   recipeModal.classList.remove("hidden");
   recipeModal.setAttribute("aria-hidden", "false");
   recipeContent.innerHTML = `<p class="recipe-empty">${message}</p>`;
+  syncHudStatus();
 }
 
 function closeRecipeModal() {
   if (!recipeModal) return;
   recipeModal.classList.add("hidden");
   recipeModal.setAttribute("aria-hidden", "true");
+  syncHudStatus();
 }
 
 function drawRoundedRect(context, x, y, width, height, radius, fill) {
@@ -3063,6 +3150,7 @@ function renderRecipe() {
   recipeModal.classList.remove("hidden");
   recipeModal.setAttribute("aria-hidden", "false");
   recipeContent.innerHTML = buildRecipeCardsMarkup();
+  syncHudStatus();
 }
 
 
@@ -4011,6 +4099,9 @@ function syncSaveModalControls() {
   saveStyleSettings.hidden = false;
   saveStripNodes.checked = state.saveExport.stripNodes;
   saveNodesRow.hidden = state.saveExport.layout === EXPORT_LAYOUT_WHEEL || state.saveExport.layout === EXPORT_LAYOUT_GRADIENT;
+  const layoutMeta = getExportLayoutMeta(state.saveExport.layout);
+  savePreviewCaption.innerHTML = `<strong>${layoutMeta.label}</strong><span>${layoutMeta.caption}</span>`;
+  syncHudStatus();
 }
 
 function resetSaveExportState() {
@@ -4169,6 +4260,7 @@ function closeSaveModal() {
   savePreviewOverlay.hidden = true;
   saveModal.classList.add("hidden");
   saveModal.setAttribute("aria-hidden", "true");
+  syncHudStatus();
 }
 
 function openSaveModal() {
@@ -4180,6 +4272,7 @@ function openSaveModal() {
   resetSaveExportState();
   saveModal.classList.remove("hidden");
   saveModal.setAttribute("aria-hidden", "false");
+  syncHudStatus();
   renderSavePreview();
 }
 
@@ -4366,7 +4459,10 @@ function createPaletteCard(color, height) {
   card.dataset.harmonizeLocked = lockState.locked ? "true" : "false";
   card.dataset.harmonizeAnchor = lockState.isAnchor ? "true" : "false";
   card.addEventListener('pointerdown', (event) => startPaletteDrag(event, color.id));
-  card.innerHTML = `<div class="palette-meta"><div class="palette-line"><button class="palette-code palette-copy" type="button" data-copy-hex="${color.hex}" title="Copy"><strong>${color.hex}</strong></button><span class="percent-badge">${formatPercent(color.percent)}</span></div></div><button class="palette-card-lock" type="button" data-action="harmonize-lock-card" ${state.harmonize.isOpen ? "" : "hidden "}aria-pressed="${lockState.locked ? "true" : "false"}" aria-label="${lockState.ariaLabel}" title="${lockState.title}">${lockState.label}</button>`;
+  const stateBadge = state.harmonize.isOpen && (lockState.isAnchor || lockState.locked)
+    ? `<span class="palette-card-state">${lockState.isAnchor ? "Anchor" : "Locked"}</span>`
+    : "";
+  card.innerHTML = `<div class="palette-meta"><div class="palette-line"><button class="palette-code palette-copy" type="button" data-copy-hex="${color.hex}" title="Copy"><strong>${color.hex}</strong></button><span class="percent-badge">${formatPercent(color.percent)}</span>${stateBadge}</div></div><button class="palette-card-lock" type="button" data-action="harmonize-lock-card" ${state.harmonize.isOpen ? "" : "hidden "}aria-pressed="${lockState.locked ? "true" : "false"}" aria-label="${lockState.ariaLabel}" title="${lockState.title}">${lockState.label}</button>`;
   const copyButton = card.querySelector('[data-copy-hex]');
   const lockButton = card.querySelector('[data-action="harmonize-lock-card"]');
   if (copyButton) {
@@ -4430,6 +4526,7 @@ function renderPalette(options = {}) {
   const { skipSettle = false } = options;
   updatePaletteLayoutMode();
   renderPalettePreview();
+  syncHudStatus();
   paletteList.innerHTML = '';
   const heightById = getPaletteHeightMap();
   const columns = Array.from({ length: isTwoColumnPalette() ? 2 : 1 }, (_, index) => {
@@ -5046,6 +5143,7 @@ state.inventoryDraft = clonePaintCollection(state.ownedPaints);
 renderInventoryList();
 renderPalettePreview();
 syncSaveModalControls();
+syncHudStatus();
 }
 
 function boot() {
