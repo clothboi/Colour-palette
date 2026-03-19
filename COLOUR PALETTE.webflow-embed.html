@@ -1807,16 +1807,6 @@
   padding-right: 8px;
 }
 
-.webflow-palette-embed .save-controls {
-  display: grid;
-  gap: 12px;
-  flex: 0 0 auto;
-}
-
-.webflow-palette-embed:not([data-mobile-layout="true"]) .save-controls {
-  gap: 14px;
-}
-
 .webflow-palette-embed .save-control-group,
 .webflow-palette-embed .save-toggle {
   border: 1px solid var(--glass-surface-border);
@@ -1864,6 +1854,13 @@
   display: grid;
   gap: 10px;
   justify-items: start;
+}
+
+.webflow-palette-embed .save-style-settings--overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
 }
 
 .webflow-palette-embed .save-style-panel {
@@ -1951,7 +1948,7 @@
   min-height: 0;
   min-height: 260px;
   height: auto;
-  padding: 0;
+  padding: 14px;
   border: 0;
   background: transparent;
   box-shadow: none;
@@ -2862,15 +2859,13 @@ ${getHarmonizePanelMarkup()}
         <button class="save-close" type="button" data-action="save-close" aria-label="Close export options">X</button>
       </div>
       <div data-role="save-content" class="save-modal-content">
-        <div class="save-controls">
-          <div class="save-style-settings" data-role="save-style-settings">
+        <div class="save-preview-shell">
+          <div class="save-style-settings save-style-settings--overlay" data-role="save-style-settings">
             <label data-role="save-nodes-row" class="save-toggle" hidden>
               <input data-role="save-strip-nodes" type="checkbox">
               <span>Show nodes</span>
             </label>
           </div>
-        </div>
-        <div class="save-preview-shell">
           <canvas data-role="save-preview-canvas" aria-label="Export preview"></canvas>
           <div data-role="save-preview-overlay" class="save-preview-overlay" hidden></div>
           <p data-role="save-preview-empty" class="save-preview-empty" hidden></p>

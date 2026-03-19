@@ -1805,16 +1805,6 @@
   padding-right: 8px;
 }
 
-.webflow-palette-embed .save-controls {
-  display: grid;
-  gap: 12px;
-  flex: 0 0 auto;
-}
-
-.webflow-palette-embed:not([data-mobile-layout="true"]) .save-controls {
-  gap: 14px;
-}
-
 .webflow-palette-embed .save-control-group,
 .webflow-palette-embed .save-toggle {
   border: 1px solid var(--glass-surface-border);
@@ -1862,6 +1852,13 @@
   display: grid;
   gap: 10px;
   justify-items: start;
+}
+
+.webflow-palette-embed .save-style-settings--overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
 }
 
 .webflow-palette-embed .save-style-panel {
@@ -1949,7 +1946,7 @@
   min-height: 0;
   min-height: 260px;
   height: auto;
-  padding: 0;
+  padding: 14px;
   border: 0;
   background: transparent;
   box-shadow: none;

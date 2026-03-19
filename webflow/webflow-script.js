@@ -294,15 +294,13 @@ ${getHarmonizePanelMarkup()}
         <button class="save-close" type="button" data-action="save-close" aria-label="Close export options">X</button>
       </div>
       <div data-role="save-content" class="save-modal-content">
-        <div class="save-controls">
-          <div class="save-style-settings" data-role="save-style-settings">
+        <div class="save-preview-shell">
+          <div class="save-style-settings save-style-settings--overlay" data-role="save-style-settings">
             <label data-role="save-nodes-row" class="save-toggle" hidden>
               <input data-role="save-strip-nodes" type="checkbox">
               <span>Show nodes</span>
             </label>
           </div>
-        </div>
-        <div class="save-preview-shell">
           <canvas data-role="save-preview-canvas" aria-label="Export preview"></canvas>
           <div data-role="save-preview-overlay" class="save-preview-overlay" hidden></div>
           <p data-role="save-preview-empty" class="save-preview-empty" hidden></p>
