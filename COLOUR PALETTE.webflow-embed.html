@@ -6359,8 +6359,7 @@ function buildWheelExportBaseCanvas() {
   const size = 1400;
   const center = size / 2;
   const radius = 600;
-  const innerGapRadius = 32;
-  const ringFractions = [0.14, 0.18, 0.28, 0.2, 0.2];
+  const ringFractions = [0.2, 0.2, 0.2, 0.2, 0.2];
   const totalPercent = orderedColors.reduce((sum, color) => sum + color.percent, 0) || orderedColors.length || 1;
   const exportCtx = exportCanvas.getContext("2d");
   exportCanvas.width = size;
@@ -6376,7 +6375,7 @@ function buildWheelExportBaseCanvas() {
   orderedColors.forEach((color) => {
     const sweep = ((color.percent || (100 / orderedColors.length)) / totalPercent) * Math.PI * 2;
     const endAngle = startAngle + sweep;
-    let innerRadius = innerGapRadius;
+    let innerRadius = 0;
 
     ringFractions.forEach((fraction, ringIndex) => {
       const outerRadius = innerRadius + (radius * fraction);
@@ -6402,12 +6401,6 @@ function buildWheelExportBaseCanvas() {
 
     startAngle = endAngle;
   });
-
-  exportCtx.beginPath();
-  exportCtx.arc(center, center, innerGapRadius, 0, Math.PI * 2);
-  exportCtx.lineWidth = 4;
-  exportCtx.strokeStyle = "rgba(248, 246, 242, 0.96)";
-  exportCtx.stroke();
 
   return exportCanvas;
 }
