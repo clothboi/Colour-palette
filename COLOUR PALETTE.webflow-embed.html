@@ -1544,6 +1544,14 @@
   max-height: calc(min(88vh, 1080px) - var(--save-modal-footer-height) - var(--save-modal-stack-gap));
 }
 
+.webflow-palette-embed:not([data-mobile-layout="true"]) .save-modal-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 16px;
+  row-gap: 12px;
+}
+
 .webflow-palette-embed .recipe-modal-head,
 .webflow-palette-embed .inventory-modal-head,
 .webflow-palette-embed .save-modal-head {
@@ -1581,6 +1589,12 @@
     0 8px 18px rgba(0, 0, 0, 0.12);
   -webkit-backdrop-filter: blur(18px) saturate(145%);
   backdrop-filter: blur(18px) saturate(145%);
+}
+
+.webflow-palette-embed:not([data-mobile-layout="true"]) .save-modal-tabs-shell {
+  max-width: 920px;
+  width: 100%;
+  justify-self: center;
 }
 
 .webflow-palette-embed .save-modal-tabs {
@@ -1932,7 +1946,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: 1 0 260px;
+  flex: 1 1 auto;
   width: 100%;
   min-height: 0;
   min-height: 260px;
@@ -1947,7 +1961,7 @@
 }
 
 .webflow-palette-embed:not([data-mobile-layout="true"]) .save-preview-shell {
-  min-height: 420px;
+  min-height: clamp(520px, 62vh, 760px);
 }
 
 .webflow-palette-embed .save-preview-shell canvas {
