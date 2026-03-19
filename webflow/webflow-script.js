@@ -3253,14 +3253,7 @@ function drawProcessedImage() {
   ctx.imageSmoothingQuality = "high";
   ctx.drawImage(processedCanvas, 0, 0, displayWidth, displayHeight);
   ctx.restore();
-  const imageData = ctx.getImageData(0, 0, displayWidth, displayHeight);
-  for (let i = 0; i < imageData.data.length; i += 4) {
-    const grain = (Math.random() - 0.5) * renderProfile.grainAmount;
-    imageData.data[i] = clamp(imageData.data[i] + grain, 0, 255);
-    imageData.data[i + 1] = clamp(imageData.data[i + 1] + grain, 0, 255);
-    imageData.data[i + 2] = clamp(imageData.data[i + 2] + grain, 0, 255);
-  }
-  ctx.putImageData(imageData, 0, 0);
+  applyCanvasGrain(ctx, displayWidth, displayHeight, renderProfile.grainAmount);
   updateAmbientBackdrop();
 }
 
@@ -3727,6 +3720,17 @@ function getExportNoisePatternCanvas() {
   return state.saveExport.noisePatternCanvas;
 }
 
+function applyCanvasGrain(context, width, height, grainAmount) {
+  const imageData = context.getImageData(0, 0, width, height);
+  for (let index = 0; index < imageData.data.length; index += 4) {
+    const grain = (Math.random() - 0.5) * grainAmount;
+    imageData.data[index] = clamp(imageData.data[index] + grain, 0, 255);
+    imageData.data[index + 1] = clamp(imageData.data[index + 1] + grain, 0, 255);
+    imageData.data[index + 2] = clamp(imageData.data[index + 2] + grain, 0, 255);
+  }
+  context.putImageData(imageData, 0, 0);
+}
+
 function getGradientBlobRadiusForDimension(percent, totalPercent, minDimension, influence = 1) {
   const percentWeight = clamp((percent || 0) / Math.max(1, totalPercent || 1), 0.04, 0.9);
   const baseRadius = minDimension * ((0.18 + (0.46 * Math.sqrt(percentWeight))) * 2);
@@ -3955,21 +3959,12 @@ function buildGradientExportBaseCanvas(options) {
   exportCtx.drawImage(blobCanvas, 0, 0);
   exportCtx.restore();
 
-  const noisePatternCanvas = getExportNoisePatternCanvas();
-  const pattern = exportCtx.createPattern(noisePatternCanvas, "repeat");
-  if (pattern) {
-    exportCtx.save();
-    exportCtx.globalAlpha = 0.12;
-    exportCtx.globalCompositeOperation = "soft-light";
-    exportCtx.fillStyle = pattern;
-    exportCtx.fillRect(0, 0, width, height);
-    exportCtx.restore();
-  }
-
   exportCtx.save();
   exportCtx.fillStyle = "rgba(8, 10, 12, 0.1)";
   exportCtx.fillRect(0, 0, width, height);
   exportCtx.restore();
+
+  applyCanvasGrain(exportCtx, width, height, renderProfile.grainAmount);
 
   return exportCanvas;
 }
