@@ -3913,7 +3913,7 @@ function buildGradientExportBaseCanvas(options) {
 
   nodes.forEach((node) => {
     const percentWeight = clamp((node.percent || 0) / totalPercent, 0.04, 0.9);
-    const radius = minDimension * (0.18 + (0.46 * Math.sqrt(percentWeight)));
+    const radius = minDimension * ((0.18 + (0.46 * Math.sqrt(percentWeight))) * 2);
     const x = node.x * width;
     const y = node.y * height;
     const glow = blobCtx.createRadialGradient(x, y, 0, x, y, radius);

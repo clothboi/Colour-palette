@@ -1968,8 +1968,8 @@
 
 .webflow-palette-embed .save-preview-node {
   position: absolute;
-  width: 64px;
-  height: 64px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border-radius: 999px;
   transform: translate(-50%, -50%);
@@ -1985,7 +1985,7 @@
 .webflow-palette-embed .save-preview-node::before {
   content: "";
   position: absolute;
-  inset: 16px;
+  inset: 8px;
   border-radius: 999px;
   background: var(--node-color, #f2efe8);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -6452,7 +6452,7 @@ function buildGradientExportBaseCanvas(options) {
 
   nodes.forEach((node) => {
     const percentWeight = clamp((node.percent || 0) / totalPercent, 0.04, 0.9);
-    const radius = minDimension * (0.18 + (0.46 * Math.sqrt(percentWeight)));
+    const radius = minDimension * ((0.18 + (0.46 * Math.sqrt(percentWeight))) * 2);
     const x = node.x * width;
     const y = node.y * height;
     const glow = blobCtx.createRadialGradient(x, y, 0, x, y, radius);
