@@ -301,13 +301,6 @@ ${getHarmonizePanelMarkup()}
                 <input data-role="save-strip-nodes" type="checkbox">
                 <span>Show nodes</span>
               </label>
-              <section class="save-style-inline" data-role="save-wheel-order-row" hidden>
-                <span class="save-style-label">Order</span>
-                <div class="save-option-row save-option-row-inline">
-                  <button class="save-option-button" type="button" data-save-wheel-order="palette">Palette order</button>
-                  <button class="save-option-button" type="button" data-save-wheel-order="hue">Hue order</button>
-                </div>
-              </section>
               <section class="save-style-panel" data-role="save-gradient-row" hidden>
                 <p class="save-style-note">Gradient map node positions are export-only for this style.</p>
                 <button class="save-option-button save-option-button--secondary" type="button" data-action="save-gradient-reset">Reset nodes</button>
@@ -424,15 +417,13 @@ function initPalette(root) {
   const saveStyleSettings = root.querySelector('[data-role="save-style-settings"]');
   const saveNodesRow = root.querySelector('[data-role="save-nodes-row"]');
   const saveStripNodes = root.querySelector('[data-role="save-strip-nodes"]');
-  const saveWheelOrderRow = root.querySelector('[data-role="save-wheel-order-row"]');
-  const saveWheelOrderButtons = [...root.querySelectorAll('[data-save-wheel-order]')];
   const saveGradientRow = root.querySelector('[data-role="save-gradient-row"]');
   const saveGradientReset = root.querySelector('[data-action="save-gradient-reset"]');
   const saveClose = root.querySelector('[data-action="save-close"]');
   const saveExport = root.querySelector('[data-action="save-export-image"]');
   const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
   const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeSaturation || !harmonizeSaturationValue || !harmonizeBrightness || !harmonizeBrightnessValue || !harmonizeHelper || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewShell || !savePreviewCanvas || !savePreviewOverlay || !savePreviewEmpty || !saveStyleSettings || !saveNodesRow || !saveStripNodes || !saveWheelOrderRow || !saveWheelOrderButtons.length || !saveGradientRow || !saveGradientReset || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeSaturation || !harmonizeSaturationValue || !harmonizeBrightness || !harmonizeBrightnessValue || !harmonizeHelper || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewShell || !savePreviewCanvas || !savePreviewOverlay || !savePreviewEmpty || !saveStyleSettings || !saveNodesRow || !saveStripNodes || !saveGradientRow || !saveGradientReset || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
     return;
   }
 
@@ -457,8 +448,6 @@ const EXPORT_LAYOUT_CURRENT = "current";
 const EXPORT_LAYOUT_STRIP = "strip";
 const EXPORT_LAYOUT_WHEEL = "wheel";
 const EXPORT_LAYOUT_GRADIENT = "gradient";
-const EXPORT_WHEEL_ORDER_PALETTE = "palette";
-const EXPORT_WHEEL_ORDER_HUE = "hue";
 const EXPORT_DEFAULT_LONGEST_EDGE = 2000;
 const EXPORT_PREVIEW_LONGEST_EDGE = 1200;
 const EXPORT_SIZE_PRESETS = [1000, 2000, 3000, 4000];
@@ -1168,7 +1157,6 @@ const state = {
   paletteSize: DEFAULT_PALETTE_SIZE,
   saveExport: {
     layout: EXPORT_LAYOUT_CURRENT,
-    wheelOrder: EXPORT_WHEEL_ORDER_PALETTE,
     longestEdge: EXPORT_DEFAULT_LONGEST_EDGE,
     stripNodes: false,
     gradientNodes: [],
@@ -3630,10 +3618,6 @@ function normalizeExportLayout(layout) {
   }
 }
 
-function normalizeExportWheelOrder(order) {
-  return order === EXPORT_WHEEL_ORDER_HUE ? EXPORT_WHEEL_ORDER_HUE : EXPORT_WHEEL_ORDER_PALETTE;
-}
-
 function createSaveGradientNodeSnapshot() {
   return state.colors.map((color) => ({
     id: color.id,
@@ -3713,26 +3697,8 @@ function getExportWheelRingFill(color, ringIndex) {
   return rgbToHex(adjusted.r, adjusted.g, adjusted.b);
 }
 
-function getSortedWheelColors(order) {
-  const paletteOrder = state.colors.map((color, index) => {
-    const lch = labToLch(rgbToLab(color));
-    return {
-      color,
-      index,
-      hue: lch.h,
-      nearNeutral: isNearNeutral(lch),
-    };
-  });
-
-  if (normalizeExportWheelOrder(order) !== EXPORT_WHEEL_ORDER_HUE) {
-    return paletteOrder.map((entry) => entry.color);
-  }
-
-  const chromatic = paletteOrder
-    .filter((entry) => !entry.nearNeutral)
-    .sort((a, b) => a.hue - b.hue || a.index - b.index);
-  const neutrals = paletteOrder.filter((entry) => entry.nearNeutral);
-  return [...chromatic, ...neutrals].map((entry) => entry.color);
+function getSortedWheelColors() {
+  return [...state.colors];
 }
 
 function createExportNoisePattern(size = 160) {
@@ -3860,8 +3826,8 @@ function buildStripExportBaseCanvas(options) {
   return exportCanvas;
 }
 
-function buildWheelExportBaseCanvas(options) {
-  const orderedColors = getSortedWheelColors(options?.wheelOrder);
+function buildWheelExportBaseCanvas() {
+  const orderedColors = getSortedWheelColors();
   const exportCanvas = document.createElement("canvas");
   const size = 1400;
   const center = size / 2;
@@ -3996,7 +3962,6 @@ function buildGradientExportBaseCanvas(options) {
 function buildExportCanvas(options = state.saveExport) {
   const exportOptions = {
     layout: normalizeExportLayout(options?.layout),
-    wheelOrder: normalizeExportWheelOrder(options?.wheelOrder),
     longestEdge: options?.longestEdge || EXPORT_DEFAULT_LONGEST_EDGE,
     stripNodes: Boolean(options?.stripNodes),
     gradientNodes: options?.gradientNodes || [],
@@ -4024,11 +3989,6 @@ function syncSaveModalControls() {
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", active ? "true" : "false");
   });
-  saveWheelOrderButtons.forEach((button) => {
-    const active = button.dataset.saveWheelOrder === state.saveExport.wheelOrder;
-    button.classList.toggle("active", active);
-    button.setAttribute("aria-pressed", active ? "true" : "false");
-  });
   saveSizeButtons.forEach((button) => {
     const active = Number(button.dataset.saveSize) === state.saveExport.longestEdge;
     button.classList.toggle("active", active);
@@ -4037,13 +3997,11 @@ function syncSaveModalControls() {
   saveStyleSettings.hidden = false;
   saveStripNodes.checked = state.saveExport.stripNodes;
   saveNodesRow.hidden = state.saveExport.layout === EXPORT_LAYOUT_WHEEL || state.saveExport.layout === EXPORT_LAYOUT_GRADIENT;
-  saveWheelOrderRow.hidden = state.saveExport.layout !== EXPORT_LAYOUT_WHEEL;
   saveGradientRow.hidden = state.saveExport.layout !== EXPORT_LAYOUT_GRADIENT;
 }
 
 function resetSaveExportState() {
   state.saveExport.layout = EXPORT_LAYOUT_CURRENT;
-  state.saveExport.wheelOrder = EXPORT_WHEEL_ORDER_PALETTE;
   state.saveExport.longestEdge = EXPORT_DEFAULT_LONGEST_EDGE;
   state.saveExport.stripNodes = false;
   seedSaveGradientNodesFromColors();
@@ -4959,13 +4917,6 @@ if (saveModal) {
 saveStyleButtons.forEach((button) => {
   button.addEventListener("click", () => {
     state.saveExport.layout = normalizeExportLayout(button.dataset.saveStyle);
-    syncSaveModalControls();
-    renderSavePreview();
-  });
-});
-saveWheelOrderButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    state.saveExport.wheelOrder = normalizeExportWheelOrder(button.dataset.saveWheelOrder);
     syncSaveModalControls();
     renderSavePreview();
   });

@@ -1824,13 +1824,6 @@
   margin-top: 2px;
 }
 
-.webflow-palette-embed .save-style-inline {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 10px;
-}
-
 .webflow-palette-embed .save-style-panel {
   display: grid;
   gap: 10px;
@@ -1838,14 +1831,6 @@
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(10, 12, 15, 0.34);
-}
-
-.webflow-palette-embed .save-style-label {
-  color: var(--muted-strong);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
 }
 
 .webflow-palette-embed .save-style-note {
@@ -1869,10 +1854,6 @@
 .webflow-palette-embed .save-option-row-sizes .save-option-button {
   flex: 1 1 calc(25% - 6px);
   min-width: 0;
-}
-
-.webflow-palette-embed .save-option-row-inline .save-option-button {
-  flex: 1 1 calc(50% - 4px);
 }
 
 .webflow-palette-embed .save-option-button--secondary {
@@ -2292,10 +2273,6 @@
 
 .webflow-palette-embed[data-mobile-layout="true"] .save-control-group--sizes {
   column-gap: 10px;
-}
-
-.webflow-palette-embed[data-mobile-layout="true"] .save-style-inline {
-  grid-template-columns: 1fr;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .save-preview-shell {
