@@ -2323,6 +2323,16 @@
   max-width: var(--save-modal-width);
 }
 
+.webflow-palette-embed[data-mobile-layout="true"] .save-modal {
+  --save-modal-width: min(760px, calc(100% - 12px));
+  padding: 8px;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .save-modal-panel {
+  max-height: calc(min(90vh, 1040px) - var(--save-modal-footer-height) - var(--save-modal-stack-gap));
+  padding: 14px;
+}
+
 .webflow-palette-embed[data-mobile-layout="true"] .save-option-row-sizes .save-option-button {
   flex: 1 1 calc(25% - 6px);
   min-width: 0;
@@ -2342,16 +2352,18 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .save-modal-tabs {
-  gap: 6px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .save-option-button--tab {
-  padding: 8px 6px;
+  min-height: 44px;
+  padding: 8px 8px;
   font-size: 0.84rem;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .save-preview-shell {
-  min-height: 220px;
+  min-height: 320px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .save-modal-content {
