@@ -1857,6 +1857,11 @@
   background: rgba(10, 12, 15, 0.34);
 }
 
+.webflow-palette-embed .save-style-panel[hidden],
+.webflow-palette-embed .save-toggle[hidden] {
+  display: none !important;
+}
+
 .webflow-palette-embed .save-style-note {
   margin: 0;
   color: var(--muted);
