@@ -283,11 +283,13 @@ ${getHarmonizePanelMarkup()}
         <div class="save-modal-title">
           <h2>Export</h2>
         </div>
-        <div class="save-modal-tabs" role="tablist" aria-label="Export styles">
-          <button class="save-option-button save-option-button--tab" type="button" data-save-style="current">Default</button>
-          <button class="save-option-button save-option-button--tab" type="button" data-save-style="strip">Swatches</button>
-          <button class="save-option-button save-option-button--tab" type="button" data-save-style="wheel">Colour wheel</button>
-          <button class="save-option-button save-option-button--tab" type="button" data-save-style="gradient">Gradient map</button>
+        <div class="save-modal-tabs-shell">
+          <div class="save-modal-tabs" role="tablist" aria-label="Export styles">
+            <button class="save-option-button save-option-button--tab" type="button" data-save-style="current">Default</button>
+            <button class="save-option-button save-option-button--tab" type="button" data-save-style="strip">Swatches</button>
+            <button class="save-option-button save-option-button--tab" type="button" data-save-style="wheel">Colour wheel</button>
+            <button class="save-option-button save-option-button--tab" type="button" data-save-style="gradient">Gradient map</button>
+          </div>
         </div>
         <button class="save-close" type="button" data-action="save-close" aria-label="Close export options">X</button>
       </div>
@@ -298,10 +300,6 @@ ${getHarmonizePanelMarkup()}
               <input data-role="save-strip-nodes" type="checkbox">
               <span>Show nodes</span>
             </label>
-            <section class="save-style-panel" data-role="save-gradient-row" hidden>
-              <p class="save-style-note">Gradient map node positions are export-only for this style.</p>
-              <button class="save-option-button save-option-button--secondary" type="button" data-action="save-gradient-reset">Reset nodes</button>
-            </section>
           </div>
         </div>
         <div class="save-preview-shell">
@@ -413,13 +411,11 @@ function initPalette(root) {
   const saveStyleSettings = root.querySelector('[data-role="save-style-settings"]');
   const saveNodesRow = root.querySelector('[data-role="save-nodes-row"]');
   const saveStripNodes = root.querySelector('[data-role="save-strip-nodes"]');
-  const saveGradientRow = root.querySelector('[data-role="save-gradient-row"]');
-  const saveGradientReset = root.querySelector('[data-action="save-gradient-reset"]');
   const saveClose = root.querySelector('[data-action="save-close"]');
   const saveExport = root.querySelector('[data-action="save-export-image"]');
   const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
   const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeSaturation || !harmonizeSaturationValue || !harmonizeBrightness || !harmonizeBrightnessValue || !harmonizeHelper || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewShell || !savePreviewCanvas || !savePreviewOverlay || !savePreviewEmpty || !saveStyleSettings || !saveNodesRow || !saveStripNodes || !saveGradientRow || !saveGradientReset || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeSaturation || !harmonizeSaturationValue || !harmonizeBrightness || !harmonizeBrightnessValue || !harmonizeHelper || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewShell || !savePreviewCanvas || !savePreviewOverlay || !savePreviewEmpty || !saveStyleSettings || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
     return;
   }
 
@@ -4001,7 +3997,6 @@ function syncSaveModalControls() {
   saveStyleSettings.hidden = false;
   saveStripNodes.checked = state.saveExport.stripNodes;
   saveNodesRow.hidden = state.saveExport.layout === EXPORT_LAYOUT_WHEEL || state.saveExport.layout === EXPORT_LAYOUT_GRADIENT;
-  saveGradientRow.hidden = state.saveExport.layout !== EXPORT_LAYOUT_GRADIENT;
 }
 
 function resetSaveExportState() {
@@ -4937,10 +4932,6 @@ saveSizeButtons.forEach((button) => {
 saveStripNodes.addEventListener("change", () => {
   state.saveExport.stripNodes = Boolean(saveStripNodes.checked);
   syncSaveModalControls();
-  renderSavePreview();
-});
-saveGradientReset.addEventListener("click", () => {
-  seedSaveGradientNodesFromColors();
   renderSavePreview();
 });
 saveExport.addEventListener("click", exportConfiguredImage);

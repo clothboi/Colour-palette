@@ -1548,11 +1548,12 @@
 .webflow-palette-embed .inventory-modal-head,
 .webflow-palette-embed .save-modal-head {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-start;
   align-items: center;
   gap: 12px;
   margin-bottom: 12px;
-  padding-right: 52px;
+  padding-right: 0;
 }
 
 .webflow-palette-embed .recipe-modal-head h2,
@@ -1567,12 +1568,28 @@
   min-width: 0;
 }
 
-.webflow-palette-embed .save-modal-tabs {
+.webflow-palette-embed .save-modal-tabs-shell {
   display: flex;
+  flex: 1 1 100%;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid var(--glass-surface-border);
+  border-radius: 16px;
+  background: var(--glass-surface-bg-soft);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 18px rgba(0, 0, 0, 0.12);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+  backdrop-filter: blur(18px) saturate(145%);
+}
+
+.webflow-palette-embed .save-modal-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   flex: 1 1 auto;
-  flex-wrap: wrap;
   gap: 8px;
   min-width: 0;
+  width: 100%;
 }
 
 .webflow-palette-embed .recipe-close,
@@ -1868,7 +1885,10 @@
 
 .webflow-palette-embed .save-option-button--tab {
   min-height: 36px;
-  padding: 8px 12px;
+  width: 100%;
+  min-width: 0;
+  padding: 8px 10px;
+  font-size: 0.92rem;
 }
 
 .webflow-palette-embed .save-option-row-sizes .save-option-button {
@@ -2297,12 +2317,20 @@
 
 .webflow-palette-embed[data-mobile-layout="true"] .save-modal-head {
   align-items: flex-start;
-  flex-wrap: wrap;
   row-gap: 10px;
 }
 
+.webflow-palette-embed[data-mobile-layout="true"] .save-modal-tabs-shell {
+  flex-basis: 100%;
+}
+
 .webflow-palette-embed[data-mobile-layout="true"] .save-modal-tabs {
-  flex-basis: calc(100% - 48px);
+  gap: 6px;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .save-option-button--tab {
+  padding: 8px 6px;
+  font-size: 0.84rem;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .save-preview-shell {
@@ -2794,11 +2822,13 @@ ${getHarmonizePanelMarkup()}
         <div class="save-modal-title">
           <h2>Export</h2>
         </div>
-        <div class="save-modal-tabs" role="tablist" aria-label="Export styles">
-          <button class="save-option-button save-option-button--tab" type="button" data-save-style="current">Default</button>
-          <button class="save-option-button save-option-button--tab" type="button" data-save-style="strip">Swatches</button>
-          <button class="save-option-button save-option-button--tab" type="button" data-save-style="wheel">Colour wheel</button>
-          <button class="save-option-button save-option-button--tab" type="button" data-save-style="gradient">Gradient map</button>
+        <div class="save-modal-tabs-shell">
+          <div class="save-modal-tabs" role="tablist" aria-label="Export styles">
+            <button class="save-option-button save-option-button--tab" type="button" data-save-style="current">Default</button>
+            <button class="save-option-button save-option-button--tab" type="button" data-save-style="strip">Swatches</button>
+            <button class="save-option-button save-option-button--tab" type="button" data-save-style="wheel">Colour wheel</button>
+            <button class="save-option-button save-option-button--tab" type="button" data-save-style="gradient">Gradient map</button>
+          </div>
         </div>
         <button class="save-close" type="button" data-action="save-close" aria-label="Close export options">X</button>
       </div>
@@ -2809,10 +2839,6 @@ ${getHarmonizePanelMarkup()}
               <input data-role="save-strip-nodes" type="checkbox">
               <span>Show nodes</span>
             </label>
-            <section class="save-style-panel" data-role="save-gradient-row" hidden>
-              <p class="save-style-note">Gradient map node positions are export-only for this style.</p>
-              <button class="save-option-button save-option-button--secondary" type="button" data-action="save-gradient-reset">Reset nodes</button>
-            </section>
           </div>
         </div>
         <div class="save-preview-shell">
@@ -2924,13 +2950,11 @@ function initPalette(root) {
   const saveStyleSettings = root.querySelector('[data-role="save-style-settings"]');
   const saveNodesRow = root.querySelector('[data-role="save-nodes-row"]');
   const saveStripNodes = root.querySelector('[data-role="save-strip-nodes"]');
-  const saveGradientRow = root.querySelector('[data-role="save-gradient-row"]');
-  const saveGradientReset = root.querySelector('[data-action="save-gradient-reset"]');
   const saveClose = root.querySelector('[data-action="save-close"]');
   const saveExport = root.querySelector('[data-action="save-export-image"]');
   const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
   const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeSaturation || !harmonizeSaturationValue || !harmonizeBrightness || !harmonizeBrightnessValue || !harmonizeHelper || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewShell || !savePreviewCanvas || !savePreviewOverlay || !savePreviewEmpty || !saveStyleSettings || !saveNodesRow || !saveStripNodes || !saveGradientRow || !saveGradientReset || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeSaturation || !harmonizeSaturationValue || !harmonizeBrightness || !harmonizeBrightnessValue || !harmonizeHelper || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewShell || !savePreviewCanvas || !savePreviewOverlay || !savePreviewEmpty || !saveStyleSettings || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
     return;
   }
 
@@ -6512,7 +6536,6 @@ function syncSaveModalControls() {
   saveStyleSettings.hidden = false;
   saveStripNodes.checked = state.saveExport.stripNodes;
   saveNodesRow.hidden = state.saveExport.layout === EXPORT_LAYOUT_WHEEL || state.saveExport.layout === EXPORT_LAYOUT_GRADIENT;
-  saveGradientRow.hidden = state.saveExport.layout !== EXPORT_LAYOUT_GRADIENT;
 }
 
 function resetSaveExportState() {
@@ -7448,10 +7471,6 @@ saveSizeButtons.forEach((button) => {
 saveStripNodes.addEventListener("change", () => {
   state.saveExport.stripNodes = Boolean(saveStripNodes.checked);
   syncSaveModalControls();
-  renderSavePreview();
-});
-saveGradientReset.addEventListener("click", () => {
-  seedSaveGradientNodesFromColors();
   renderSavePreview();
 });
 saveExport.addEventListener("click", exportConfiguredImage);
