@@ -314,7 +314,7 @@ ${getHarmonizePanelMarkup()}
               </section>
             </div>
           </section>
-          <section class="save-control-group">
+          <section class="save-control-group save-control-group--sizes">
             <span class="save-control-label">Size</span>
             <div class="save-option-row save-option-row-sizes">
               <button class="save-option-button" type="button" data-save-size="1000">1k</button>

@@ -1795,6 +1795,13 @@
   padding: 12px;
 }
 
+.webflow-palette-embed .save-control-group--sizes {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 0;
+}
+
 .webflow-palette-embed .save-control-label {
   color: var(--muted);
   font-size: 0.72rem;
@@ -1810,6 +1817,7 @@
 
 .webflow-palette-embed .save-option-row-sizes {
   flex-wrap: nowrap;
+  align-items: center;
 }
 
 .webflow-palette-embed .save-style-settings {
@@ -2282,6 +2290,10 @@
 .webflow-palette-embed[data-mobile-layout="true"] .save-option-row-sizes .save-option-button {
   flex: 1 1 calc(25% - 6px);
   min-width: 0;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .save-control-group--sizes {
+  column-gap: 10px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .save-style-inline {
@@ -2803,7 +2815,7 @@ ${getHarmonizePanelMarkup()}
               </section>
             </div>
           </section>
-          <section class="save-control-group">
+          <section class="save-control-group save-control-group--sizes">
             <span class="save-control-label">Size</span>
             <div class="save-option-row save-option-row-sizes">
               <button class="save-option-button" type="button" data-save-size="1000">1k</button>
