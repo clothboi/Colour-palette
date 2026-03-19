@@ -6325,6 +6325,10 @@ function getGradientBlobRadiusForDimension(percent, totalPercent, minDimension, 
   return baseRadius * clamp(influence, EXPORT_GRADIENT_INFLUENCE_MIN, EXPORT_GRADIENT_INFLUENCE_MAX);
 }
 
+function getGradientInfluenceDisplayRadius(percent, totalPercent, minDimension, influence = 1) {
+  return getGradientBlobRadiusForDimension(percent, totalPercent, minDimension, influence) * 0.5;
+}
+
 function buildCurrentExportBaseCanvas(options) {
   const showNodes = Boolean(options?.stripNodes);
   const imageWidth = 1100;
@@ -6694,7 +6698,7 @@ function renderSavePreviewOverlay() {
   });
 
   if (activeNode) {
-    const influenceRadius = getGradientBlobRadiusForDimension(
+    const influenceRadius = getGradientInfluenceDisplayRadius(
       activeNode.percent || 0,
       totalPercent,
       Math.min(bounds.width, bounds.height),
@@ -6805,7 +6809,7 @@ function updateSaveGradientNodeInfluenceFromClientPosition(clientX, clientY) {
   }
 
   const totalPercent = Math.max(1, state.colors.reduce((sum, color) => sum + (color.percent || 0), 0));
-  const baseRadius = getGradientBlobRadiusForDimension(node.percent || 0, totalPercent, Math.min(bounds.width, bounds.height), 1);
+  const baseRadius = getGradientInfluenceDisplayRadius(node.percent || 0, totalPercent, Math.min(bounds.width, bounds.height), 1);
   const centerX = bounds.left + (clamp(node.x, 0, 1) * bounds.width);
   const centerY = bounds.top + (clamp(node.y, 0, 1) * bounds.height);
   const distance = Math.hypot(clientX - centerX, clientY - centerY);
