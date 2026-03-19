@@ -569,11 +569,45 @@
   justify-content: flex-end;
 }
 
+.webflow-palette-embed .harmonize-stage-exit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 8px 14px;
+  border: 1px solid var(--glass-button-border);
+  border-radius: 999px;
+  background: var(--glass-button-bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: var(--glass-button-shadow);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.webflow-palette-embed .harmonize-stage-exit:hover {
+  transform: translateY(-1px);
+}
+
 .webflow-palette-embed .harmonize-stage-grid {
   display: grid;
   align-content: start;
   gap: var(--space-3);
   min-height: 0;
+}
+
+.webflow-palette-embed .harmonize-stage-footer {
+  margin-top: auto;
+}
+
+.webflow-palette-embed .harmonize-stage-footer .palette-harmonize-card:last-child {
+  margin-top: 0;
 }
 
 .webflow-palette-embed:not([data-mobile-layout="true"])[data-harmonize-open="true"] .canvas-wrap {
@@ -1166,6 +1200,10 @@
   box-shadow: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
+}
+
+.webflow-palette-embed:not([data-mobile-layout="true"]) .palette-harmonize-panel--rail {
+  display: none !important;
 }
 
 .webflow-palette-embed .palette-harmonize-panel--rail .palette-harmonize-card:last-child {
@@ -3002,7 +3040,7 @@ function getDesktopHarmonizeStageMarkup() {
                 <p class="palette-harmonize-subtle">Shape the palette here while the palette rail stays live on the right.</p>
               </div>
               <div class="harmonize-stage-status">
-                <span class="palette-harmonize-status">Desktop editing mode</span>
+                <button class="harmonize-stage-exit" type="button" data-action="harmonize-cancel" aria-label="Exit harmonise preview">Exit</button>
               </div>
             </div>
             <div class="harmonize-stage-grid">
@@ -3013,6 +3051,9 @@ ${getHarmonizeSchemeSectionMarkup()}
 ${getHarmonizeBalanceSectionMarkup()}
               </div>
             </div>
+            <div class="harmonize-stage-footer" data-role="harmonize-stage-footer">
+${getHarmonizeRailActionsMarkup("Palette state")}
+            </div>
           </div>
         </section>`;
 }
@@ -3020,7 +3061,6 @@ ${getHarmonizeBalanceSectionMarkup()}
 function getDesktopHarmonizeRailPanelMarkup() {
   return `
         <section class="palette-harmonize-panel palette-harmonize-panel--rail" data-role="harmonize-rail-panel" hidden aria-hidden="true">
-${getHarmonizeRailActionsMarkup("Palette state")}
         </section>`;
 }
 
@@ -5020,17 +5060,17 @@ function syncPrimaryActionState() {
 function syncHudStatus() {
   let statusText = "Upload an image to begin";
   if (!saveModal.classList.contains("hidden")) {
-    statusText = `Export · ${getExportLayoutMeta(state.saveExport.layout).label}`;
+    statusText = `Export Â· ${getExportLayoutMeta(state.saveExport.layout).label}`;
   } else if (!inventoryModal.classList.contains("hidden")) {
-    statusText = `Paint setup · ${state.ownedPaints.length} saved`;
+    statusText = `Paint setup Â· ${state.ownedPaints.length} saved`;
   } else if (!recipeModal.classList.contains("hidden")) {
     statusText = state.recipeResults.length
-      ? `Paint recipe · ${state.recipeResults.length} mix${state.recipeResults.length === 1 ? "" : "es"}`
+      ? `Paint recipe Â· ${state.recipeResults.length} mix${state.recipeResults.length === 1 ? "" : "es"}`
       : "Paint recipe";
   } else if (state.harmonize.isOpen) {
     const lockedCount = getHarmonizeLockedCount();
     statusText = lockedCount
-      ? `Harmonise preview · ${lockedCount} locked`
+      ? `Harmonise preview Â· ${lockedCount} locked`
       : "Harmonise preview";
   } else if (state.image && state.colors.length) {
     statusText = `Palette ${state.colors.length} ready`;
@@ -5067,7 +5107,7 @@ function renderHarmonizePanel() {
   const isMobile = isRealMobileLayout();
   root.dataset.harmonizeOpen = state.harmonize.isOpen ? "true" : "false";
   const showDesktopStage = state.harmonize.isOpen && !isMobile;
-  const showDesktopRailPanel = state.harmonize.isOpen && !isMobile;
+  const showDesktopRailPanel = false;
   const showMobilePanel = state.harmonize.isOpen && isMobile;
   harmonizeStage.hidden = !showDesktopStage;
   harmonizeStage.setAttribute("aria-hidden", String(!showDesktopStage));
@@ -5118,7 +5158,7 @@ function renderHarmonizePanel() {
   const anchorHex = anchorMetric?.outputHex || "";
   const lockedCount = getHarmonizeLockedCount();
   const statusText = lockedCount
-    ? `Previewing changes · ${lockedCount} locked`
+    ? `Previewing changes Â· ${lockedCount} locked`
     : "Previewing changes";
   harmonizeStatuses.forEach((status) => {
     status.textContent = statusText;
@@ -5262,7 +5302,7 @@ function toggleHarmonizePanel(trigger = null) {
 }
 
 function handleHarmonizeOutsidePointerDown(event) {
-  if (!state.harmonize.isOpen) {
+  if (!state.harmonize.isOpen || !isRealMobileLayout()) {
     return;
   }
 

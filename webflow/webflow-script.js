@@ -138,7 +138,7 @@ function getDesktopHarmonizeStageMarkup() {
                 <p class="palette-harmonize-subtle">Shape the palette here while the palette rail stays live on the right.</p>
               </div>
               <div class="harmonize-stage-status">
-                <span class="palette-harmonize-status">Desktop editing mode</span>
+                <button class="harmonize-stage-exit" type="button" data-action="harmonize-cancel" aria-label="Exit harmonise preview">Exit</button>
               </div>
             </div>
             <div class="harmonize-stage-grid">
@@ -149,6 +149,9 @@ ${getHarmonizeSchemeSectionMarkup()}
 ${getHarmonizeBalanceSectionMarkup()}
               </div>
             </div>
+            <div class="harmonize-stage-footer" data-role="harmonize-stage-footer">
+${getHarmonizeRailActionsMarkup("Palette state")}
+            </div>
           </div>
         </section>`;
 }
@@ -156,7 +159,6 @@ ${getHarmonizeBalanceSectionMarkup()}
 function getDesktopHarmonizeRailPanelMarkup() {
   return `
         <section class="palette-harmonize-panel palette-harmonize-panel--rail" data-role="harmonize-rail-panel" hidden aria-hidden="true">
-${getHarmonizeRailActionsMarkup("Palette state")}
         </section>`;
 }
 
@@ -2203,7 +2205,7 @@ function renderHarmonizePanel() {
   const isMobile = isRealMobileLayout();
   root.dataset.harmonizeOpen = state.harmonize.isOpen ? "true" : "false";
   const showDesktopStage = state.harmonize.isOpen && !isMobile;
-  const showDesktopRailPanel = state.harmonize.isOpen && !isMobile;
+  const showDesktopRailPanel = false;
   const showMobilePanel = state.harmonize.isOpen && isMobile;
   harmonizeStage.hidden = !showDesktopStage;
   harmonizeStage.setAttribute("aria-hidden", String(!showDesktopStage));
@@ -2398,7 +2400,7 @@ function toggleHarmonizePanel(trigger = null) {
 }
 
 function handleHarmonizeOutsidePointerDown(event) {
-  if (!state.harmonize.isOpen) {
+  if (!state.harmonize.isOpen || !isRealMobileLayout()) {
     return;
   }
 
