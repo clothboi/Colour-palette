@@ -509,6 +509,75 @@
     0 26px 54px rgba(0, 0, 0, 0.28);
 }
 
+.webflow-palette-embed .harmonize-stage {
+  width: var(--frame-width);
+  max-width: 100%;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.webflow-palette-embed .harmonize-stage[hidden] {
+  display: none !important;
+}
+
+.webflow-palette-embed .harmonize-stage-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01) 34%, rgba(8, 10, 13, 0.22)),
+    rgba(13, 16, 19, 0.92);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 26px 54px rgba(0, 0, 0, 0.28);
+}
+
+.webflow-palette-embed .harmonize-stage-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.webflow-palette-embed .harmonize-stage-copy {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.webflow-palette-embed .harmonize-stage-copy h2 {
+  margin: 0;
+  font-size: 1.38rem;
+  line-height: 1.05;
+}
+
+.webflow-palette-embed .harmonize-stage-copy .palette-harmonize-subtle {
+  max-width: 48ch;
+}
+
+.webflow-palette-embed .harmonize-stage-status {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
+.webflow-palette-embed .harmonize-stage-grid {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+  min-height: 0;
+}
+
+.webflow-palette-embed:not([data-mobile-layout="true"])[data-harmonize-open="true"] .canvas-wrap {
+  display: none;
+}
+
 .webflow-palette-embed canvas {
   position: relative;
   z-index: 1;
@@ -1087,9 +1156,32 @@
   backdrop-filter: blur(26px) saturate(145%);
 }
 
+.webflow-palette-embed .palette-harmonize-panel--rail {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.webflow-palette-embed .palette-harmonize-panel--rail .palette-harmonize-card:last-child {
+  margin-top: 0;
+}
+
 .webflow-palette-embed:not([data-mobile-layout="true"]) .palette-harmonize-panel {
   max-height: none;
   overflow: visible;
+}
+
+.webflow-palette-embed:not([data-mobile-layout="true"]) .palette-harmonize-panel--mobile {
+  display: none !important;
+}
+
+.webflow-palette-embed[data-mobile-layout="true"] .palette-harmonize-panel--rail,
+.webflow-palette-embed[data-mobile-layout="true"] .harmonize-stage {
+  display: none !important;
 }
 
 .webflow-palette-embed .palette-harmonize-panel[hidden] {

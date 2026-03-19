@@ -58,15 +58,8 @@ function getMobilePaletteSummaryControlsMarkup() {
               <button class="palette-harmonize-toggle mobile-palette-rail__harmonize" type="button" data-action="toggle-harmonize" aria-expanded="false">Harmonise</button>`;
 }
 
-function getHarmonizePanelMarkup() {
+function getHarmonizeSchemeSectionMarkup() {
   return `
-        <section class="palette-harmonize-panel" data-role="harmonize-panel" hidden aria-hidden="true">
-          <div class="palette-harmonize-head">
-            <div>
-              <p class="palette-harmonize-kicker">Palette tuning</p>
-              <h3>Harmonise palette</h3>
-            </div>
-          </div>
           <section class="palette-harmonize-card">
             <div class="palette-harmonize-card-head">
               <h4 class="palette-harmonize-card-title">Colour scheme</h4>
@@ -81,7 +74,11 @@ ${getHarmonizeSchemeOptionsMarkup()}
               </div>
               <p class="palette-harmonize-subtle palette-harmonize-scheme-description" data-role="harmonize-scheme-description">${HARMONIZE_SCHEMES.find((scheme) => scheme.id === HARMONIZE_DEFAULT_SCHEME)?.description || ""}</p>
             </div>
-          </section>
+          </section>`;
+}
+
+function getHarmonizeBalanceSectionMarkup() {
+  return `
           <section class="palette-harmonize-card">
             <div class="palette-harmonize-card-head">
               <h4 class="palette-harmonize-card-title">Palette balance</h4>
@@ -109,10 +106,14 @@ ${getHarmonizeSchemeOptionsMarkup()}
                 <input class="palette-harmonize-slider" data-role="harmonize-brightness" type="range" min="-100" max="100" step="1" value="${HARMONIZE_DEFAULT_BRIGHTNESS}">
               </label>
             </div>
-          </section>
+          </section>`;
+}
+
+function getHarmonizeRailActionsMarkup(title = "Anchor and settings") {
+  return `
           <section class="palette-harmonize-card">
             <div class="palette-harmonize-card-head">
-              <h4 class="palette-harmonize-card-title">Anchor and settings</h4>
+              <h4 class="palette-harmonize-card-title">${title}</h4>
             </div>
             <div class="palette-harmonize-card-body">
               <div class="palette-harmonize-status" data-role="harmonize-status">Previewing changes</div>
@@ -123,7 +124,48 @@ ${getHarmonizeSchemeOptionsMarkup()}
                 <button class="palette-harmonize-action palette-harmonize-action--primary" type="button" data-action="harmonize-apply">Apply</button>
               </div>
             </div>
-          </section>
+          </section>`;
+}
+
+function getDesktopHarmonizeStageMarkup() {
+  return `
+        <section class="harmonize-stage" data-role="harmonize-stage" hidden aria-hidden="true">
+          <div class="harmonize-stage-shell">
+            <div class="harmonize-stage-head">
+              <div class="harmonize-stage-copy">
+                <p class="recipe-modal-kicker">Harmonise</p>
+                <h2>Previewing palette changes</h2>
+                <p class="palette-harmonize-subtle">Shape the palette here while the palette rail stays live on the right.</p>
+              </div>
+              <div class="harmonize-stage-status">
+                <span class="palette-harmonize-status">Desktop editing mode</span>
+              </div>
+            </div>
+            <div class="harmonize-stage-grid">
+              <div data-role="harmonize-stage-scheme">
+${getHarmonizeSchemeSectionMarkup()}
+              </div>
+              <div data-role="harmonize-stage-balance">
+${getHarmonizeBalanceSectionMarkup()}
+              </div>
+            </div>
+          </div>
+        </section>`;
+}
+
+function getDesktopHarmonizeRailPanelMarkup() {
+  return `
+        <section class="palette-harmonize-panel palette-harmonize-panel--rail" data-role="harmonize-rail-panel" hidden aria-hidden="true">
+${getHarmonizeRailActionsMarkup("Palette state")}
+        </section>`;
+}
+
+function getMobileHarmonizePanelMarkup() {
+  return `
+        <section class="palette-harmonize-panel palette-harmonize-panel--mobile" data-role="harmonize-mobile-panel" hidden aria-hidden="true">
+${getHarmonizeSchemeSectionMarkup()}
+${getHarmonizeBalanceSectionMarkup()}
+${getHarmonizeRailActionsMarkup()}
         </section>`;
 }
 
@@ -163,6 +205,8 @@ function getPaletteMarkup() {
 
         <section data-role="import-warning" class="import-warning hidden" aria-live="polite"></section>
 
+${getDesktopHarmonizeStageMarkup()}
+
         <div class="canvas-wrap" data-role="canvas-wrap">
           <canvas data-role="display-canvas" width="900" height="1350"></canvas>
           <div data-role="swatch-layer" class="swatch-layer" aria-label="Color swatches"></div>
@@ -192,7 +236,8 @@ ${getMobilePaletteSummaryControlsMarkup()}
           </div>
 ${getPaletteControlsMarkup()}
         </div>
-${getHarmonizePanelMarkup()}
+${getDesktopHarmonizeRailPanelMarkup()}
+${getMobileHarmonizePanelMarkup()}
         <div class="palette-drawer-sheet" data-role="palette-drawer-sheet" aria-hidden="false">
           <div data-role="palette-list" class="palette-list"></div>
         </div>
@@ -359,6 +404,7 @@ function initPalette(root) {
   const emptyState = root.querySelector('[data-role="empty-state"]');
   const canvasStage = root.querySelector('.canvas-stage');
   const canvasWrap = root.querySelector('[data-role="canvas-wrap"]');
+  const harmonizeStage = root.querySelector('[data-role="harmonize-stage"]');
   const controlHud = root.querySelector('.control-hud');
   const hudSettingsPanel = root.querySelector('[data-role="hud-settings-panel"]');
   const settingsToggle = root.querySelector('[data-action="toggle-settings"]');
@@ -368,21 +414,22 @@ function initPalette(root) {
   const palettePlusButtons = [...root.querySelectorAll('[data-action="palette-plus"]')];
   const harmonizeToggleButtons = [...root.querySelectorAll('[data-action="toggle-harmonize"]')];
   const paletteSizeLabels = [...root.querySelectorAll('[data-role="palette-size-label"]')];
-  const harmonizePanel = root.querySelector('[data-role="harmonize-panel"]');
-  const harmonizeSchemeSelect = root.querySelector('[data-role="harmonize-scheme-select"]');
-  const harmonizeSchemeDescription = root.querySelector('[data-role="harmonize-scheme-description"]');
-  const harmonizeStrength = root.querySelector('[data-role="harmonize-strength"]');
-  const harmonizeStrengthValue = root.querySelector('[data-role="harmonize-strength-value"]');
-  const harmonizeSaturation = root.querySelector('[data-role="harmonize-saturation"]');
-  const harmonizeSaturationValue = root.querySelector('[data-role="harmonize-saturation-value"]');
-  const harmonizeBrightness = root.querySelector('[data-role="harmonize-brightness"]');
-  const harmonizeBrightnessValue = root.querySelector('[data-role="harmonize-brightness-value"]');
-  const harmonizeStatus = root.querySelector('[data-role="harmonize-status"]');
-  const harmonizeHelper = root.querySelector('[data-role="harmonize-helper"]');
+  const harmonizeRailPanel = root.querySelector('[data-role="harmonize-rail-panel"]');
+  const harmonizeMobilePanel = root.querySelector('[data-role="harmonize-mobile-panel"]');
+  const harmonizeSchemeSelects = [...root.querySelectorAll('[data-role="harmonize-scheme-select"]')];
+  const harmonizeSchemeDescriptions = [...root.querySelectorAll('[data-role="harmonize-scheme-description"]')];
+  const harmonizeStrengthInputs = [...root.querySelectorAll('[data-role="harmonize-strength"]')];
+  const harmonizeStrengthValues = [...root.querySelectorAll('[data-role="harmonize-strength-value"]')];
+  const harmonizeSaturationInputs = [...root.querySelectorAll('[data-role="harmonize-saturation"]')];
+  const harmonizeSaturationValues = [...root.querySelectorAll('[data-role="harmonize-saturation-value"]')];
+  const harmonizeBrightnessInputs = [...root.querySelectorAll('[data-role="harmonize-brightness"]')];
+  const harmonizeBrightnessValues = [...root.querySelectorAll('[data-role="harmonize-brightness-value"]')];
+  const harmonizeStatuses = [...root.querySelectorAll('[data-role="harmonize-status"]')];
+  const harmonizeHelpers = [...root.querySelectorAll('[data-role="harmonize-helper"]')];
   const hudStatus = root.querySelector('[data-role="hud-status"]');
-  const harmonizeReset = root.querySelector('[data-action="harmonize-reset"]');
-  const harmonizeCancel = root.querySelector('[data-action="harmonize-cancel"]');
-  const harmonizeApply = root.querySelector('[data-action="harmonize-apply"]');
+  const harmonizeResetButtons = [...root.querySelectorAll('[data-action="harmonize-reset"]')];
+  const harmonizeCancelButtons = [...root.querySelectorAll('[data-action="harmonize-cancel"]')];
+  const harmonizeApplyButtons = [...root.querySelectorAll('[data-action="harmonize-apply"]')];
   const recipeButton = root.querySelector('[data-action="recipe"]');
   const paintSetupButton = root.querySelector('[data-action="paint-setup"]');
   const imageExportButton = root.querySelector('[data-action="export-image"]');
@@ -418,7 +465,7 @@ function initPalette(root) {
   const saveExport = root.querySelector('[data-action="save-export-image"]');
   const saveStyleButtons = [...root.querySelectorAll('[data-save-style]')];
   const saveSizeButtons = [...root.querySelectorAll('[data-save-size]')];
-  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizePanel || !harmonizeSchemeSelect || !harmonizeSchemeDescription || !harmonizeStrength || !harmonizeStrengthValue || !harmonizeSaturation || !harmonizeSaturationValue || !harmonizeBrightness || !harmonizeBrightnessValue || !harmonizeStatus || !harmonizeHelper || !hudStatus || !harmonizeReset || !harmonizeCancel || !harmonizeApply || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewShell || !savePreviewCanvas || !savePreviewOverlay || !savePreviewCaption || !savePreviewEmpty || !saveStyleSettings || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
+  if (!ctx || !swatchLayer || !paletteList || !palettePanel || !mobilePaletteRail || !desktopPaletteToolbar || !paletteDrawerSheet || !paletteDrawerSummary || !palettePreviewList || !emptyState || !canvasStage || !canvasWrap || !harmonizeStage || !harmonizeRailPanel || !harmonizeMobilePanel || !controlHud || !hudSettingsPanel || !settingsToggle || !paletteDrawerOpen || !paletteDrawerClose || !paletteMinusButtons.length || !palettePlusButtons.length || !harmonizeToggleButtons.length || !paletteSizeLabels.length || !harmonizeSchemeSelects.length || !harmonizeSchemeDescriptions.length || !harmonizeStrengthInputs.length || !harmonizeStrengthValues.length || !harmonizeSaturationInputs.length || !harmonizeSaturationValues.length || !harmonizeBrightnessInputs.length || !harmonizeBrightnessValues.length || !harmonizeStatuses.length || !harmonizeHelpers.length || !hudStatus || !harmonizeResetButtons.length || !harmonizeCancelButtons.length || !harmonizeApplyButtons.length || !recipeButton || !paintSetupButton || !imageExportButton || !recipeModal || !recipeContent || !recipeClose || !recipeExport || !inventoryModal || !inventoryForm || !inventoryBrand || !inventoryColorName || !inventoryPigmentCodes || !inventoryOpacity || !inventoryLightfastness || !inventoryHex || !inventoryFeedback || !inventoryList || !inventoryCount || !inventoryClose || !inventoryReset || !inventorySave || !saveModal || !saveContent || !savePreviewShell || !savePreviewCanvas || !savePreviewOverlay || !savePreviewCaption || !savePreviewEmpty || !saveStyleSettings || !saveNodesRow || !saveStripNodes || !saveClose || !saveExport || !saveStyleButtons.length || !saveSizeButtons.length) {
     return;
   }
 
@@ -476,15 +523,25 @@ const HARMONIZE_MIN_NEUTRAL_CHROMA = 4;
 const mobileLayoutQuery = window.matchMedia(`(max-width: ${MOBILE_LAYOUT_MAX_WIDTH}px)`);
 const tabletPortraitLayoutQuery = window.matchMedia(`(max-width: ${TABLET_PORTRAIT_MAX_WIDTH}px) and (orientation: portrait) and (pointer: coarse)`);
 const paletteDrawerId = `palette-drawer-${Math.random().toString(36).slice(2, 10)}`;
-const harmonizePanelId = `palette-harmonize-${Math.random().toString(36).slice(2, 10)}`;
+const harmonizeStageId = `palette-harmonize-stage-${Math.random().toString(36).slice(2, 10)}`;
+const harmonizeMobilePanelId = `palette-harmonize-mobile-${Math.random().toString(36).slice(2, 10)}`;
+const harmonizeRailPanelId = `palette-harmonize-rail-${Math.random().toString(36).slice(2, 10)}`;
 
 paletteDrawerSheet.id = paletteDrawerId;
 paletteDrawerOpen.setAttribute("aria-controls", paletteDrawerId);
 paletteDrawerClose.setAttribute("aria-controls", paletteDrawerId);
-harmonizePanel.id = harmonizePanelId;
-harmonizeToggleButtons.forEach((button) => {
-  button.setAttribute("aria-controls", harmonizePanelId);
-});
+harmonizeStage.id = harmonizeStageId;
+harmonizeMobilePanel.id = harmonizeMobilePanelId;
+harmonizeRailPanel.id = harmonizeRailPanelId;
+
+function syncHarmonizeTriggerAriaControls() {
+  const targetId = isRealMobileLayout() ? harmonizeMobilePanelId : harmonizeStageId;
+  harmonizeToggleButtons.forEach((button) => {
+    button.setAttribute("aria-controls", targetId);
+  });
+}
+
+syncHarmonizeTriggerAriaControls();
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -2131,27 +2188,62 @@ function getVisibleHarmonizeTrigger() {
   return harmonizeToggleButtons.find((button) => button.isConnected && !button.hidden && button.offsetParent !== null && !button.disabled) || null;
 }
 
+function getVisibleHarmonizePrimaryControl() {
+  return harmonizeSchemeSelects.find((control) => control.isConnected && !control.disabled && control.offsetParent !== null) || harmonizeSchemeSelects[0] || null;
+}
+
 function focusHarmonizePrimaryControl() {
-  harmonizeSchemeSelect.focus({ preventScroll: true });
+  const control = getVisibleHarmonizePrimaryControl();
+  if (control) {
+    control.focus({ preventScroll: true });
+  }
 }
 
 function renderHarmonizePanel() {
+  const isMobile = isRealMobileLayout();
   root.dataset.harmonizeOpen = state.harmonize.isOpen ? "true" : "false";
-  harmonizePanel.hidden = !state.harmonize.isOpen;
-  harmonizePanel.setAttribute("aria-hidden", String(!state.harmonize.isOpen));
+  const showDesktopStage = state.harmonize.isOpen && !isMobile;
+  const showDesktopRailPanel = state.harmonize.isOpen && !isMobile;
+  const showMobilePanel = state.harmonize.isOpen && isMobile;
+  harmonizeStage.hidden = !showDesktopStage;
+  harmonizeStage.setAttribute("aria-hidden", String(!showDesktopStage));
+  harmonizeRailPanel.hidden = !showDesktopRailPanel;
+  harmonizeRailPanel.setAttribute("aria-hidden", String(!showDesktopRailPanel));
+  harmonizeMobilePanel.hidden = !showMobilePanel;
+  harmonizeMobilePanel.setAttribute("aria-hidden", String(!showMobilePanel));
   const selectedScheme = getHarmonizeSchemeDefinition(state.harmonize.scheme);
-  harmonizeSchemeSelect.value = selectedScheme.id;
-  harmonizeSchemeDescription.textContent = selectedScheme.description;
-  harmonizeStrength.value = String(state.harmonize.strength);
-  harmonizeStrengthValue.textContent = `${state.harmonize.strength}%`;
-  harmonizeSaturation.value = String(state.harmonize.saturation);
-  harmonizeSaturationValue.textContent = formatHarmonizeAdjustmentValue(state.harmonize.saturation);
-  harmonizeBrightness.value = String(state.harmonize.brightness);
-  harmonizeBrightnessValue.textContent = formatHarmonizeAdjustmentValue(state.harmonize.brightness);
+  harmonizeSchemeSelects.forEach((select) => {
+    select.value = selectedScheme.id;
+  });
+  harmonizeSchemeDescriptions.forEach((description) => {
+    description.textContent = selectedScheme.description;
+  });
+  harmonizeStrengthInputs.forEach((input) => {
+    input.value = String(state.harmonize.strength);
+  });
+  harmonizeStrengthValues.forEach((value) => {
+    value.textContent = `${state.harmonize.strength}%`;
+  });
+  harmonizeSaturationInputs.forEach((input) => {
+    input.value = String(state.harmonize.saturation);
+  });
+  harmonizeSaturationValues.forEach((value) => {
+    value.textContent = formatHarmonizeAdjustmentValue(state.harmonize.saturation);
+  });
+  harmonizeBrightnessInputs.forEach((input) => {
+    input.value = String(state.harmonize.brightness);
+  });
+  harmonizeBrightnessValues.forEach((value) => {
+    value.textContent = formatHarmonizeAdjustmentValue(state.harmonize.brightness);
+  });
 
   if (!state.harmonize.isOpen) {
-    harmonizeStatus.textContent = "Previewing changes";
-    harmonizeHelper.textContent = "Lock a colour to set the anchor.";
+    harmonizeStatuses.forEach((status) => {
+      status.textContent = "Previewing changes";
+    });
+    harmonizeHelpers.forEach((helper) => {
+      helper.textContent = "Lock a colour to set the anchor.";
+    });
     syncHudStatus();
     syncPaletteLockControls();
     return;
@@ -2161,13 +2253,21 @@ function renderHarmonizePanel() {
   const anchorMetric = metrics?.perColorMetrics.find((entry) => entry.anchor) || null;
   const anchorHex = anchorMetric?.outputHex || "";
   const lockedCount = getHarmonizeLockedCount();
-  harmonizeStatus.textContent = lockedCount
+  const statusText = lockedCount
     ? `Previewing changes · ${lockedCount} locked`
     : "Previewing changes";
+  harmonizeStatuses.forEach((status) => {
+    status.textContent = statusText;
+  });
   if (anchorHex) {
-    harmonizeHelper.innerHTML = `<span class="palette-harmonize-helper-dot" style="--helper-dot:${anchorHex};"></span><span>${anchorHex}</span><span class="palette-harmonize-helper-tag">Anchor</span>`;
+    const helperMarkup = `<span class="palette-harmonize-helper-dot" style="--helper-dot:${anchorHex};"></span><span>${anchorHex}</span><span class="palette-harmonize-helper-tag">Anchor</span>`;
+    harmonizeHelpers.forEach((helper) => {
+      helper.innerHTML = helperMarkup;
+    });
   } else {
-    harmonizeHelper.textContent = "Lock a colour to set the anchor.";
+    harmonizeHelpers.forEach((helper) => {
+      helper.textContent = "Lock a colour to set the anchor.";
+    });
   }
   syncHudStatus();
   syncPaletteLockControls();
@@ -2307,7 +2407,7 @@ function handleHarmonizeOutsidePointerDown(event) {
     return;
   }
 
-  if (palettePanel.contains(target)) {
+  if (palettePanel.contains(target) || harmonizeStage.contains(target)) {
     return;
   }
 
@@ -2489,6 +2589,7 @@ function syncLayoutState() {
   root.dataset.settingsOpen = mobileLayout && collapsibleSettings && state.isSettingsOpen ? "true" : "false";
   root.dataset.settingsMode = mobileLayout && collapsibleSettings ? "overlay" : "inline";
   root.dataset.paletteDrawerOpen = mobileLayout && state.isPaletteDrawerOpen ? "true" : "false";
+  syncHarmonizeTriggerAriaControls();
 
   settingsToggle.hidden = !mobileLayout || !collapsibleSettings;
   settingsToggle.setAttribute("aria-expanded", String(mobileLayout && collapsibleSettings && state.isSettingsOpen));
@@ -3488,12 +3589,14 @@ function getPaletteAvailableHeight() {
   const summaryVisible = !paletteDrawerSummary.hidden && window.getComputedStyle(paletteDrawerSummary).display !== "none";
   const openVisible = !paletteDrawerOpen.hidden && window.getComputedStyle(paletteDrawerOpen).display !== "none";
   const toolbarVisible = window.getComputedStyle(desktopPaletteToolbar).display !== "none";
-  const harmonizeVisible = !harmonizePanel.hidden && window.getComputedStyle(harmonizePanel).display !== "none";
+  const desktopHarmonizeVisible = !harmonizeRailPanel.hidden && window.getComputedStyle(harmonizeRailPanel).display !== "none";
+  const mobileHarmonizeVisible = !harmonizeMobilePanel.hidden && window.getComputedStyle(harmonizeMobilePanel).display !== "none";
   const usedHeights = [
     openVisible ? paletteDrawerOpen.getBoundingClientRect().height : 0,
     summaryVisible ? paletteDrawerSummary.getBoundingClientRect().height : 0,
     toolbarVisible ? desktopPaletteToolbar.getBoundingClientRect().height : 0,
-    harmonizeVisible ? harmonizePanel.getBoundingClientRect().height : 0,
+    desktopHarmonizeVisible ? harmonizeRailPanel.getBoundingClientRect().height : 0,
+    mobileHarmonizeVisible ? harmonizeMobilePanel.getBoundingClientRect().height : 0,
   ].filter((value) => value > 0);
   const visibleItems = usedHeights.length + 1;
   const gaps = Math.max(0, visibleItems - 1) * gap;
@@ -4969,50 +5072,64 @@ harmonizeToggleButtons.forEach((button) => {
     toggleHarmonizePanel(button);
   });
 });
-harmonizeSchemeSelect.addEventListener("change", () => {
-  if (!state.harmonize.isOpen) {
-    return;
-  }
-  const nextScheme = getHarmonizeSchemeDefinition(harmonizeSchemeSelect.value).id;
-  if (state.harmonize.scheme === nextScheme) {
-    return;
-  }
-  state.harmonize.scheme = nextScheme;
-  renderHarmonizePanel();
-  scheduleHarmonizePreview();
+harmonizeSchemeSelects.forEach((select) => {
+  select.addEventListener("change", () => {
+    if (!state.harmonize.isOpen) {
+      return;
+    }
+    const nextScheme = getHarmonizeSchemeDefinition(select.value).id;
+    if (state.harmonize.scheme === nextScheme) {
+      return;
+    }
+    state.harmonize.scheme = nextScheme;
+    renderHarmonizePanel();
+    scheduleHarmonizePreview();
+  });
 });
-harmonizeStrength.addEventListener("input", () => {
-  if (!state.harmonize.isOpen) {
-    return;
-  }
-  state.harmonize.strength = clamp(Number(harmonizeStrength.value), 0, 100);
-  renderHarmonizePanel();
-  scheduleHarmonizePreview();
+harmonizeStrengthInputs.forEach((input) => {
+  input.addEventListener("input", () => {
+    if (!state.harmonize.isOpen) {
+      return;
+    }
+    state.harmonize.strength = clamp(Number(input.value), 0, 100);
+    renderHarmonizePanel();
+    scheduleHarmonizePreview();
+  });
 });
-harmonizeSaturation.addEventListener("input", () => {
-  if (!state.harmonize.isOpen) {
-    return;
-  }
-  state.harmonize.saturation = clamp(Number(harmonizeSaturation.value), -100, 100);
-  renderHarmonizePanel();
-  scheduleHarmonizePreview();
+harmonizeSaturationInputs.forEach((input) => {
+  input.addEventListener("input", () => {
+    if (!state.harmonize.isOpen) {
+      return;
+    }
+    state.harmonize.saturation = clamp(Number(input.value), -100, 100);
+    renderHarmonizePanel();
+    scheduleHarmonizePreview();
+  });
 });
-harmonizeBrightness.addEventListener("input", () => {
-  if (!state.harmonize.isOpen) {
-    return;
-  }
-  state.harmonize.brightness = clamp(Number(harmonizeBrightness.value), -100, 100);
-  renderHarmonizePanel();
-  scheduleHarmonizePreview();
+harmonizeBrightnessInputs.forEach((input) => {
+  input.addEventListener("input", () => {
+    if (!state.harmonize.isOpen) {
+      return;
+    }
+    state.harmonize.brightness = clamp(Number(input.value), -100, 100);
+    renderHarmonizePanel();
+    scheduleHarmonizePreview();
+  });
 });
-harmonizeCancel.addEventListener("click", () => {
-  closeHarmonizePanel();
+harmonizeCancelButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    closeHarmonizePanel();
+  });
 });
-harmonizeReset.addEventListener("click", () => {
-  resetHarmonizePreview();
+harmonizeResetButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    resetHarmonizePreview();
+  });
 });
-harmonizeApply.addEventListener("click", () => {
-  applyHarmonizeChanges();
+harmonizeApplyButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    applyHarmonizeChanges();
+  });
 });
 root.addEventListener("pointerdown", handleHarmonizeOutsidePointerDown, true);
 root.addEventListener("pointerdown", handleSettingsOutsidePointerDown, true);
