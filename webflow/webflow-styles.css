@@ -1966,8 +1966,8 @@
 
 .webflow-palette-embed .save-preview-node {
   position: absolute;
-  width: 32px;
-  height: 32px;
+  width: 64px;
+  height: 64px;
   padding: 0;
   border-radius: 999px;
   transform: translate(-50%, -50%);
@@ -1983,7 +1983,7 @@
 .webflow-palette-embed .save-preview-node::before {
   content: "";
   position: absolute;
-  inset: 8px;
+  inset: 16px;
   border-radius: 999px;
   background: var(--node-color, #f2efe8);
   border: 1px solid rgba(255, 255, 255, 0.2);
