@@ -441,6 +441,8 @@ const EXPORT_LAYOUT_GRADIENT = "gradient";
 const EXPORT_DEFAULT_LONGEST_EDGE = 2000;
 const EXPORT_PREVIEW_LONGEST_EDGE = 1200;
 const EXPORT_SIZE_PRESETS = [1000, 2000, 3000, 4000];
+const EXPORT_GRADIENT_INFLUENCE_MIN = 0.35;
+const EXPORT_GRADIENT_INFLUENCE_MAX = 2.5;
 const SCROLL_LOCK_SWATCH_DRAG = "swatch-drag";
 const SCROLL_LOCK_PALETTE_DRAG = "palette-drag";
 const SCROLL_LOCK_PALETTE_DRAWER = "palette-drawer";
@@ -1150,7 +1152,9 @@ const state = {
     longestEdge: EXPORT_DEFAULT_LONGEST_EDGE,
     stripNodes: false,
     gradientNodes: [],
+    gradientActiveId: null,
     gradientDragId: null,
+    gradientDragMode: null,
     gradientDragPointerId: null,
     previewRaf: null,
     noisePatternCanvas: null,
@@ -3613,6 +3617,7 @@ function createSaveGradientNodeSnapshot() {
     id: color.id,
     x: clamp(typeof color.x === "number" ? color.x : 0.5, 0, 1),
     y: clamp(typeof color.y === "number" ? color.y : 0.5, 0, 1),
+    influence: 1,
     percent: color.percent,
     hex: color.hex,
   }));
@@ -3620,7 +3625,9 @@ function createSaveGradientNodeSnapshot() {
 
 function seedSaveGradientNodesFromColors() {
   state.saveExport.gradientNodes = createSaveGradientNodeSnapshot();
+  state.saveExport.gradientActiveId = null;
   state.saveExport.gradientDragId = null;
+  state.saveExport.gradientDragMode = null;
   state.saveExport.gradientDragPointerId = null;
 }
 
@@ -3638,6 +3645,7 @@ function getMergedSaveGradientNodes() {
       id: node.id,
       x: clamp(typeof node.x === "number" ? node.x : 0.5, 0, 1),
       y: clamp(typeof node.y === "number" ? node.y : 0.5, 0, 1),
+      influence: clamp(typeof node.influence === "number" ? node.influence : 1, EXPORT_GRADIENT_INFLUENCE_MIN, EXPORT_GRADIENT_INFLUENCE_MAX),
       percent: color ? color.percent : node.percent,
       hex: color ? color.hex : node.hex,
       r: color ? color.r : 0,
@@ -3717,6 +3725,12 @@ function getExportNoisePatternCanvas() {
     state.saveExport.noisePatternCanvas = createExportNoisePattern();
   }
   return state.saveExport.noisePatternCanvas;
+}
+
+function getGradientBlobRadiusForDimension(percent, totalPercent, minDimension, influence = 1) {
+  const percentWeight = clamp((percent || 0) / Math.max(1, totalPercent || 1), 0.04, 0.9);
+  const baseRadius = minDimension * ((0.18 + (0.46 * Math.sqrt(percentWeight))) * 2);
+  return baseRadius * clamp(influence, EXPORT_GRADIENT_INFLUENCE_MIN, EXPORT_GRADIENT_INFLUENCE_MAX);
 }
 
 function buildCurrentExportBaseCanvas(options) {
@@ -3910,8 +3924,7 @@ function buildGradientExportBaseCanvas(options) {
   const totalPercent = Math.max(1, nodes.reduce((sum, node) => sum + (node.percent || 0), 0));
 
   nodes.forEach((node) => {
-    const percentWeight = clamp((node.percent || 0) / totalPercent, 0.04, 0.9);
-    const radius = minDimension * ((0.18 + (0.46 * Math.sqrt(percentWeight))) * 2);
+    const radius = getGradientBlobRadiusForDimension(node.percent || 0, totalPercent, minDimension, node.influence);
     const x = node.x * width;
     const y = node.y * height;
     const glow = blobCtx.createRadialGradient(x, y, 0, x, y, radius);
@@ -4065,8 +4078,11 @@ function renderSavePreviewOverlay() {
   savePreviewOverlay.style.width = `${bounds.width}px`;
   savePreviewOverlay.style.height = `${bounds.height}px`;
   const fragment = document.createDocumentFragment();
+  const nodes = getMergedSaveGradientNodes();
+  const activeNode = nodes.find((node) => node.id === state.saveExport.gradientActiveId) || null;
+  const totalPercent = Math.max(1, nodes.reduce((sum, node) => sum + (node.percent || 0), 0));
 
-  getMergedSaveGradientNodes().forEach((node) => {
+  nodes.forEach((node) => {
     const handle = document.createElement("button");
     handle.className = "save-preview-node";
     handle.type = "button";
@@ -4076,7 +4092,7 @@ function renderSavePreviewOverlay() {
     handle.style.left = `${node.x * bounds.width}px`;
     handle.style.top = `${node.y * bounds.height}px`;
     handle.style.setProperty("--node-color", node.hex);
-    if (state.saveExport.gradientDragId === node.id) {
+    if (state.saveExport.gradientActiveId === node.id) {
       handle.classList.add("active");
     }
     handle.addEventListener("pointerdown", (event) => {
@@ -4084,6 +4100,37 @@ function renderSavePreviewOverlay() {
     });
     fragment.appendChild(handle);
   });
+
+  if (activeNode) {
+    const influenceRadius = getGradientBlobRadiusForDimension(
+      activeNode.percent || 0,
+      totalPercent,
+      Math.min(bounds.width, bounds.height),
+      activeNode.influence,
+    );
+    const centerX = activeNode.x * bounds.width;
+    const centerY = activeNode.y * bounds.height;
+    const ring = document.createElement("div");
+    ring.className = "save-preview-influence-ring";
+    ring.style.left = `${centerX}px`;
+    ring.style.top = `${centerY}px`;
+    ring.style.width = `${influenceRadius * 2}px`;
+    ring.style.height = `${influenceRadius * 2}px`;
+    fragment.appendChild(ring);
+
+    const radiusHandle = document.createElement("button");
+    radiusHandle.className = "save-preview-influence-handle";
+    radiusHandle.type = "button";
+    radiusHandle.dataset.nodeId = activeNode.id;
+    radiusHandle.setAttribute("aria-label", `${activeNode.hex} influence radius`);
+    radiusHandle.title = `${activeNode.hex} influence radius`;
+    radiusHandle.style.left = `${centerX + influenceRadius}px`;
+    radiusHandle.style.top = `${centerY}px`;
+    radiusHandle.addEventListener("pointerdown", (event) => {
+      startSaveGradientInfluenceDrag(event, activeNode.id);
+    });
+    fragment.appendChild(radiusHandle);
+  }
 
   savePreviewOverlay.appendChild(fragment);
 }
@@ -4154,6 +4201,25 @@ function updateSaveGradientNodeFromClientPosition(clientX, clientY) {
   node.y = clamp((clientY - bounds.top) / Math.max(1, bounds.height), 0, 1);
 }
 
+function updateSaveGradientNodeInfluenceFromClientPosition(clientX, clientY) {
+  const bounds = getSavePreviewOverlayBounds();
+  if (!bounds || !state.saveExport.gradientDragId) {
+    return;
+  }
+
+  const node = state.saveExport.gradientNodes.find((entry) => entry.id === state.saveExport.gradientDragId);
+  if (!node) {
+    return;
+  }
+
+  const totalPercent = Math.max(1, state.colors.reduce((sum, color) => sum + (color.percent || 0), 0));
+  const baseRadius = getGradientBlobRadiusForDimension(node.percent || 0, totalPercent, Math.min(bounds.width, bounds.height), 1);
+  const centerX = bounds.left + (clamp(node.x, 0, 1) * bounds.width);
+  const centerY = bounds.top + (clamp(node.y, 0, 1) * bounds.height);
+  const distance = Math.hypot(clientX - centerX, clientY - centerY);
+  node.influence = clamp(distance / Math.max(1, baseRadius), EXPORT_GRADIENT_INFLUENCE_MIN, EXPORT_GRADIENT_INFLUENCE_MAX);
+}
+
 function startSaveGradientNodeDrag(event, id) {
   if (state.saveExport.layout !== EXPORT_LAYOUT_GRADIENT || saveModal.classList.contains("hidden")) {
     return;
@@ -4161,10 +4227,28 @@ function startSaveGradientNodeDrag(event, id) {
 
   event.preventDefault();
   event.stopPropagation();
+  state.saveExport.gradientActiveId = id;
   state.saveExport.gradientDragId = id;
+  state.saveExport.gradientDragMode = "position";
   state.saveExport.gradientDragPointerId = event.pointerId ?? null;
   lockPageScroll(SCROLL_LOCK_SAVE_GRADIENT_DRAG);
   updateSaveGradientNodeFromClientPosition(event.clientX, event.clientY);
+  scheduleSavePreviewRender();
+}
+
+function startSaveGradientInfluenceDrag(event, id) {
+  if (state.saveExport.layout !== EXPORT_LAYOUT_GRADIENT || saveModal.classList.contains("hidden")) {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+  state.saveExport.gradientActiveId = id;
+  state.saveExport.gradientDragId = id;
+  state.saveExport.gradientDragMode = "influence";
+  state.saveExport.gradientDragPointerId = event.pointerId ?? null;
+  lockPageScroll(SCROLL_LOCK_SAVE_GRADIENT_DRAG);
+  updateSaveGradientNodeInfluenceFromClientPosition(event.clientX, event.clientY);
   scheduleSavePreviewRender();
 }
 
@@ -4174,7 +4258,11 @@ function handleSaveGradientNodeDrag(event) {
   }
 
   event.preventDefault();
-  updateSaveGradientNodeFromClientPosition(event.clientX, event.clientY);
+  if (state.saveExport.gradientDragMode === "influence") {
+    updateSaveGradientNodeInfluenceFromClientPosition(event.clientX, event.clientY);
+  } else {
+    updateSaveGradientNodeFromClientPosition(event.clientX, event.clientY);
+  }
   scheduleSavePreviewRender();
 }
 
@@ -4184,6 +4272,7 @@ function endSaveGradientNodeDrag() {
   }
 
   state.saveExport.gradientDragId = null;
+  state.saveExport.gradientDragMode = null;
   state.saveExport.gradientDragPointerId = null;
   unlockPageScroll(SCROLL_LOCK_SAVE_GRADIENT_DRAG);
   renderSavePreviewOverlay();

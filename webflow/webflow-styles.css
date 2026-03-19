@@ -2009,6 +2009,31 @@
   transform: translate(-50%, -50%) scale(1.05);
 }
 
+.webflow-palette-embed .save-preview-influence-ring {
+  position: absolute;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(248, 246, 242, 0.9);
+  box-shadow: 0 0 0 1px rgba(10, 12, 15, 0.38);
+  pointer-events: none;
+}
+
+.webflow-palette-embed .save-preview-influence-handle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(248, 246, 242, 0.92);
+  background: rgba(248, 246, 242, 0.96);
+  box-shadow:
+    0 0 0 1px rgba(10, 12, 15, 0.32),
+    0 6px 12px rgba(0, 0, 0, 0.18);
+  cursor: ew-resize;
+  pointer-events: auto;
+}
+
 .webflow-palette-embed .save-preview-empty {
   margin: 0;
   color: var(--muted);
