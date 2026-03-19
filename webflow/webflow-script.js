@@ -280,21 +280,20 @@ ${getHarmonizePanelMarkup()}
   <div data-role="save-modal" class="save-modal hidden" aria-hidden="true">
     <div class="save-modal-panel" role="dialog" aria-modal="true" aria-label="Export options">
       <div class="save-modal-head">
-        <div>
+        <div class="save-modal-title">
           <h2>Export</h2>
+        </div>
+        <div class="save-modal-tabs" role="tablist" aria-label="Export styles">
+          <button class="save-option-button save-option-button--tab" type="button" data-save-style="current">Default</button>
+          <button class="save-option-button save-option-button--tab" type="button" data-save-style="strip">Swatches</button>
+          <button class="save-option-button save-option-button--tab" type="button" data-save-style="wheel">Colour wheel</button>
+          <button class="save-option-button save-option-button--tab" type="button" data-save-style="gradient">Gradient map</button>
         </div>
         <button class="save-close" type="button" data-action="save-close" aria-label="Close export options">X</button>
       </div>
       <div data-role="save-content" class="save-modal-content">
-        <div class="save-controls">
-          <section class="save-control-group">
-            <span class="save-control-label">Style</span>
-            <div class="save-option-row">
-              <button class="save-option-button" type="button" data-save-style="current">Default</button>
-              <button class="save-option-button" type="button" data-save-style="strip">Swatches</button>
-              <button class="save-option-button" type="button" data-save-style="wheel">Colour wheel</button>
-              <button class="save-option-button" type="button" data-save-style="gradient">Gradient map</button>
-            </div>
+        <div class="save-workspace">
+          <div class="save-controls">
             <div class="save-style-settings" data-role="save-style-settings">
               <label data-role="save-nodes-row" class="save-toggle" hidden>
                 <input data-role="save-strip-nodes" type="checkbox">
@@ -305,21 +304,21 @@ ${getHarmonizePanelMarkup()}
                 <button class="save-option-button save-option-button--secondary" type="button" data-action="save-gradient-reset">Reset nodes</button>
               </section>
             </div>
-          </section>
-          <section class="save-control-group save-control-group--sizes">
-            <span class="save-control-label">Size</span>
-            <div class="save-option-row save-option-row-sizes">
-              <button class="save-option-button" type="button" data-save-size="1000">1k</button>
-              <button class="save-option-button" type="button" data-save-size="2000">2k</button>
-              <button class="save-option-button" type="button" data-save-size="3000">3k</button>
-              <button class="save-option-button" type="button" data-save-size="4000">4k</button>
-            </div>
-          </section>
-        </div>
-        <div class="save-preview-shell">
-          <canvas data-role="save-preview-canvas" aria-label="Export preview"></canvas>
-          <div data-role="save-preview-overlay" class="save-preview-overlay" hidden></div>
-          <p data-role="save-preview-empty" class="save-preview-empty" hidden></p>
+            <section class="save-control-group save-control-group--sizes">
+              <span class="save-control-label">Size</span>
+              <div class="save-option-row save-option-row-sizes">
+                <button class="save-option-button" type="button" data-save-size="1000">1k</button>
+                <button class="save-option-button" type="button" data-save-size="2000">2k</button>
+                <button class="save-option-button" type="button" data-save-size="3000">3k</button>
+                <button class="save-option-button" type="button" data-save-size="4000">4k</button>
+              </div>
+            </section>
+          </div>
+          <div class="save-preview-shell">
+            <canvas data-role="save-preview-canvas" aria-label="Export preview"></canvas>
+            <div data-role="save-preview-overlay" class="save-preview-overlay" hidden></div>
+            <p data-role="save-preview-empty" class="save-preview-empty" hidden></p>
+          </div>
         </div>
       </div>
     </div>
