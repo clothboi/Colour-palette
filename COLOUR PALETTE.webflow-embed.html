@@ -1808,6 +1808,10 @@
   gap: 8px;
 }
 
+.webflow-palette-embed .save-option-row-sizes {
+  flex-wrap: nowrap;
+}
+
 .webflow-palette-embed .save-style-settings {
   display: grid;
   gap: 10px;
@@ -1858,6 +1862,7 @@
 
 .webflow-palette-embed .save-option-row-sizes .save-option-button {
   flex: 1 1 calc(25% - 6px);
+  min-width: 0;
 }
 
 .webflow-palette-embed .save-option-row-inline .save-option-button {
@@ -2275,7 +2280,8 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .save-option-row-sizes .save-option-button {
-  flex: 1 1 calc(50% - 4px);
+  flex: 1 1 calc(25% - 6px);
+  min-width: 0;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .save-style-inline {
