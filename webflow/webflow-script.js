@@ -60,13 +60,13 @@ function getMobilePaletteSummaryControlsMarkup() {
 
 function getHarmonizeSchemeSectionMarkup() {
   return `
-          <section class="palette-harmonize-card">
+          <section class="palette-harmonize-card palette-harmonize-card--scheme">
             <div class="palette-harmonize-card-head">
               <h4 class="palette-harmonize-card-title">Colour scheme</h4>
             </div>
             <div class="palette-harmonize-card-body">
               <div class="palette-harmonize-section-head palette-harmonize-section-head--inline">
-                <div class="palette-harmonize-select-wrap">
+                <div class="palette-harmonize-select-wrap" data-inline-label="Colour scheme">
                   <select class="palette-harmonize-select" data-role="harmonize-scheme-select" aria-label="Choose a harmony scheme">
 ${getHarmonizeSchemeOptionsMarkup()}
                   </select>
@@ -79,7 +79,7 @@ ${getHarmonizeSchemeOptionsMarkup()}
 
 function getHarmonizeBalanceSectionMarkup() {
   return `
-          <section class="palette-harmonize-card">
+          <section class="palette-harmonize-card palette-harmonize-card--balance">
             <div class="palette-harmonize-card-head">
               <h4 class="palette-harmonize-card-title">Palette balance</h4>
             </div>
@@ -111,7 +111,7 @@ function getHarmonizeBalanceSectionMarkup() {
 
 function getHarmonizeRailActionsMarkup(title = "Anchor and settings") {
   return `
-          <section class="palette-harmonize-card">
+          <section class="palette-harmonize-card palette-harmonize-card--actions">
             <div class="palette-harmonize-card-head">
               <h4 class="palette-harmonize-card-title">${title}</h4>
             </div>
