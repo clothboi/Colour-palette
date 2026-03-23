@@ -46,7 +46,6 @@ function getPaletteControlsMarkup(extraClass = "") {
 function getMobilePaletteSummaryControlsMarkup() {
   return `
               <div class="mobile-palette-rail__header-row">
-                <button class="palette-harmonize-toggle mobile-palette-rail__harmonize" type="button" data-action="toggle-harmonize" aria-expanded="false">Harmonise</button>
                 <div class="mobile-palette-rail__stepper palette-toolbar-stepper">
                   <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
                   <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>

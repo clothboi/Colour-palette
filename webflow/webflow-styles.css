@@ -890,7 +890,7 @@
 
 .webflow-palette-embed .mobile-palette-rail__header-row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--mobile-rail-gap);
   align-items: center;
   min-width: 0;
