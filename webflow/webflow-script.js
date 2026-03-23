@@ -46,16 +46,16 @@ function getPaletteControlsMarkup(extraClass = "") {
 function getMobilePaletteSummaryControlsMarkup() {
   return `
               <div class="mobile-palette-rail__header-row">
-                <button class="mobile-palette-rail__open palette-drawer-open" type="button" data-action="palette-drawer-open" aria-label="Open palette rail" aria-expanded="false">
-                  <span class="palette-drawer-open__label">Open Palette</span>
-                </button>
+                <button class="palette-harmonize-toggle mobile-palette-rail__harmonize" type="button" data-action="toggle-harmonize" aria-expanded="false">Harmonise</button>
                 <div class="mobile-palette-rail__stepper palette-toolbar-stepper">
                   <button class="palette-button" type="button" data-action="palette-minus" aria-label="Decrease palette size">-</button>
                   <span data-role="palette-size-label" class="palette-size-label">Palette: 4</span>
                   <button class="palette-button" type="button" data-action="palette-plus" aria-label="Increase palette size">+</button>
                 </div>
               </div>
-              <button class="palette-harmonize-toggle mobile-palette-rail__harmonize" type="button" data-action="toggle-harmonize" aria-expanded="false">Harmonise</button>`;
+              <button class="mobile-palette-rail__open palette-drawer-open" type="button" data-action="palette-drawer-open" aria-label="Open palette rail" aria-expanded="false" hidden>
+                <span class="palette-drawer-open__label">Open Palette</span>
+              </button>`;
 }
 
 function getHarmonizeSchemeSectionMarkup() {

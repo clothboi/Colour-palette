@@ -2770,6 +2770,14 @@
   font-size: 0.74rem;
 }
 
+.webflow-palette-embed[data-mobile-layout="true"] .mobile-palette-rail__header-row .palette-harmonize-toggle {
+  width: auto;
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+}
+
 .webflow-palette-embed[data-mobile-layout="true"] .palette-toolbar-controls .palette-button {
   width: 44px;
   flex-basis: 44px;
