@@ -2273,8 +2273,8 @@
 
 .webflow-palette-embed .save-preview-node {
   position: absolute;
-  width: 32px;
-  height: 32px;
+  width: 16px;
+  height: 16px;
   padding: 0;
   border-radius: 999px;
   transform: translate(-50%, -50%);
@@ -2290,7 +2290,7 @@
 .webflow-palette-embed .save-preview-node::before {
   content: "";
   position: absolute;
-  inset: 8px;
+  inset: 4px;
   border-radius: 999px;
   background: var(--node-color, #f2efe8);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -2308,13 +2308,14 @@
   transform: translate(-50%, -50%);
   border: 1px solid rgba(248, 246, 242, 0.9);
   box-shadow: 0 0 0 1px rgba(10, 12, 15, 0.38);
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: ew-resize;
 }
 
 .webflow-palette-embed .save-preview-influence-handle {
   position: absolute;
-  width: 14px;
-  height: 14px;
+  width: 7px;
+  height: 7px;
   padding: 0;
   border-radius: 999px;
   transform: translate(-50%, -50%);

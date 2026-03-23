@@ -4342,6 +4342,9 @@ function renderSavePreviewOverlay() {
     ring.style.top = `${centerY}px`;
     ring.style.width = `${influenceRadius * 2}px`;
     ring.style.height = `${influenceRadius * 2}px`;
+    ring.addEventListener("pointerdown", (event) => {
+      startSaveGradientInfluenceDrag(event, activeNode.id);
+    });
     fragment.appendChild(ring);
 
     const radiusHandle = document.createElement("button");
