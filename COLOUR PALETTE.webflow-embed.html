@@ -7235,38 +7235,73 @@ function buildGradientExportBaseCanvas(options) {
   exportCtx.fillStyle = vignette;
   exportCtx.fillRect(0, 0, width, height);
 
-  const blobCanvas = document.createElement("canvas");
-  blobCanvas.width = width;
-  blobCanvas.height = height;
-  const blobCtx = blobCanvas.getContext("2d");
   const totalPercent = Math.max(1, nodes.reduce((sum, node) => sum + (node.percent || 0), 0));
 
-  nodes.forEach((node) => {
-    const radius = getGradientBlobRadiusForDimension(node.percent || 0, totalPercent, minDimension, node.influence);
-    const x = node.x * width;
-    const y = node.y * height;
-    const glow = blobCtx.createRadialGradient(x, y, 0, x, y, radius);
-    glow.addColorStop(0, `rgba(${node.r}, ${node.g}, ${node.b}, 0.96)`);
-    glow.addColorStop(0.38, `rgba(${node.r}, ${node.g}, ${node.b}, 0.72)`);
-    glow.addColorStop(0.72, `rgba(${node.r}, ${node.g}, ${node.b}, 0.28)`);
-    glow.addColorStop(1, `rgba(${node.r}, ${node.g}, ${node.b}, 0)`);
-    blobCtx.fillStyle = glow;
-    blobCtx.beginPath();
-    blobCtx.arc(x, y, radius, 0, Math.PI * 2);
-    blobCtx.fill();
+  const blobScale = 4;
+  const bw = Math.ceil(width / blobScale);
+  const bh = Math.ceil(height / blobScale);
+  const blobCanvas = document.createElement("canvas");
+  blobCanvas.width = bw;
+  blobCanvas.height = bh;
+  const blobCtx = blobCanvas.getContext("2d");
+  const blobMinDim = Math.min(bw, bh);
+
+  const gaussNodes = nodes.map((node) => {
+    const sigma = getGradientBlobRadiusForDimension(node.percent || 0, totalPercent, blobMinDim, node.influence);
+    return {
+      x: node.x * bw,
+      y: node.y * bh,
+      r: node.r,
+      g: node.g,
+      b: node.b,
+      twoSigmaSq: 2 * sigma * sigma,
+    };
   });
+
+  const imageData = blobCtx.createImageData(bw, bh);
+  const data = imageData.data;
+
+  for (let py = 0; py < bh; py++) {
+    for (let px = 0; px < bw; px++) {
+      let totalWeight = 0;
+      let maxWeight = 0;
+      let r = 0;
+      let g = 0;
+      let b = 0;
+      for (let i = 0; i < gaussNodes.length; i++) {
+        const n = gaussNodes[i];
+        const dx = px - n.x;
+        const dy = py - n.y;
+        const w = Math.exp(-(dx * dx + dy * dy) / n.twoSigmaSq);
+        totalWeight += w;
+        if (w > maxWeight) maxWeight = w;
+        r += w * n.r;
+        g += w * n.g;
+        b += w * n.b;
+      }
+      const idx = (py * bw + px) * 4;
+      if (totalWeight > 0) {
+        data[idx]     = r / totalWeight;
+        data[idx + 1] = g / totalWeight;
+        data[idx + 2] = b / totalWeight;
+      }
+      data[idx + 3] = Math.min(255, Math.sqrt(maxWeight) * 255);
+    }
+  }
+
+  blobCtx.putImageData(imageData, 0, 0);
 
   exportCtx.save();
   exportCtx.globalCompositeOperation = "screen";
   exportCtx.filter = `blur(${Math.max(28, Math.round(minDimension * 0.06))}px) saturate(118%)`;
-  exportCtx.drawImage(blobCanvas, 0, 0);
+  exportCtx.drawImage(blobCanvas, 0, 0, width, height);
   exportCtx.restore();
 
   exportCtx.save();
   exportCtx.globalCompositeOperation = "screen";
   exportCtx.globalAlpha = 0.32;
   exportCtx.filter = `blur(${Math.max(10, Math.round(minDimension * 0.018))}px)`;
-  exportCtx.drawImage(blobCanvas, 0, 0);
+  exportCtx.drawImage(blobCanvas, 0, 0, width, height);
   exportCtx.restore();
 
   exportCtx.save();
