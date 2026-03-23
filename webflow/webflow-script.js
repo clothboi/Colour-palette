@@ -4855,10 +4855,8 @@ function startDrag(event, id) {
   const swatch = state.swatches.find((entry) => entry.id === id);
   if (!swatch) return;
   swatch.element.classList.add("active");
-  if (state.dragPointerType !== "touch") {
-    lockPageScroll(SCROLL_LOCK_SWATCH_DRAG);
-  }
-  if (event.pointerId !== undefined && state.dragPointerType !== "touch") {
+  lockPageScroll(SCROLL_LOCK_SWATCH_DRAG);
+  if (event.pointerId !== undefined) {
     swatch.element.setPointerCapture(event.pointerId);
   }
   const point = getPointFromEvent(event);
@@ -4934,9 +4932,7 @@ function endDrag() {
     updateSwatchColor(swatch);
   }
   destroyDragLens();
-  if (state.dragPointerType !== "touch") {
-    unlockPageScroll(SCROLL_LOCK_SWATCH_DRAG);
-  }
+  unlockPageScroll(SCROLL_LOCK_SWATCH_DRAG);
   state.dragId = null;
   state.dragPointerType = null;
   setHoveredColor(null);
