@@ -4342,10 +4342,32 @@ function renderSavePreviewOverlay() {
     ring.style.top = `${centerY}px`;
     ring.style.width = `${influenceRadius * 2}px`;
     ring.style.height = `${influenceRadius * 2}px`;
-    ring.addEventListener("pointerdown", (event) => {
+    fragment.appendChild(ring);
+
+    const svgNS = "http://www.w3.org/2000/svg";
+    const ringHitSvg = document.createElementNS(svgNS, "svg");
+    ringHitSvg.style.position = "absolute";
+    ringHitSvg.style.left = `${centerX}px`;
+    ringHitSvg.style.top = `${centerY}px`;
+    ringHitSvg.style.transform = "translate(-50%, -50%)";
+    ringHitSvg.style.overflow = "visible";
+    ringHitSvg.style.pointerEvents = "none";
+    ringHitSvg.setAttribute("width", influenceRadius * 2);
+    ringHitSvg.setAttribute("height", influenceRadius * 2);
+    const ringHitCircle = document.createElementNS(svgNS, "circle");
+    ringHitCircle.setAttribute("cx", influenceRadius);
+    ringHitCircle.setAttribute("cy", influenceRadius);
+    ringHitCircle.setAttribute("r", influenceRadius);
+    ringHitCircle.setAttribute("fill", "none");
+    ringHitCircle.setAttribute("stroke", "transparent");
+    ringHitCircle.setAttribute("stroke-width", "20");
+    ringHitCircle.style.pointerEvents = "stroke";
+    ringHitCircle.style.cursor = "ew-resize";
+    ringHitCircle.addEventListener("pointerdown", (event) => {
       startSaveGradientInfluenceDrag(event, activeNode.id);
     });
-    fragment.appendChild(ring);
+    ringHitSvg.appendChild(ringHitCircle);
+    fragment.appendChild(ringHitSvg);
 
     const radiusHandle = document.createElement("button");
     radiusHandle.className = "save-preview-influence-handle";
@@ -5161,6 +5183,13 @@ harmonizeApplyButtons.forEach((button) => {
 });
 root.addEventListener("pointerdown", handleHarmonizeOutsidePointerDown, true);
 root.addEventListener("pointerdown", handleSettingsOutsidePointerDown, true);
+savePreviewOverlay.addEventListener("pointerdown", (event) => {
+  if (event.target.closest(".save-preview-node")) return;
+  if (state.saveExport.gradientActiveId === null) return;
+  state.saveExport.gradientActiveId = null;
+  renderSavePreviewOverlay();
+  scheduleSavePreviewRender();
+});
 canvasWrap.addEventListener("dragover", (event) => event.preventDefault());
 canvasWrap.addEventListener("drop", async (event) => {
   event.preventDefault();
