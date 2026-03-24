@@ -2557,19 +2557,19 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .app-shell {
-  width: calc(100% - 10px);
-  height: calc(100vh - 10px);
-  height: calc(100dvh - 10px);
-  min-height: calc(100vh - 10px);
-  min-height: calc(100dvh - 10px);
-  margin: 5px auto;
-  padding: 5px;
+  width: calc(100% - 16px);
+  height: calc(100vh - 16px);
+  height: calc(100dvh - 16px);
+  min-height: calc(100vh - 16px);
+  min-height: calc(100dvh - 16px);
+  margin: 8px auto;
+  padding: 8px;
   overflow: hidden;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .workspace {
   grid-template-columns: 1fr;
-  gap: 10px;
+  gap: var(--space-2);
   height: 100%;
   min-height: 0;
   overflow: hidden;
