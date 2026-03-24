@@ -2287,6 +2287,7 @@
     0 8px 18px rgba(0, 0, 0, 0.24);
   cursor: grab;
   pointer-events: auto;
+  touch-action: none;
 }
 
 .webflow-palette-embed .save-preview-node::before {
@@ -2327,6 +2328,33 @@
     0 6px 12px rgba(0, 0, 0, 0.18);
   cursor: ew-resize;
   pointer-events: auto;
+  touch-action: none;
+}
+
+.webflow-palette-embed .save-preview-saturation-ring {
+  position: absolute;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  border: 1px dashed rgba(248, 246, 242, 0.6);
+  box-shadow: 0 0 0 1px rgba(10, 12, 15, 0.24);
+  pointer-events: none;
+}
+
+.webflow-palette-embed .save-preview-saturation-handle {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(200, 220, 255, 0.92);
+  background: rgba(180, 210, 255, 0.96);
+  box-shadow:
+    0 0 0 1px rgba(10, 12, 15, 0.32),
+    0 6px 12px rgba(0, 0, 0, 0.18);
+  cursor: ns-resize;
+  pointer-events: auto;
+  touch-action: none;
 }
 
 .webflow-palette-embed .save-preview-empty {
@@ -2689,7 +2717,8 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .save-modal-content {
-  padding: 0;
+  padding: 8px;
+  gap: 8px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .canvas-wrap {
@@ -3595,6 +3624,8 @@ const EXPORT_PREVIEW_LONGEST_EDGE = 1200;
 const EXPORT_SIZE_PRESETS = [1000, 2000, 3000, 4000];
 const EXPORT_GRADIENT_INFLUENCE_MIN = 0.35;
 const EXPORT_GRADIENT_INFLUENCE_MAX = 2.5;
+const EXPORT_GRADIENT_SATURATION_MIN = 0.1;
+const EXPORT_GRADIENT_SATURATION_MAX = 2.5;
 const EXPORT_LAYOUT_META = {
   [EXPORT_LAYOUT_CURRENT]: {
     label: "Default",
@@ -4387,6 +4418,9 @@ const renderProfile = (() => {
     grainAmount: isIOSDevice ? 14 : 18,
     minReducedWidth: isIOSDevice ? 20 : 14,
     minReducedHeight: isIOSDevice ? 28 : 20,
+    // Gradient export: iOS Safari renders canvas filter blur heavier — compensate
+    gradientBlurBoost: isIOSDevice ? 0.82 : 1,
+    gradientSaturateBoost: isIOSDevice ? 108 : 118,
   };
 })();
 
@@ -6920,7 +6954,8 @@ function createSaveGradientNodeSnapshot() {
     id: color.id,
     x: clamp(typeof color.x === "number" ? color.x : 0.5, 0, 1),
     y: clamp(typeof color.y === "number" ? color.y : 0.5, 0, 1),
-    influence: 1,
+    influence: 0.5,
+    saturation: 1,
     percent: color.percent,
     hex: color.hex,
   }));
@@ -6948,7 +6983,8 @@ function getMergedSaveGradientNodes() {
       id: node.id,
       x: clamp(typeof node.x === "number" ? node.x : 0.5, 0, 1),
       y: clamp(typeof node.y === "number" ? node.y : 0.5, 0, 1),
-      influence: clamp(typeof node.influence === "number" ? node.influence : 1, EXPORT_GRADIENT_INFLUENCE_MIN, EXPORT_GRADIENT_INFLUENCE_MAX),
+      influence: clamp(typeof node.influence === "number" ? node.influence : 0.5, EXPORT_GRADIENT_INFLUENCE_MIN, EXPORT_GRADIENT_INFLUENCE_MAX),
+      saturation: clamp(typeof node.saturation === "number" ? node.saturation : 1, EXPORT_GRADIENT_SATURATION_MIN, EXPORT_GRADIENT_SATURATION_MAX),
       percent: color ? color.percent : node.percent,
       hex: color ? color.hex : node.hex,
       r: color ? color.r : 0,
@@ -7248,12 +7284,14 @@ function buildGradientExportBaseCanvas(options) {
 
   const gaussNodes = nodes.map((node) => {
     const sigma = getGradientBlobRadiusForDimension(node.percent || 0, totalPercent, blobMinDim, node.influence);
+    const sat = node.saturation ?? 1;
+    const grey = (node.r + node.g + node.b) / 3;
     return {
       x: node.x * bw,
       y: node.y * bh,
-      r: node.r,
-      g: node.g,
-      b: node.b,
+      r: clamp(grey + (node.r - grey) * sat, 0, 255),
+      g: clamp(grey + (node.g - grey) * sat, 0, 255),
+      b: clamp(grey + (node.b - grey) * sat, 0, 255),
       twoSigmaSq: 2 * sigma * sigma,
     };
   });
@@ -7293,7 +7331,7 @@ function buildGradientExportBaseCanvas(options) {
 
   exportCtx.save();
   exportCtx.globalCompositeOperation = "screen";
-  exportCtx.filter = `blur(${Math.max(28, Math.round(minDimension * 0.06))}px) saturate(118%)`;
+  exportCtx.filter = `blur(${Math.max(28, Math.round(minDimension * 0.06 * renderProfile.gradientBlurBoost))}px) saturate(${renderProfile.gradientSaturateBoost}%)`;
   exportCtx.drawImage(blobCanvas, 0, 0, width, height);
   exportCtx.restore();
 
@@ -7424,6 +7462,7 @@ function renderSavePreviewOverlay() {
   savePreviewOverlay.style.top = `${bounds.offsetTop}px`;
   savePreviewOverlay.style.width = `${bounds.width}px`;
   savePreviewOverlay.style.height = `${bounds.height}px`;
+  savePreviewOverlay.style.touchAction = "none";
   const fragment = document.createDocumentFragment();
   const nodes = getMergedSaveGradientNodes();
   const activeNode = nodes.find((node) => node.id === state.saveExport.gradientActiveId) || null;
@@ -7502,6 +7541,53 @@ function renderSavePreviewOverlay() {
       startSaveGradientInfluenceDrag(event, activeNode.id);
     });
     fragment.appendChild(radiusHandle);
+
+    // Inner saturation ring
+    const saturationRadius = clamp(influenceRadius * 0.35 * activeNode.saturation, 14, influenceRadius * 0.85);
+    const satRing = document.createElement("div");
+    satRing.className = "save-preview-saturation-ring";
+    satRing.style.left = `${centerX}px`;
+    satRing.style.top = `${centerY}px`;
+    satRing.style.width = `${saturationRadius * 2}px`;
+    satRing.style.height = `${saturationRadius * 2}px`;
+    fragment.appendChild(satRing);
+
+    const satHitSvg = document.createElementNS(svgNS, "svg");
+    satHitSvg.style.position = "absolute";
+    satHitSvg.style.left = `${centerX}px`;
+    satHitSvg.style.top = `${centerY}px`;
+    satHitSvg.style.transform = "translate(-50%, -50%)";
+    satHitSvg.style.overflow = "visible";
+    satHitSvg.style.pointerEvents = "none";
+    satHitSvg.setAttribute("width", saturationRadius * 2);
+    satHitSvg.setAttribute("height", saturationRadius * 2);
+    const satHitCircle = document.createElementNS(svgNS, "circle");
+    satHitCircle.setAttribute("cx", saturationRadius);
+    satHitCircle.setAttribute("cy", saturationRadius);
+    satHitCircle.setAttribute("r", saturationRadius);
+    satHitCircle.setAttribute("fill", "none");
+    satHitCircle.setAttribute("stroke", "transparent");
+    satHitCircle.setAttribute("stroke-width", "20");
+    satHitCircle.style.pointerEvents = "stroke";
+    satHitCircle.style.cursor = "ns-resize";
+    satHitCircle.addEventListener("pointerdown", (event) => {
+      startSaveGradientSaturationDrag(event, activeNode.id);
+    });
+    satHitSvg.appendChild(satHitCircle);
+    fragment.appendChild(satHitSvg);
+
+    const satHandle = document.createElement("button");
+    satHandle.className = "save-preview-saturation-handle";
+    satHandle.type = "button";
+    satHandle.dataset.nodeId = activeNode.id;
+    satHandle.setAttribute("aria-label", `${activeNode.hex} saturation`);
+    satHandle.title = `${activeNode.hex} saturation`;
+    satHandle.style.left = `${centerX}px`;
+    satHandle.style.top = `${centerY - saturationRadius}px`;
+    satHandle.addEventListener("pointerdown", (event) => {
+      startSaveGradientSaturationDrag(event, activeNode.id);
+    });
+    fragment.appendChild(satHandle);
   }
 
   savePreviewOverlay.appendChild(fragment);
@@ -7626,6 +7712,42 @@ function startSaveGradientInfluenceDrag(event, id) {
   scheduleSavePreviewRender();
 }
 
+function updateSaveGradientNodeSaturationFromClientPosition(clientX, clientY) {
+  const bounds = getSavePreviewOverlayBounds();
+  if (!bounds || !state.saveExport.gradientDragId) {
+    return;
+  }
+
+  const node = state.saveExport.gradientNodes.find((entry) => entry.id === state.saveExport.gradientDragId);
+  if (!node) {
+    return;
+  }
+
+  const totalPercent = Math.max(1, state.colors.reduce((sum, color) => sum + (color.percent || 0), 0));
+  const influenceDisplayRadius = getGradientInfluenceDisplayRadius(node.percent || 0, totalPercent, Math.min(bounds.width, bounds.height), node.influence ?? 0.5);
+  const baseRadius = influenceDisplayRadius * 0.35;
+  const centerX = bounds.left + (clamp(node.x, 0, 1) * bounds.width);
+  const centerY = bounds.top + (clamp(node.y, 0, 1) * bounds.height);
+  const distance = Math.hypot(clientX - centerX, clientY - centerY);
+  node.saturation = clamp(distance / Math.max(1, baseRadius), EXPORT_GRADIENT_SATURATION_MIN, EXPORT_GRADIENT_SATURATION_MAX);
+}
+
+function startSaveGradientSaturationDrag(event, id) {
+  if (state.saveExport.layout !== EXPORT_LAYOUT_GRADIENT || saveModal.classList.contains("hidden")) {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+  state.saveExport.gradientActiveId = id;
+  state.saveExport.gradientDragId = id;
+  state.saveExport.gradientDragMode = "saturation";
+  state.saveExport.gradientDragPointerId = event.pointerId ?? null;
+  lockPageScroll(SCROLL_LOCK_SAVE_GRADIENT_DRAG);
+  updateSaveGradientNodeSaturationFromClientPosition(event.clientX, event.clientY);
+  scheduleSavePreviewRender();
+}
+
 function handleSaveGradientNodeDrag(event) {
   if (!state.saveExport.gradientDragId) {
     return;
@@ -7634,6 +7756,8 @@ function handleSaveGradientNodeDrag(event) {
   event.preventDefault();
   if (state.saveExport.gradientDragMode === "influence") {
     updateSaveGradientNodeInfluenceFromClientPosition(event.clientX, event.clientY);
+  } else if (state.saveExport.gradientDragMode === "saturation") {
+    updateSaveGradientNodeSaturationFromClientPosition(event.clientX, event.clientY);
   } else {
     updateSaveGradientNodeFromClientPosition(event.clientX, event.clientY);
   }

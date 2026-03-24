@@ -2285,6 +2285,7 @@
     0 8px 18px rgba(0, 0, 0, 0.24);
   cursor: grab;
   pointer-events: auto;
+  touch-action: none;
 }
 
 .webflow-palette-embed .save-preview-node::before {
@@ -2325,6 +2326,33 @@
     0 6px 12px rgba(0, 0, 0, 0.18);
   cursor: ew-resize;
   pointer-events: auto;
+  touch-action: none;
+}
+
+.webflow-palette-embed .save-preview-saturation-ring {
+  position: absolute;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  border: 1px dashed rgba(248, 246, 242, 0.6);
+  box-shadow: 0 0 0 1px rgba(10, 12, 15, 0.24);
+  pointer-events: none;
+}
+
+.webflow-palette-embed .save-preview-saturation-handle {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(200, 220, 255, 0.92);
+  background: rgba(180, 210, 255, 0.96);
+  box-shadow:
+    0 0 0 1px rgba(10, 12, 15, 0.32),
+    0 6px 12px rgba(0, 0, 0, 0.18);
+  cursor: ns-resize;
+  pointer-events: auto;
+  touch-action: none;
 }
 
 .webflow-palette-embed .save-preview-empty {
@@ -2687,7 +2715,8 @@
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .save-modal-content {
-  padding: 0;
+  padding: 8px;
+  gap: 8px;
 }
 
 .webflow-palette-embed[data-mobile-layout="true"] .canvas-wrap {
